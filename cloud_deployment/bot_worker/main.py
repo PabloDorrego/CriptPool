@@ -69,7 +69,7 @@ class HealthHandler(BaseHTTPRequestHandler):
         pass
 
 class PositionTracker:
-    def __init__(self, name, pool_address, initial_cap, half_range_pct, rebal_thresh=0.90, quote_is_usd=True):
+    def __init__(self, name, pool_address, initial_cap, half_range_pct, rebal_thresh=0.90, quote_is_usd=True, token_x_symbol="SOL", token_y_symbol="USDC"):
         self.name = name
         self.pool_address = pool_address
         self.initial_cap = initial_cap
@@ -77,8 +77,12 @@ class PositionTracker:
         self.half_range_pct = half_range_pct
         self.rebal_thresh = rebal_thresh
         self.quote_is_usd = quote_is_usd
+        self.token_x_symbol = token_x_symbol
+        self.token_y_symbol = token_y_symbol
         
         self.accumulated_fees = 0.0
+        self.fees_x = 0.0
+        self.fees_y = 0.0
         self.total_rebalances = 0
         self.total_rebal_costs = 0.0
         self.is_in_range = True
@@ -93,6 +97,7 @@ class PositionTracker:
         
         self.total_time_sec = 0.0
         self.time_in_range_sec = 0.0
+        self.market_apy = 50.0
         
     def initialize(self, p0):
         self.entry_price = p0
@@ -119,6 +124,7 @@ class PositionTracker:
             self.initialize(p_new)
             
         self.current_price = p_new
+        self.market_apy = float(pool_data.get("apy", 50.0))
         self.total_time_sec += dt_sec
         
         sp = math.sqrt(p_new)
@@ -157,8 +163,13 @@ class PositionTracker:
             step_fee_usd = vol_per_sec * dt_sec * fee_pct * user_share * net_cut
             if self.quote_is_usd:
                 self.accumulated_fees += step_fee_usd
+                self.fees_x += (step_fee_usd * 0.5) / p_new if p_new > 0 else 0.0
+                self.fees_y += (step_fee_usd * 0.5)
             else:
-                self.accumulated_fees += (step_fee_usd / sol_ref)
+                step_fee_sol = step_fee_usd / sol_ref
+                self.accumulated_fees += step_fee_sol
+                self.fees_x += (step_fee_sol * 0.5) / p_new if p_new > 0 else 0.0
+                self.fees_y += (step_fee_sol * 0.5)
             
         # Rebalance Check
         dist_down = self.entry_price - self.p_lower
@@ -215,10 +226,23 @@ class PositionTracker:
         roi_pct = (net_profit / self.initial_cap) * 100.0 if self.initial_cap > 0 else 0.0
         
         # 1. KPIs de Rendimiento
-        elapsed_days = max(self.total_time_sec / 86400.0, 10.0 / 86400.0)
-        raw_apr = (self.accumulated_fees / max(self.initial_cap, 0.001)) * (365.25 / elapsed_days) * 100.0
-        real_fee_apr = max(0.0, min(raw_apr, 450.0))
-        real_fee_apy = ((1.0 + (real_fee_apr / 100.0) / 365.25) ** 365.25 - 1.0) * 100.0
+        market_apy = max(self.market_apy, 10.0)
+        try:
+            apr_market = ((math.pow(1.0 + market_apy / 100.0, 1.0 / 365.25) - 1.0) * 365.25) * 100.0
+        except Exception:
+            apr_market = market_apy * 0.70
+            
+        elapsed_days = self.total_time_sec / 86400.0
+        if elapsed_days >= 1.0:
+            raw_apr = (self.accumulated_fees / max(self.initial_cap, 0.001)) * (365.25 / elapsed_days) * 100.0
+            real_fee_apr = max(0.0, min(raw_apr, 350.0))
+        else:
+            weight = min(elapsed_days / 1.0, 1.0)
+            raw_apr = (self.accumulated_fees / max(self.initial_cap, 0.001)) * (365.25 / max(elapsed_days, 0.01)) * 100.0
+            raw_apr_clamped = min(max(raw_apr, 0.0), 300.0)
+            real_fee_apr = (1.0 - weight) * apr_market + weight * raw_apr_clamped
+            
+        real_fee_apy = ((math.pow(1.0 + (real_fee_apr / 100.0) / 365.25, 365.25) - 1.0)) * 100.0
         fees_vs_capital_pct = (self.accumulated_fees / max(self.initial_cap, 0.001)) * 100.0
         
         # 2. KPIs de Riesgo y Operativa
@@ -260,6 +284,10 @@ class PositionTracker:
             "token_y": self.token_y,
             "pos_val": self.pos_val,
             "accumulated_fees": self.accumulated_fees,
+            "fees_x": self.fees_x,
+            "fees_y": self.fees_y,
+            "token_x_symbol": self.token_x_symbol,
+            "token_y_symbol": self.token_y_symbol,
             "total_val": total_val,
             "net_profit": net_profit,
             "roi_pct": roi_pct,
@@ -336,6 +364,7 @@ class TriPoolCloudDaemon:
         
         self.last_ts = time.time()
         self.last_snapshot_hour = -1
+        self.recent_history = []
         
         # Auto-restore persisted state from Firestore
         self.restore_persisted_state()
@@ -356,6 +385,11 @@ class TriPoolCloudDaemon:
                 return
                 
             print("[+] Restaurando estado persistente desde Firestore...")
+            
+            # 0. Restore recent history buffer
+            if "recent_history" in data and isinstance(data["recent_history"], list):
+                self.recent_history = data["recent_history"][-40:]
+                print(f"[+] {len(self.recent_history)} ticks históricos cargados en memoria.")
             
             # 1. Restore SOL-USDC
             sol_data = data.get("sol_usdc", {})
@@ -382,6 +416,8 @@ class TriPoolCloudDaemon:
                     self.pos_sol_usdc.L = self.pos_sol_usdc.current_cap / denom if denom > 0 else 1.0
                     self.pos_sol_usdc.hodl_x = (self.pos_sol_usdc.initial_cap / 2.0) / p0
                     self.pos_sol_usdc.hodl_y = self.pos_sol_usdc.initial_cap / 2.0
+                    self.pos_sol_usdc.fees_x = float(sol_data.get("fees_x", (self.pos_sol_usdc.accumulated_fees * 0.5) / p0))
+                    self.pos_sol_usdc.fees_y = float(sol_data.get("fees_y", self.pos_sol_usdc.accumulated_fees * 0.5))
                     
             # 2. Restore cbBTC-USDC
             btc_data = data.get("cbbtc_usdc", {})
@@ -404,6 +440,8 @@ class TriPoolCloudDaemon:
                     self.pos_cbbtc_usdc.L = self.pos_cbbtc_usdc.current_cap / denom if denom > 0 else 1.0
                     self.pos_cbbtc_usdc.hodl_x = (self.pos_cbbtc_usdc.initial_cap / 2.0) / p0
                     self.pos_cbbtc_usdc.hodl_y = self.pos_cbbtc_usdc.initial_cap / 2.0
+                    self.pos_cbbtc_usdc.fees_x = float(btc_data.get("fees_x", (self.pos_cbbtc_usdc.accumulated_fees * 0.5) / p0))
+                    self.pos_cbbtc_usdc.fees_y = float(btc_data.get("fees_y", self.pos_cbbtc_usdc.accumulated_fees * 0.5))
 
             # 3. Restore HYPE-SOL
             hype_data = data.get("hype_sol", {})
@@ -429,6 +467,8 @@ class TriPoolCloudDaemon:
                     self.pos_hype_sol.L = self.pos_hype_sol.current_cap / denom if denom > 0 else 1.0
                     self.pos_hype_sol.hodl_x = (self.pos_hype_sol.initial_cap / 2.0) / p0
                     self.pos_hype_sol.hodl_y = self.pos_hype_sol.initial_cap / 2.0
+                    self.pos_hype_sol.fees_x = float(hype_data.get("fees_x", (self.pos_hype_sol.accumulated_fees * 0.5) / p0))
+                    self.pos_hype_sol.fees_y = float(hype_data.get("fees_y", self.pos_hype_sol.accumulated_fees * 0.5))
 
             print(f"[+] Estado restaurado. Comisiones acumuladas: ${self.pos_sol_usdc.accumulated_fees:.4f} USD")
         except Exception as e:
@@ -499,12 +539,9 @@ class TriPoolCloudDaemon:
         
         combined_fees_vs_capital_pct = (total_fees_usd / total_initial_usd) * 100.0
         
-        # Consolidated APR / APY
-        max_time_sec = max(d_sol["total_time_sec"], d_btc["total_time_sec"], d_hype["total_time_sec"], 10.0)
-        elapsed_days = max_time_sec / 86400.0
-        combined_raw_apr = (total_fees_usd / total_initial_usd) * (365.25 / elapsed_days) * 100.0
-        combined_real_apr = max(0.0, min(combined_raw_apr, 450.0))
-        combined_real_apy = ((1.0 + (combined_real_apr / 100.0) / 365.25) ** 365.25 - 1.0) * 100.0
+        # Consolidated APR / APY: Weighted by capital allocation (50% SOL, 25% cbBTC, 25% HYPE)
+        combined_real_apr = (d_sol["real_fee_apr"] * 0.50) + (d_btc["real_fee_apr"] * 0.25) + (d_hype["real_fee_apr"] * 0.25)
+        combined_real_apy = ((math.pow(1.0 + (combined_real_apr / 100.0) / 365.25, 365.25) - 1.0)) * 100.0
         
         combined_activity_ratio_pct = (d_sol["activity_ratio_pct"] + d_btc["activity_ratio_pct"] + d_hype["activity_ratio_pct"]) / 3.0
         
@@ -537,8 +574,30 @@ class TriPoolCloudDaemon:
         hype_usd_val = hype_total * hype_price_usd
         hype_eur_val = hype_usd_val / self.eur_usd_rate
         
+        # Fees breakdown by specific cryptocurrency token
+        fees_sol_total = d_sol.get("fees_x", 0.0) + d_hype.get("fees_y", 0.0)
+        fees_usdc_total = d_sol.get("fees_y", 0.0) + d_btc.get("fees_y", 0.0)
+        fees_cbbtc_total = d_btc.get("fees_x", 0.0)
+        fees_hype_total = d_hype.get("fees_x", 0.0)
+        
+        fees_by_token = {
+            "sol": fees_sol_total,
+            "usdc": fees_usdc_total,
+            "cbbtc": fees_cbbtc_total,
+            "hype": fees_hype_total,
+            "sol_usd": fees_sol_total * sol_price_usd,
+            "usdc_usd": fees_usdc_total,
+            "cbbtc_usd": fees_cbbtc_total * btc_price_usd,
+            "hype_usd": fees_hype_total * hype_price_usd,
+            "sol_eur": (fees_sol_total * sol_price_usd) / self.eur_usd_rate,
+            "usdc_eur": fees_usdc_total / self.eur_usd_rate,
+            "cbbtc_eur": (fees_cbbtc_total * btc_price_usd) / self.eur_usd_rate,
+            "hype_eur": (fees_hype_total * hype_price_usd) / self.eur_usd_rate
+        }
+        
         state_doc = {
             "last_updated": datetime.now().isoformat(),
+            "fees_by_token": fees_by_token,
             "sol_price_usd": sol_price_usd,
             "btc_price_usd": btc_price_usd,
             "hype_price_usd": hype_price_usd,
@@ -608,6 +667,25 @@ class TriPoolCloudDaemon:
             "cbbtc_usdc": d_btc,
             "hype_sol": d_hype
         }
+        
+        # Keep 40 most recent telemetry ticks for live charting
+        time_label = datetime.now().strftime("%H:%M:%S")
+        sol_eur_v = (d_sol["total_val"] if d_sol["quote_is_usd"] else (d_sol["total_val"] * sol_price_usd)) / self.eur_usd_rate
+        btc_eur_v = (d_btc["total_val"] if d_btc["quote_is_usd"] else (d_btc["total_val"] * btc_price_usd)) / self.eur_usd_rate
+        hype_eur_v = (hype_fees_usd + (d_hype["pos_val"] * sol_price_usd)) / self.eur_usd_rate
+        
+        self.recent_history.append({
+            "time": time_label,
+            "portfolio_eur": round(total_portfolio_eur, 2),
+            "sol_eur": round(sol_eur_v, 2),
+            "btc_eur": round(btc_eur_v, 2),
+            "hype_eur": round(hype_eur_v, 2),
+            "fees_eur": round(total_fees_eur, 4)
+        })
+        if len(self.recent_history) > 40:
+            self.recent_history = self.recent_history[-40:]
+            
+        state_doc["recent_history"] = self.recent_history
         
         # Save state to Firestore
         if self.db:

@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "site": "criptopool-meteora",
+    "public": "public",
+    "redirects": [
+      {
+        "source": "**",
+        "destination": "https://criptpool-meteora.web.app",
+        "type": 301
+      }
+    ]
+  }
+}

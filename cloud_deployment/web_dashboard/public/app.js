@@ -11,6 +11,7 @@ let db = null;
 let equityChart = null;
 let latestData = null;
 let lastUpdateEpoch = Date.now();
+let tickCount = 0;
 
 // Helper functions for 100% resilient DOM updates
 function setTxt(id, val) {
@@ -122,6 +123,7 @@ function initChart() {
 
 function renderView() {
   if (!latestData) return;
+  tickCount++;
 
   const solPrice = Number(latestData.sol_price_usd) || 91.50;
   const btcPrice = Number(latestData.btc_price_usd) || 76800.0;
@@ -138,22 +140,28 @@ function renderView() {
   const hype = latestData.hype_sol || {};
   const tokens = latestData.tokens || {};
 
+  // Server timestamp
+  if (latestData.last_updated) {
+    try {
+      const dt = new Date(latestData.last_updated);
+      const timeStr = dt.toLocaleTimeString("es-ES", { hour12: false });
+      setTxt("serverLastUpdate", `Servidor: ${timeStr} (#${tickCount})`);
+    } catch (e) {}
+  }
+
   // ==========================================
   // 0. DESGLOSE DE COMPRA INICIAL (1.000 €)
   // ==========================================
-  // 500 € a SOL-USDC (250 € en SOL + 250 € en USDC)
   const initSolAmt = (250.0 * eurRate) / solPrice;
   const initUsdcSol = 250.0 * eurRate;
   setTxt("initSolUsdcSol", `~${initSolAmt.toFixed(3)} SOL ($${initUsdcSol.toFixed(2)})`);
   setTxt("initSolUsdcUsdc", `${initUsdcSol.toFixed(2)} USDC (250 €)`);
 
-  // 250 € a cbBTC-USDC (125 € en cbBTC + 125 € en USDC)
   const initBtcAmt = (125.0 * eurRate) / btcPrice;
   const initUsdcBtc = 125.0 * eurRate;
   setTxt("initCbbtcCoin", `~${initBtcAmt.toFixed(6)} cbBTC ($${initUsdcBtc.toFixed(2)})`);
   setTxt("initCbbtcUsdc", `${initUsdcBtc.toFixed(2)} USDC (125 €)`);
 
-  // 250 € a HYPE-SOL (125 € en HYPE + 125 € en SOL)
   const initHypeSolAmt = (125.0 * eurRate) / solPrice;
   const initHypeCoinAmt = initHypeSolAmt / hypePriceSol;
   setTxt("initHypeCoin", `~${initHypeCoinAmt.toFixed(3)} HYPE ($${(125.0 * eurRate).toFixed(2)})`);
@@ -433,7 +441,10 @@ function renderView() {
 // REST Fallback for real-time polling
 function pollFirestoreREST() {
   fetch("https://firestore.googleapis.com/v1/projects/criptpool-meteora/databases/(default)/documents/meteora_bot/current_state?nocache=" + Date.now())
-    .then(r => r.json())
+    .then(r => {
+      if (!r.ok) throw new Error("HTTP error " + r.status);
+      return r.json();
+    })
     .then(doc => {
       if (!doc || !doc.fields) return;
 
@@ -480,8 +491,9 @@ setInterval(() => {
   }
 }, 1000);
 
-// Initialize Listeners
-window.addEventListener("DOMContentLoaded", () => {
+// Robust Immediate Startup (Never Miss DOMContentLoaded)
+function startApp() {
+  console.log("[*] Iniciando CriptPool Tri-Pool Web App...");
   initChart();
 
   // Try real-time WebSocket listener
@@ -502,7 +514,13 @@ window.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Polling fallback every 3 seconds
+  // Polling fallback every 2 seconds
   pollFirestoreREST();
-  setInterval(pollFirestoreREST, 3000);
-});
+  setInterval(pollFirestoreREST, 2000);
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startApp);
+} else {
+  startApp();
+}

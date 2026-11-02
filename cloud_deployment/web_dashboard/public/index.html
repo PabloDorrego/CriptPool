@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CriptPool | Meteora DLMM Dual-Pool Testing Dashboard</title>
+  <title>CriptPool | Meteora DLMM Tri-Pool Portfolio Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -14,6 +14,8 @@
         extend: {
           colors: {
             brand: { 500: '#14F195', 600: '#00C274' },
+            btc: { 500: '#F7931A' },
+            hype: { 500: '#38BDF8' },
             purple: { 500: '#9945FF' }
           }
         }
@@ -26,7 +28,8 @@
     .glow-green { box-shadow: 0 0 25px -5px rgba(20, 241, 149, 0.25); }
     .card-global { background: rgba(20, 241, 149, 0.03); border: 1px solid rgba(20, 241, 149, 0.25); }
     .card-sol-usdc { background: rgba(0, 194, 116, 0.03); border: 1px solid rgba(0, 194, 116, 0.25); }
-    .card-jitosol { background: rgba(153, 69, 255, 0.03); border: 1px solid rgba(153, 69, 255, 0.25); }
+    .card-cbbtc { background: rgba(247, 147, 26, 0.03); border: 1px solid rgba(247, 147, 26, 0.25); }
+    .card-hype { background: rgba(56, 189, 248, 0.03); border: 1px solid rgba(56, 189, 248, 0.25); }
   </style>
 </head>
 <body class="min-h-screen p-3 md:p-6">
@@ -36,15 +39,15 @@
     <!-- Top Header Bar -->
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-5 rounded-2xl glow-green">
       <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-500 to-purple-500 flex items-center justify-center font-bold text-black text-xl shadow-lg">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-brand-500 via-btc-500 to-hype-500 flex items-center justify-center font-bold text-black text-xl shadow-lg">
           CP
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            CriptPool <span class="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/30">Meteora Dual DLMM</span>
+            CriptPool <span class="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/30">Meteora Tri-Pool DLMM</span>
           </h1>
           <p class="text-xs text-gray-400">
-            Simulación Diferenciada (Cartera Global vs Pool SOL-USDC vs Pool JitoSOL-SOL) • Base: <strong class="text-brand-400">1.000,00 € ($1.080,00 USD)</strong>
+            Cartera Multi-Pool Institucional (50% SOL-USDC / 25% cbBTC-USDC / 25% HYPE-SOL) • Capital Base: <strong class="text-brand-400">1.000,00 € ($1.080,00 USD)</strong>
           </p>
         </div>
       </div>
@@ -55,132 +58,181 @@
           <span id="connectionBadge">EN VIVO (TICK CADA 10s)</span>
         </div>
         <div class="text-right text-xs text-gray-400">
-          <div>SOL/USD Spot: <span class="font-mono text-white font-bold" id="solSpotPrice">$0.00</span></div>
+          <div>SOL: <span class="font-mono text-white font-bold" id="solSpotPrice">$0.00</span> | BTC: <span class="font-mono text-white font-bold" id="btcSpotPrice">$0</span></div>
           <div class="text-[11px] text-emerald-400 font-mono" id="lastUpdated">Sincronizando...</div>
         </div>
       </div>
     </header>
 
     <!-- REAL MARKET CONNECTION VERIFICATION BANNER -->
-    <div class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/40 via-gray-900/80 to-purple-950/40 border border-emerald-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+    <div class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/40 via-amber-950/30 to-sky-950/40 border border-emerald-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
       <div class="flex items-center gap-2 text-emerald-400 font-semibold">
         <i data-lucide="shield-check" class="w-4 h-4 flex-shrink-0 text-emerald-400"></i>
         <span>DATOS 100% REALES ENLAZADOS CON SOLANA METEORA DLMM</span>
       </div>
       <div class="flex flex-wrap gap-x-4 gap-y-1 text-gray-400 text-[11px] font-mono">
-        <span>SOL-USDC: <a href="https://app.meteora.ag/dlmm/5rCf1DM8LjKTw4YqhnoLcngyZYeNnQqztScTogYHAS6" target="_blank" class="text-brand-400 hover:underline">5rCf...HAS6 ↗</a></span>
-        <span>JitoSOL-SOL: <a href="https://app.meteora.ag/dlmm/BoeMUkCLHchTD31HdXsbDExuZZfcUppSLpYtV3LZTH6U" target="_blank" class="text-purple-400 hover:underline">BoeM...TH6U ↗</a></span>
-        <span class="text-gray-300">Precios spot, bins y cuotas de mercado en vivo</span>
+        <span>SOL-USDC (50%): <a href="https://app.meteora.ag/dlmm/5rCf1DM8LjKTw4YqhnoLcngyZYeNnQqztScTogYHAS6" target="_blank" class="text-brand-400 hover:underline">5rCf...HAS6 ↗</a></span>
+        <span>cbBTC-USDC (25%): <a href="https://app.meteora.ag/dlmm/7ubS3GccjhQY99AYNKXjNJqnXjaokEdfdV915xnCb96r" target="_blank" class="text-amber-400 hover:underline">7ubS...Cb96r ↗</a></span>
+        <span>HYPE-SOL (25%): <a href="https://app.meteora.ag/dlmm/81GpCm4d13y8TozYtThabuSCLQN2o3bbrvDogXFPn8sA" target="_blank" class="text-sky-400 hover:underline">81Gp...Pn8sA ↗</a></span>
       </div>
     </div>
 
-    <!-- 1. KPIS DE RENDIMIENTO Y RENTABILIDAD (Diferenciados en 3 Columnas) -->
+    <!-- 1. KPIS DE RENDIMIENTO Y RENTABILIDAD (Diferenciados en 4 Columnas) -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
           <i data-lucide="trending-up" class="w-4 h-4"></i>
           1. Rendimiento y Rentabilidad (¿Cuánto dinero está generando cada posición?)
         </h2>
-        <span class="text-[11px] text-gray-500">Cartera Global frente a cada Pool por separado</span>
+        <span class="text-[11px] text-gray-500">Cartera Global frente a los 3 Pools en vivo</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
 
         <!-- Col 1: Cartera Global -->
         <div class="glass-card card-global p-5 rounded-2xl space-y-3">
           <div class="flex justify-between items-center border-b border-brand-500/20 pb-2">
-            <span class="font-bold text-brand-400 text-xs flex items-center gap-2">
+            <span class="font-bold text-brand-400 text-xs flex items-center gap-1.5">
               <i data-lucide="layers" class="w-4 h-4"></i> CARTERA GLOBAL TOTAL
             </span>
-            <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[10px] font-bold">1.000,00 € Asignados</span>
+            <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[10px] font-bold">1.000 € (100%)</span>
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Patrimonio Vivo:</span>
-              <span class="text-base font-black text-white font-mono" id="globPortfolioVal">1.000,00 €</span>
+              <span class="font-mono font-bold text-white text-sm" id="globalPortfolioEur">1.000,00 €</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Comisiones Totales:</span>
-              <span class="text-sm font-bold text-brand-400 font-mono" id="globAccumFees">0,0000 €</span>
+              <span class="text-gray-400">En Dólares (USD):</span>
+              <span class="font-mono text-gray-300" id="globalPortfolioUsd">$1.080,00</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Comisiones Cobradas:</span>
+              <span class="font-mono font-bold text-brand-400 text-sm" id="globalFeesEur">+0,0000 €</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">APR Real / APY:</span>
-              <span class="font-bold text-purple-400 font-mono" id="globAprApy">0.0% APR</span>
+              <span class="text-gray-400">Fees vs Capital Inicial:</span>
+              <span class="font-mono text-brand-400 font-semibold" id="globalFeesVsCapPct">+0.00%</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
               <span class="text-gray-400">ROI Neto Total:</span>
-              <span class="font-bold font-mono" id="globRoiNeto">+0.00% ROI</span>
+              <span class="font-mono font-bold text-brand-400" id="globalRoiPct">+0.00%</span>
             </div>
-            <div class="flex justify-between items-center pt-1 border-t border-gray-800 text-[11px]">
-              <span class="text-gray-500">% Capital Recuperado:</span>
-              <span class="font-mono text-brand-300" id="globCapRecovPct">+0.000% Cap</span>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Yield Real (APR / APY):</span>
+              <span class="font-mono font-bold text-emerald-300" id="globalAprApy">0.0% / 0.0%</span>
             </div>
           </div>
         </div>
 
-        <!-- Col 2: Pool SOL-USDC -->
+        <!-- Col 2: Pool SOL-USDC (50%) -->
         <div class="glass-card card-sol-usdc p-5 rounded-2xl space-y-3">
           <div class="flex justify-between items-center border-b border-emerald-500/20 pb-2">
-            <span class="font-bold text-emerald-400 text-xs flex items-center gap-2">
-              <i data-lucide="zap" class="w-4 h-4"></i> POOL SOL-USDC (FLUX USD)
+            <span class="font-bold text-emerald-400 text-xs flex items-center gap-1.5">
+              <i data-lucide="zap" class="w-4 h-4"></i> POOL SOL-USDC
             </span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">500,00 € ($540 USD)</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">500 € (50%)</span>
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Valor en Pool:</span>
-              <span class="text-base font-black text-white font-mono" id="solUsdcPortfolioVal">500,00 €</span>
+              <span class="text-gray-400">Valor Posición ($):</span>
+              <span class="font-mono font-bold text-white text-sm" id="solUsdcVal">$540.00</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Comisiones Ganadas:</span>
-              <span class="text-sm font-bold text-emerald-400 font-mono" id="solUsdcAccumFees">0,0000 €</span>
+              <span class="text-gray-400">Capital Inicial:</span>
+              <span class="font-mono text-gray-400">$540.00 USD</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Comisiones Cobradas:</span>
+              <span class="font-mono font-bold text-emerald-400 text-sm" id="solUsdcFees">+$0.0000</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">APR Real / APY:</span>
-              <span class="font-bold text-emerald-300 font-mono" id="solUsdcAprApy">0.0% APR</span>
+              <span class="text-gray-400">Fees vs Capital Pool:</span>
+              <span class="font-mono text-emerald-400 font-semibold" id="solUsdcFeesCapPct">+0.00%</span>
             </div>
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
               <span class="text-gray-400">ROI del Pool:</span>
-              <span class="font-bold font-mono" id="solUsdcRoiNeto">+0.00% ROI</span>
+              <span class="font-mono font-bold text-emerald-400" id="solUsdcRoiPct">+0.00%</span>
             </div>
-            <div class="flex justify-between items-center pt-1 border-t border-gray-800 text-[11px]">
-              <span class="text-gray-500">Tipo de Rendimiento:</span>
-              <span class="font-mono text-emerald-300">Flujo en USD y SOL</span>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">APR Real de Fees:</span>
+              <span class="font-mono font-bold text-emerald-300" id="solUsdcApr">0.0% APR</span>
             </div>
           </div>
         </div>
 
-        <!-- Col 3: Pool JitoSOL-SOL -->
-        <div class="glass-card card-jitosol p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-purple-500/20 pb-2">
-            <span class="font-bold text-purple-400 text-xs flex items-center gap-2">
-              <i data-lucide="shield-check" class="w-4 h-4"></i> POOL JITOSOL-SOL (LST PEG)
+        <!-- Col 3: Pool cbBTC-USDC (25%) -->
+        <div class="glass-card card-cbbtc p-5 rounded-2xl space-y-3">
+          <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
+            <span class="font-bold text-amber-400 text-xs flex items-center gap-1.5">
+              <i data-lucide="bitcoin" class="w-4 h-4"></i> POOL cbBTC-USDC
             </span>
-            <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold">500,00 € (~5.8 SOL)</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold">250 € (25%)</span>
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Valor en Pool:</span>
-              <span class="text-base font-black text-white font-mono" id="jitoPortfolioVal">500,00 €</span>
+              <span class="text-gray-400">Valor Posición ($):</span>
+              <span class="font-mono font-bold text-white text-sm" id="cbbtcVal">$270.00</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Comisiones Ganadas:</span>
-              <span class="text-sm font-bold text-purple-400 font-mono" id="jitoAccumFees">0,0000 €</span>
+              <span class="text-gray-400">Capital Inicial:</span>
+              <span class="font-mono text-gray-400">$270.00 USD</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Comisiones Cobradas:</span>
+              <span class="font-mono font-bold text-amber-400 text-sm" id="cbbtcFees">+$0.0000</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">APR Real / Staking:</span>
-              <span class="font-bold text-purple-300 font-mono" id="jitoAprApy">0.0% (+7.5% Stake)</span>
+              <span class="text-gray-400">Fees vs Capital Pool:</span>
+              <span class="font-mono text-amber-400 font-semibold" id="cbbtcFeesCapPct">+0.00%</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">ROI del Pool:</span>
+              <span class="font-mono font-bold text-amber-400" id="cbbtcRoiPct">+0.00%</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">ROI en SOL:</span>
-              <span class="font-bold font-mono" id="jitoRoiNeto">+0.00% SOL</span>
+              <span class="text-gray-400">APR Real Bitcoin:</span>
+              <span class="font-mono font-bold text-amber-300" id="cbbtcApr">0.0% APR</span>
             </div>
-            <div class="flex justify-between items-center pt-1 border-t border-gray-800 text-[11px]">
-              <span class="text-gray-500">Tipo de Rendimiento:</span>
-              <span class="font-mono text-purple-300">Acumulación pura de SOL</span>
+          </div>
+        </div>
+
+        <!-- Col 4: Pool HYPE-SOL (25%) -->
+        <div class="glass-card card-hype p-5 rounded-2xl space-y-3">
+          <div class="flex justify-between items-center border-b border-sky-500/20 pb-2">
+            <span class="font-bold text-sky-400 text-xs flex items-center gap-1.5">
+              <i data-lucide="rocket" class="w-4 h-4"></i> POOL HYPE-SOL
+            </span>
+            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono text-[10px] font-bold">250 € (25%)</span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Valor Posición (SOL):</span>
+              <span class="font-mono font-bold text-white text-sm" id="hypeValSol">0.000 SOL</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Valor Posición ($):</span>
+              <span class="font-mono text-gray-300" id="hypeValUsd">$270.00</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Comisiones Cobradas:</span>
+              <span class="font-mono font-bold text-sky-400 text-sm" id="hypeFees">0.0000 SOL</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Fees en Dólares ($):</span>
+              <span class="font-mono text-sky-300 font-semibold" id="hypeFeesUsd">+$0.0000</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">ROI del Pool:</span>
+              <span class="font-mono font-bold text-sky-400" id="hypeRoiPct">+0.00%</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">APR Real Alpha:</span>
+              <span class="font-mono font-bold text-sky-300" id="hypeApr">0.0% APR</span>
             </div>
           </div>
         </div>
@@ -188,112 +240,135 @@
       </div>
     </div>
 
-    <!-- 2. KPIS DE RIESGO Y OPERATIVA (Diferenciados en 3 Columnas) -->
+    <!-- 2. KPIS DE RIESGO Y OPERATIVA (Diferenciados en 4 Columnas) -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-          <i data-lucide="shield-alert" class="w-4 h-4"></i>
+          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
           2. Riesgo y Operativa (¿Cuándo me va a echar el mercado?)
         </h2>
-        <span class="text-[11px] text-gray-500">Horquilla, IL y umbrales de rebalanceo por posición</span>
+        <span class="text-[11px] text-gray-500">Distancias a Rangos Límite, IL Temporal y Ratio de Actividad</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
 
         <!-- Col 1: Riesgo Global -->
         <div class="glass-card card-global p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-brand-500/20 pb-2">
-            <span class="font-bold text-brand-400 text-xs flex items-center gap-2">
-              <i data-lucide="shield" class="w-4 h-4"></i> RIESGO GLOBAL CARTERA
-            </span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold" id="globRangeStatusBadge">AMBOS EN RANGO</span>
+          <div class="font-bold text-brand-400 text-xs border-b border-brand-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="shield" class="w-4 h-4"></i> RIESGO CARTERA GLOBAL
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Impermanent Loss Global:</span>
-              <span class="font-bold font-mono text-rose-400" id="globIlAmount">-0,000 €</span>
+              <span class="text-gray-400">Impermanent Loss (IL):</span>
+              <span class="font-mono text-gray-300" id="globalIlEur">0,00 €</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Beneficio Neto vs HODL:</span>
-              <span class="font-bold font-mono text-emerald-400" id="globNetAlpha">+0,000 € Net Alpha</span>
+              <span class="text-gray-400">Alpha Neto (vs HODL):</span>
+              <span class="font-mono font-bold text-brand-400" id="globalNetAlphaEur">+0,00 €</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Cobertura de IL:</span>
-              <span class="px-2 py-0.5 rounded font-mono text-[10px] font-bold" id="globIlCoverBadge">FEES SUPERAN IL</span>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Semáforo Cobertura:</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" id="globalCoverBadge">
+                🟢 Fees cubren IL
+              </span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Ratio de Actividad Global:</span>
-              <span class="font-bold font-mono text-brand-300" id="globActivityRatio">100.0% En Rango</span>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Ratio Actividad In-Range:</span>
+              <span class="font-mono font-bold text-white text-sm" id="globalActivityRatio">100.0%</span>
             </div>
-            <div class="text-[11px] text-gray-500 pt-1 border-t border-gray-800">
-              Cartera diversificada: Flujo en USD amortigua la volatilidad de SOL.
+            <div class="text-[11px] text-gray-400">
+              Tiempo en rango capturando comisiones 24/7.
             </div>
           </div>
         </div>
 
-        <!-- Col 2: Riesgo Pool SOL-USDC -->
+        <!-- Col 2: Riesgo SOL-USDC -->
         <div class="glass-card card-sol-usdc p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-emerald-500/20 pb-2">
-            <span class="font-bold text-emerald-400 text-xs flex items-center gap-2">
-              <i data-lucide="crosshair" class="w-4 h-4"></i> RIESGO SOL-USDC (±7.5%)
-            </span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold" id="solUsdcRangeBadge">DENTRO DEL RANGO</span>
+          <div class="font-bold text-emerald-400 text-xs border-b border-emerald-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="compass" class="w-4 h-4"></i> RIESGO SOL-USDC
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia a Bordes:</span>
-              <span class="font-mono text-white font-bold" id="solUsdcDistBounds">Inf: -0.0% | Sup: +0.0%</span>
+              <span class="text-gray-400">Distancia a P-min:</span>
+              <span class="font-mono font-bold text-emerald-400" id="solDistLower">0.00%</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Margen Gatillo 90%:</span>
-              <span class="font-mono text-amber-400 font-bold" id="solUsdcRebalMargin">0.0% restante</span>
+              <span class="text-gray-400">Distancia a P-max:</span>
+              <span class="font-mono font-bold text-emerald-400" id="solDistUpper">0.00%</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Alerta Rebalanceo:</span>
+              <span class="font-mono text-gray-300" id="solDistRebal">Seguro (>3%)</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">IL vs Fees:</span>
+              <span class="font-mono text-emerald-400" id="solNetAlpha">+$0.00</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Impermanent Loss (IL):</span>
-              <span class="font-mono text-rose-400 font-bold" id="solUsdcIlAmount">-0,000 € (0.00%)</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Alpha del Pool vs HODL:</span>
-              <span class="font-mono text-emerald-400 font-bold" id="solUsdcNetAlpha">+0,000 €</span>
-            </div>
-            <div class="flex justify-between items-center pt-1 border-t border-gray-800 text-[11px]">
-              <span class="text-gray-500">Tiempo en Bins Activos:</span>
-              <span class="font-mono text-emerald-300" id="solUsdcActivityRatio">100.0%</span>
+              <span class="text-gray-400">Ratio In-Range:</span>
+              <span class="font-mono font-bold text-white" id="solActivityRatio">100.0%</span>
             </div>
           </div>
         </div>
 
-        <!-- Col 3: Riesgo Pool JitoSOL-SOL -->
-        <div class="glass-card card-jitosol p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-purple-500/20 pb-2">
-            <span class="font-bold text-purple-400 text-xs flex items-center gap-2">
-              <i data-lucide="anchor" class="w-4 h-4"></i> RIESGO JITOSOL-SOL (±1.2%)
-            </span>
-            <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold" id="jitoRangeBadge">PEGGED EN RANGO</span>
+        <!-- Col 3: Riesgo cbBTC-USDC -->
+        <div class="glass-card card-cbbtc p-5 rounded-2xl space-y-3">
+          <div class="font-bold text-amber-400 text-xs border-b border-amber-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="compass" class="w-4 h-4"></i> RIESGO cbBTC-USDC
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia al Peg:</span>
-              <span class="font-mono text-white font-bold" id="jitoDistBounds">Inf: -0.0% | Sup: +0.0%</span>
+              <span class="text-gray-400">Distancia a P-min:</span>
+              <span class="font-mono font-bold text-amber-400" id="btcDistLower">0.00%</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Margen Gatillo 92%:</span>
-              <span class="font-mono text-purple-300 font-bold" id="jitoRebalMargin">1.10% restante</span>
+              <span class="text-gray-400">Distancia a P-max:</span>
+              <span class="font-mono font-bold text-amber-400" id="btcDistUpper">0.00%</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Alerta Rebalanceo:</span>
+              <span class="font-mono text-gray-300" id="btcDistRebal">Seguro (>2%)</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">IL vs Fees:</span>
+              <span class="font-mono text-amber-400" id="btcNetAlpha">+$0.00</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Impermanent Loss (IL):</span>
-              <span class="font-mono text-gray-400 font-bold" id="jitoIlAmount">Insignificante (&lt;0.01%)</span>
+              <span class="text-gray-400">Ratio In-Range:</span>
+              <span class="font-mono font-bold text-white" id="btcActivityRatio">100.0%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col 4: Riesgo HYPE-SOL -->
+        <div class="glass-card card-hype p-5 rounded-2xl space-y-3">
+          <div class="font-bold text-sky-400 text-xs border-b border-sky-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="compass" class="w-4 h-4"></i> RIESGO HYPE-SOL
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Distancia a P-min:</span>
+              <span class="font-mono font-bold text-sky-400" id="hypeDistLower">0.00%</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Riesgo de Desanclaje:</span>
-              <span class="font-mono text-emerald-400 font-bold">Mínimo (Staked LST)</span>
+              <span class="text-gray-400">Distancia a P-max:</span>
+              <span class="font-mono font-bold text-sky-400" id="hypeDistUpper">0.00%</span>
             </div>
-            <div class="flex justify-between items-center pt-1 border-t border-gray-800 text-[11px]">
-              <span class="text-gray-500">Tiempo en Bins Activos:</span>
-              <span class="font-mono text-purple-300" id="jitoActivityRatio">100.0%</span>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Alerta Rebalanceo:</span>
+              <span class="font-mono text-gray-300" id="hypeDistRebal">Seguro (>3%)</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">IL vs Fees:</span>
+              <span class="font-mono text-sky-400" id="hypeNetAlpha">+0.0000 SOL</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Ratio In-Range:</span>
+              <span class="font-mono font-bold text-white" id="hypeActivityRatio">100.0%</span>
             </div>
           </div>
         </div>
@@ -301,98 +376,105 @@
       </div>
     </div>
 
-    <!-- 3. KPIS DE COSTES Y EFICIENCIA DEL BOT (Diferenciados en 3 Columnas) -->
+    <!-- 3. KPIS DE COSTES Y EFICIENCIA (Diferenciados en 4 Columnas) -->
     <div class="space-y-3">
       <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-2">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
           <i data-lucide="cpu" class="w-4 h-4"></i>
-          3. Costes y Eficiencia del Bot (Fricción vs Rentabilidad)
+          3. Costes y Eficiencia del Bot (Fricción de Red y Rebalanceos)
         </h2>
-        <span class="text-[11px] text-gray-500">Gastos de gas Solana y comisiones de swap por posición</span>
+        <span class="text-[11px] text-gray-500">Gasto de Gas y Ratio de Fricción Operativa</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
 
-        <!-- Col 1: Costes Globales -->
+        <!-- Col 1: Costes Global -->
         <div class="glass-card card-global p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-brand-500/20 pb-2">
-            <span class="font-bold text-brand-400 text-xs flex items-center gap-2">
-              <i data-lucide="wallet-cards" class="w-4 h-4"></i> EFICIENCIA GLOBAL
-            </span>
-            <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[10px] font-bold" id="globRebalCountBadge">0 Rebalanceos</span>
+          <div class="font-bold text-brand-400 text-xs border-b border-brand-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="gauge" class="w-4 h-4"></i> COSTES CARTERA GLOBAL
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Coste Total Rebalanceos:</span>
-              <span class="font-mono text-white font-bold" id="globTotalRebalCost">0,000 € ($0.00 USD)</span>
+              <span class="text-gray-400">Rebalanceos Totales:</span>
+              <span class="font-mono font-bold text-white text-sm" id="globalRebalances">0</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Friction Ratio (Coste/Fees):</span>
-              <span class="font-mono text-emerald-400 font-bold" id="globFrictionRatio">0.0% Fricción</span>
+              <span class="text-gray-400">Gasto Red Total (Gas):</span>
+              <span class="font-mono text-gray-300" id="globalGasCostEur">0,00 €</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Beneficio Neto de Gas:</span>
-              <span class="font-mono text-brand-300 font-bold" id="globNetEfficiency">100% Retención</span>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Friction Ratio Global:</span>
+              <span class="font-mono font-bold text-brand-400 text-sm" id="globalFrictionRatio">0.00%</span>
             </div>
-            <div class="text-[11px] text-gray-500 pt-1 border-t border-gray-800">
-              Comisiones generadas superan ampliamente los costes operativos.
+            <div class="text-[11px] text-gray-400">
+              % de las comisiones absorbidas por gasto de red.
             </div>
           </div>
         </div>
 
         <!-- Col 2: Costes SOL-USDC -->
         <div class="glass-card card-sol-usdc p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-emerald-500/20 pb-2">
-            <span class="font-bold text-emerald-400 text-xs flex items-center gap-2">
-              <i data-lucide="refresh-cw" class="w-4 h-4"></i> REBALANCEO SOL-USDC
-            </span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold" id="solUsdcRebalCount">0 Eventos</span>
+          <div class="font-bold text-emerald-400 text-xs border-b border-emerald-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="wrench" class="w-4 h-4"></i> COSTES SOL-USDC
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Coste Gastado:</span>
-              <span class="font-mono text-white font-bold" id="solUsdcRebalCost">0,000 €</span>
+              <span class="text-gray-400">Rebalanceos:</span>
+              <span class="font-mono font-bold text-white" id="solRebalances">0</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Coste por Rebalanceo:</span>
-              <span class="font-mono text-gray-300 font-bold">~0,08 € (~0.15% swap + gas)</span>
+              <span class="text-gray-400">Gasto Gas ($):</span>
+              <span class="font-mono text-gray-300" id="solGasCost">$0.00</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Fricción del Pool:</span>
-              <span class="font-mono text-emerald-400 font-bold" id="solUsdcFrictionRatio">0.0%</span>
-            </div>
-            <div class="text-[11px] text-gray-500 pt-1 border-t border-gray-800">
-              El bot solo recentra si el precio toca el 90% de la horquilla.
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Friction Ratio:</span>
+              <span class="font-mono font-bold text-emerald-400" id="solFrictionRatio">0.00%</span>
             </div>
           </div>
         </div>
 
-        <!-- Col 3: Costes JitoSOL-SOL -->
-        <div class="glass-card card-jitosol p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-purple-500/20 pb-2">
-            <span class="font-bold text-purple-400 text-xs flex items-center gap-2">
-              <i data-lucide="repeat" class="w-4 h-4"></i> REBALANCEO JITOSOL-SOL
-            </span>
-            <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono text-[10px] font-bold" id="jitoRebalCount">0 Eventos</span>
+        <!-- Col 3: Costes cbBTC-USDC -->
+        <div class="glass-card card-cbbtc p-5 rounded-2xl space-y-3">
+          <div class="font-bold text-amber-400 text-xs border-b border-amber-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="wrench" class="w-4 h-4"></i> COSTES cbBTC-USDC
           </div>
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Coste Gastado:</span>
-              <span class="font-mono text-white font-bold" id="jitoRebalCost">0,000 € (0.00 SOL)</span>
+              <span class="text-gray-400">Rebalanceos:</span>
+              <span class="font-mono font-bold text-white" id="btcRebalances">0</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Coste por Rebalanceo:</span>
-              <span class="font-mono text-gray-300 font-bold">~0.0004 SOL (~0,03 €)</span>
+              <span class="text-gray-400">Gasto Gas ($):</span>
+              <span class="font-mono text-gray-300" id="btcGasCost">$0.00</span>
+            </div>
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Friction Ratio:</span>
+              <span class="font-mono font-bold text-amber-400" id="btcFrictionRatio">0.00%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col 4: Costes HYPE-SOL -->
+        <div class="glass-card card-hype p-5 rounded-2xl space-y-3">
+          <div class="font-bold text-sky-400 text-xs border-b border-sky-500/20 pb-2 flex items-center gap-1.5">
+            <i data-lucide="wrench" class="w-4 h-4"></i> COSTES HYPE-SOL
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between items-center">
+              <span class="text-gray-400">Rebalanceos:</span>
+              <span class="font-mono font-bold text-white" id="hypeRebalances">0</span>
             </div>
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Fricción del Pool:</span>
-              <span class="font-mono text-purple-300 font-bold" id="jitoFrictionRatio">0.0%</span>
+              <span class="text-gray-400">Gasto Gas (SOL):</span>
+              <span class="font-mono text-gray-300" id="hypeGasCost">0.0000 SOL</span>
             </div>
-            <div class="text-[11px] text-gray-500 pt-1 border-t border-gray-800">
-              Mínima fricción por alta correlación del par pegged.
+            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
+              <span class="text-gray-400">Friction Ratio:</span>
+              <span class="font-mono font-bold text-sky-400" id="hypeFrictionRatio">0.00%</span>
             </div>
           </div>
         </div>
@@ -400,229 +482,135 @@
       </div>
     </div>
 
-    <!-- HORQUILLAS DE LIQUIDEZ ACTIVAS (SOL-USDC y JitoSOL-SOL) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      
-      <!-- Gauge 1: SOL-USDC -->
-      <div class="glass-card p-5 rounded-2xl space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold text-emerald-400 uppercase flex items-center gap-2">
-            <i data-lucide="crosshair" class="w-4 h-4"></i> Horquilla Activa SOL-USDC (±7.5%)
-          </h3>
-          <span class="text-[11px] text-gray-400 font-mono" id="solUsdcRangeText">[Cargando...]</span>
+    <!-- INVENTARIO REAL DE TOKENS EN CARTERA (4 Assets) -->
+    <div class="space-y-3">
+      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
+        <i data-lucide="wallet" class="w-4 h-4 text-brand-400"></i>
+        Inventario Real de Tokens en Cartera
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Token SOL -->
+        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-purple-500">
+          <div class="text-[11px] text-gray-400">SOL Total (SOL-USDC + HYPE-SOL)</div>
+          <div class="text-xl font-bold font-mono text-white" id="tokenSolTotal">0.0000 SOL</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenSolVal">0,00 € ($0.00)</div>
         </div>
 
-        <div class="relative pt-4 pb-2">
-          <div class="flex justify-between text-xs font-mono text-gray-400 mb-2">
-            <div>Inf: <span class="text-amber-400 font-bold" id="lowerBoundSol">$0.00</span></div>
-            <div>Spot: <span class="text-white font-bold" id="entryBoundSol">$0.00</span></div>
-            <div>Sup: <span class="text-purple-400 font-bold" id="upperBoundSol">$0.00</span></div>
-          </div>
-
-          <div class="h-4 bg-gray-800 rounded-full relative overflow-hidden flex items-center">
-            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-emerald-500/30 to-purple-500/20"></div>
-            <div id="pricePinSol" class="absolute top-0 bottom-0 w-3 bg-white rounded-full shadow-lg transform -translate-x-1/2 transition-all duration-500" style="left: 50%;"></div>
-          </div>
-
-          <div class="flex justify-between text-[11px] text-gray-500 mt-2">
-            <span id="distLowTextSol">Margen Inf: --%</span>
-            <span class="text-emerald-400 font-medium">BINS ACTIVOS DLMM</span>
-            <span id="distHighTextSol">Margen Sup: --%</span>
-          </div>
+        <!-- Token USDC -->
+        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-emerald-500">
+          <div class="text-[11px] text-gray-400">USDC Total (SOL-USDC + cbBTC-USDC)</div>
+          <div class="text-xl font-bold font-mono text-emerald-400" id="tokenUsdcTotal">0.00 USDC</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenUsdcVal">0,00 € ($0.00)</div>
         </div>
+
+        <!-- Token cbBTC -->
+        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-amber-500">
+          <div class="text-[11px] text-gray-400">cbBTC Total (Coinbase Wrapped BTC)</div>
+          <div class="text-xl font-bold font-mono text-amber-400" id="tokenCbbtcTotal">0.000000 cbBTC</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenCbbtcVal">0,00 € ($0.00)</div>
+        </div>
+
+        <!-- Token HYPE -->
+        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-sky-500">
+          <div class="text-[11px] text-gray-400">HYPE Total (Hyperliquid)</div>
+          <div class="text-xl font-bold font-mono text-sky-400" id="tokenHypeTotal">0.000 HYPE</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenHypeVal">0,00 € ($0.00)</div>
+        </div>
+
       </div>
-
-      <!-- Gauge 2: JitoSOL-SOL -->
-      <div class="glass-card p-5 rounded-2xl space-y-3">
-        <div class="flex justify-between items-center">
-          <h3 class="text-xs font-bold text-purple-400 uppercase flex items-center gap-2">
-            <i data-lucide="anchor" class="w-4 h-4"></i> Horquilla Activa JitoSOL-SOL (±1.2%)
-          </h3>
-          <span class="text-[11px] text-gray-400 font-mono" id="jitoRangeText">[Cargando...]</span>
-        </div>
-
-        <div class="relative pt-4 pb-2">
-          <div class="flex justify-between text-xs font-mono text-gray-400 mb-2">
-            <div>Inf: <span class="text-amber-400 font-bold" id="lowerBoundJito">0.0000</span></div>
-            <div>Peg: <span class="text-white font-bold" id="entryBoundJito">0.0000</span></div>
-            <div>Sup: <span class="text-purple-400 font-bold" id="upperBoundJito">0.0000</span></div>
-          </div>
-
-          <div class="h-4 bg-gray-800 rounded-full relative overflow-hidden flex items-center">
-            <div class="absolute inset-0 bg-gradient-to-r from-amber-500/20 via-purple-500/30 to-purple-500/20"></div>
-            <div id="pricePinJito" class="absolute top-0 bottom-0 w-3 bg-white rounded-full shadow-lg transform -translate-x-1/2 transition-all duration-500" style="left: 50%;"></div>
-          </div>
-
-          <div class="flex justify-between text-[11px] text-gray-500 mt-2">
-            <span id="distLowTextJito">Margen Inf: --%</span>
-            <span class="text-purple-400 font-medium">BINS PEGGED DLMM</span>
-            <span id="distHighTextJito">Margen Sup: --%</span>
-          </div>
-        </div>
-      </div>
-
     </div>
 
-    <!-- INVENTARIO REAL DE TOKENS EN CARTERA -->
-    <div>
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
-          <i data-lucide="wallet" class="w-4 h-4 text-brand-500"></i>
-          Monedas en Cartera tras Invertir los 1.000 €
-        </h2>
-        <span class="text-xs text-gray-500">Saldo vivo de tokens en ambos pools de liquidez</span>
-      </div>
+    <!-- VISUALIZADORES DE RANGO INTERACTIVO (3 Pools) -->
+    <div class="space-y-3">
+      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
+        <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
+        Visualizadores de Rango Activo Meteora DLMM
+      </h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
 
-        <!-- Token 1: SOL Total -->
-        <div class="glass-card p-5 rounded-2xl border-l-4 border-l-purple-500 space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-semibold text-gray-400 flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-purple-500"></span> Solana (SOL) Total
-            </span>
-            <span class="text-[11px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">En 2 Pools</span>
+        <!-- Rango SOL-USDC -->
+        <div class="glass-card p-5 rounded-2xl space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-emerald-400">⚡ Pool SOL-USDC (±7.5%)</span>
+            <span class="font-mono text-white text-xs font-bold" id="solRangePrice">$0.00</span>
           </div>
-          <div class="text-2xl font-black text-white font-mono tracking-tight" id="tokenSolTotal">
-            0.0000 SOL
+          <div class="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/10">
+            <div id="solRangeProgress" class="h-full bg-gradient-to-r from-emerald-500 to-brand-500" style="width: 50%;"></div>
           </div>
-          <div class="flex justify-between text-xs text-gray-400 pt-1 border-t border-gray-800">
-            <span>Valoración:</span>
-            <span class="font-mono text-white font-semibold" id="tokenSolUsdVal">0,00 € ($0.00 USD)</span>
-          </div>
-          <div class="text-[11px] text-gray-500" id="tokenSolBreakdown">
-            (0.00 SOL en SOL-USDC + 0.00 SOL en JitoSOL-SOL)
+          <div class="flex justify-between text-[11px] font-mono text-gray-400">
+            <span>P-min: <strong class="text-white" id="solRangeLower">$0.00</strong></span>
+            <span>P-max: <strong class="text-white" id="solRangeUpper">$0.00</strong></span>
           </div>
         </div>
 
-        <!-- Token 2: USDC Total -->
-        <div class="glass-card p-5 rounded-2xl border-l-4 border-l-brand-500 space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-semibold text-gray-400 flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-brand-500"></span> USD Coin (USDC)
-            </span>
-            <span class="text-[11px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono">Pool SOL-USDC</span>
+        <!-- Rango cbBTC-USDC -->
+        <div class="glass-card p-5 rounded-2xl space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-amber-400">🟠 Pool cbBTC-USDC (±6.0%)</span>
+            <span class="font-mono text-white text-xs font-bold" id="btcRangePrice">$0</span>
           </div>
-          <div class="text-2xl font-black text-brand-400 font-mono tracking-tight" id="tokenUsdcTotal">
-            $0.00 USDC
+          <div class="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/10">
+            <div id="btcRangeProgress" class="h-full bg-gradient-to-r from-amber-500 to-yellow-400" style="width: 50%;"></div>
           </div>
-          <div class="flex justify-between text-xs text-gray-400 pt-1 border-t border-gray-800">
-            <span>Valoración:</span>
-            <span class="font-mono text-white font-semibold" id="tokenUsdcUsdVal">0,00 € ($0.00 USD)</span>
-          </div>
-          <div class="text-[11px] text-gray-500">
-            Liquidez quote estable en pool SOL-USDC
+          <div class="flex justify-between text-[11px] font-mono text-gray-400">
+            <span>P-min: <strong class="text-white" id="btcRangeLower">$0</strong></span>
+            <span>P-max: <strong class="text-white" id="btcRangeUpper">$0</strong></span>
           </div>
         </div>
 
-        <!-- Token 3: JitoSOL Total -->
-        <div class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-400 space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-semibold text-gray-400 flex items-center gap-2">
-              <span class="w-3 h-3 rounded-full bg-amber-400"></span> Jito Staked SOL (JitoSOL)
-            </span>
-            <span class="text-[11px] px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 font-mono">Pool JitoSOL-SOL</span>
+        <!-- Rango HYPE-SOL -->
+        <div class="glass-card p-5 rounded-2xl space-y-3">
+          <div class="flex justify-between items-center text-xs">
+            <span class="font-bold text-sky-400">🚀 Pool HYPE-SOL (±8.0%)</span>
+            <span class="font-mono text-white text-xs font-bold" id="hypeRangePrice">0.000 SOL</span>
           </div>
-          <div class="text-2xl font-black text-amber-300 font-mono tracking-tight" id="tokenJitoTotal">
-            0.0000 JitoSOL
+          <div class="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/10">
+            <div id="hypeRangeProgress" class="h-full bg-gradient-to-r from-sky-500 to-blue-400" style="width: 50%;"></div>
           </div>
-          <div class="flex justify-between text-xs text-gray-400 pt-1 border-t border-gray-800">
-            <span>Valoración:</span>
-            <span class="font-mono text-white font-semibold" id="tokenJitoUsdVal">0,00 € ($0.00 USD)</span>
-          </div>
-          <div class="text-[11px] text-gray-500" id="jitoExchangeRate">
-            Ratio actual: 1 JitoSOL = 1.308 SOL (+7.5% APY Staking)
+          <div class="flex justify-between text-[11px] font-mono text-gray-400">
+            <span>P-min: <strong class="text-white" id="hypeRangeLower">0.000 SOL</strong></span>
+            <span>P-max: <strong class="text-white" id="hypeRangeUpper">0.000 SOL</strong></span>
           </div>
         </div>
 
       </div>
     </div>
 
-    <!-- Charts Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="lg:col-span-2 glass-card p-5 rounded-2xl space-y-4">
-        <div class="flex justify-between items-center">
-          <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-2">
-            <i data-lucide="trending-up" class="w-4 h-4 text-brand-500"></i>
-            Evolución del Capital (Prueba en Vivo a 30 Días)
-          </h3>
-          <span class="text-xs text-gray-500">Base 1.000 € ($1.080 USD)</span>
-        </div>
-        <div class="h-64">
-          <canvas id="equityChart"></canvas>
-        </div>
-      </div>
-
-      <div class="glass-card p-5 rounded-2xl space-y-4">
-        <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-2">
-          <i data-lucide="pie-chart" class="w-4 h-4 text-purple-400"></i>
-          Distribución de Posiciones
-        </h3>
-        <div class="space-y-3 pt-2">
-          <div class="p-3 rounded-xl bg-gray-900/60 border border-gray-800">
-            <div class="flex justify-between text-xs text-gray-400 mb-1">
-              <span>Pool SOL-USDC (Flujo USD)</span>
-              <span>500 € (50%)</span>
-            </div>
-            <div class="text-base font-bold text-white font-mono" id="solUsdcValBox">500,00 € ($540.00 USD)</div>
-            <div class="text-[11px] text-emerald-400 font-semibold" id="solUsdcRoiBox">+0.0% ROI</div>
-          </div>
-
-          <div class="p-3 rounded-xl bg-gray-900/60 border border-gray-800">
-            <div class="flex justify-between text-xs text-gray-400 mb-1">
-              <span>Pool JitoSOL-SOL (Acumula SOL)</span>
-              <span>500 € (50%)</span>
-            </div>
-            <div class="text-base font-bold text-white font-mono" id="jitoValBox">500,00 € (~5.78 SOL)</div>
-            <div class="text-[11px] text-purple-400 font-semibold" id="jitoRoiBox">+0.0% en SOL</div>
-          </div>
-
-          <div class="p-3 rounded-xl bg-brand-500/10 border border-brand-500/20">
-            <div class="text-xs text-brand-400 font-medium">Comisiones Totales Generadas</div>
-            <div class="text-base font-bold text-brand-400 font-mono" id="totalFeesCombinedBox">0,00 € ($0.00 USD)</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Rebalance History Table -->
+    <!-- GRÁFICO HISTÓRICO EN TIEMPO REAL -->
     <div class="glass-card p-5 rounded-2xl space-y-4">
-      <div class="flex justify-between items-center">
-        <h3 class="text-sm font-semibold text-gray-300 flex items-center gap-2">
-          <i data-lucide="history" class="w-4 h-4 text-amber-400"></i>
-          Registro de Rebalanceos en Vivo (Ambos Pools)
-        </h3>
-        <span class="text-xs text-gray-500" id="rebalStatusCount">0 eventos registrados</span>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+        <div>
+          <h2 class="text-sm font-bold text-white flex items-center gap-2">
+            <i data-lucide="line-chart" class="w-4 h-4 text-brand-400"></i>
+            Evolución Patrimonial en Vivo (Simulación Real 1.000 €)
+          </h2>
+          <p class="text-xs text-gray-400">Seguimiento en directo del capital + comisiones acumuladas</p>
+        </div>
+        <div class="text-xs font-mono text-gray-400 bg-black/30 px-3 py-1 rounded-lg border border-white/5">
+          Ticker: <span class="text-brand-400 font-bold" id="tickerSeconds">0s</span>
+        </div>
       </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="text-gray-400 uppercase border-b border-gray-800">
-            <tr>
-              <th class="py-3 px-4">Fecha y Hora</th>
-              <th class="py-3 px-4">Pool</th>
-              <th class="py-3 px-4">Nº Evento</th>
-              <th class="py-3 px-4">Precio Disparo</th>
-              <th class="py-3 px-4">Swap de Reequilibrio</th>
-              <th class="py-3 px-4">Coste Gas / Slippage</th>
-              <th class="py-3 px-4">Nuevo Rango Centrado</th>
-            </tr>
-          </thead>
-          <tbody id="rebalTableBody" class="divide-y divide-gray-800/50 text-gray-300">
-            <tr>
-              <td colspan="7" class="py-6 text-center text-gray-500">Esperando el primer evento de rebalanceo...</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="h-64 w-full">
+        <canvas id="equityChart"></canvas>
       </div>
     </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-xs text-gray-500 py-4 border-t border-white/5 space-y-1">
+      <p>CriptPool Institutional Engine • Conectado a Meteora DLMM DatAPI en Solana Mainnet</p>
+      <p>Desplegado en Google Cloud Run & Firebase Hosting • Sincronización en tiempo real c/10s</p>
+    </footer>
 
   </div>
 
-  <!-- Firebase Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <script src="app.js?v=4.0"></script>
+  <!-- Lucide Icons initialization -->
   <script>lucide.createIcons();</script>
+
+  <!-- Firebase App Logic -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="app.js?v=5.0"></script>
 </body>
 </html>

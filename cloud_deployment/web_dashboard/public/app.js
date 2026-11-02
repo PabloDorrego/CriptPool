@@ -23,6 +23,14 @@ function setCls(id, cls) {
   if (el) el.className = cls;
 }
 
+// Global Manual Force Refresh
+window.forceRefresh = function() {
+  console.log("[*] Forzando actualización inmediata...");
+  const btn = document.getElementById("lastUpdated");
+  if (btn) btn.textContent = "Actualizando ahora...";
+  pollFirestoreREST();
+};
+
 // Initialize Firebase SDK
 try {
   if (typeof firebase !== "undefined") {
@@ -130,11 +138,52 @@ function renderView() {
   const hype = latestData.hype_sol || {};
   const tokens = latestData.tokens || {};
 
-  // 1. EXACT TOKEN BALANCES
-  const solTotalHeld = Number(tokens.sol_total) || 0.0;
-  const usdcTotalHeld = Number(tokens.usdc_total) || 0.0;
-  const cbbtcTotalHeld = Number(tokens.cbbtc_total) || 0.0;
-  const hypeTotalHeld = Number(tokens.hype_total) || 0.0;
+  // ==========================================
+  // 0. DESGLOSE DE COMPRA INICIAL (1.000 €)
+  // ==========================================
+  // 500 € a SOL-USDC (250 € en SOL + 250 € en USDC)
+  const initSolAmt = (250.0 * eurRate) / solPrice;
+  const initUsdcSol = 250.0 * eurRate;
+  setTxt("initSolUsdcSol", `~${initSolAmt.toFixed(3)} SOL ($${initUsdcSol.toFixed(2)})`);
+  setTxt("initSolUsdcUsdc", `${initUsdcSol.toFixed(2)} USDC (250 €)`);
+
+  // 250 € a cbBTC-USDC (125 € en cbBTC + 125 € en USDC)
+  const initBtcAmt = (125.0 * eurRate) / btcPrice;
+  const initUsdcBtc = 125.0 * eurRate;
+  setTxt("initCbbtcCoin", `~${initBtcAmt.toFixed(6)} cbBTC ($${initUsdcBtc.toFixed(2)})`);
+  setTxt("initCbbtcUsdc", `${initUsdcBtc.toFixed(2)} USDC (125 €)`);
+
+  // 250 € a HYPE-SOL (125 € en HYPE + 125 € en SOL)
+  const initHypeSolAmt = (125.0 * eurRate) / solPrice;
+  const initHypeCoinAmt = initHypeSolAmt / hypePriceSol;
+  setTxt("initHypeCoin", `~${initHypeCoinAmt.toFixed(3)} HYPE ($${(125.0 * eurRate).toFixed(2)})`);
+  setTxt("initHypeSol", `~${initHypeSolAmt.toFixed(3)} SOL (125 €)`);
+
+  // ==========================================
+  // MONEDAS DENTRO DE CADA POOL INDIVIDUAL
+  // ==========================================
+  const solInSolPool = Number(solUsdc.token_x) || initSolAmt;
+  const usdcInSolPool = Number(solUsdc.token_y) || initUsdcSol;
+  setTxt("poolSolTokens", solInSolPool.toFixed(4) + " SOL");
+  setTxt("poolSolUsdcTokens", usdcInSolPool.toFixed(2) + " USDC");
+
+  const btcInBtcPool = Number(cbbtc.token_x) || initBtcAmt;
+  const usdcInBtcPool = Number(cbbtc.token_y) || initUsdcBtc;
+  setTxt("poolBtcTokens", btcInBtcPool.toFixed(6) + " cbBTC");
+  setTxt("poolBtcUsdcTokens", usdcInBtcPool.toFixed(2) + " USDC");
+
+  const hypeInHypePool = Number(hype.token_x) || initHypeCoinAmt;
+  const solInHypePool = Number(hype.token_y) || initHypeSolAmt;
+  setTxt("poolHypeTokens", hypeInHypePool.toFixed(3) + " HYPE");
+  setTxt("poolHypeSolTokens", solInHypePool.toFixed(4) + " SOL");
+
+  // ==========================================
+  // INVENTARIO TOTAL DE TOKENS EN CARTERA
+  // ==========================================
+  const solTotalHeld = tokens.sol_total !== undefined ? Number(tokens.sol_total) : (solInSolPool + solInHypePool);
+  const usdcTotalHeld = tokens.usdc_total !== undefined ? Number(tokens.usdc_total) : (usdcInSolPool + usdcInBtcPool);
+  const cbbtcTotalHeld = tokens.cbbtc_total !== undefined ? Number(tokens.cbbtc_total) : btcInBtcPool;
+  const hypeTotalHeld = tokens.hype_total !== undefined ? Number(tokens.hype_total) : hypeInHypePool;
 
   const solEurVal = Number(tokens.sol_eur_val) || (solTotalHeld * solPrice / eurRate);
   const solUsdVal = Number(tokens.sol_usd_val) || (solTotalHeld * solPrice);

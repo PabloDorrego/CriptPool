@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>CriptPool | Meteora DLMM Tri-Pool Portfolio Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -26,10 +29,10 @@
     body { background-color: #0B0E14; color: #E2E8F0; font-family: system-ui, -apple-system, sans-serif; }
     .glass-card { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); }
     .glow-green { box-shadow: 0 0 25px -5px rgba(20, 241, 149, 0.25); }
-    .card-global { background: rgba(20, 241, 149, 0.03); border: 1px solid rgba(20, 241, 149, 0.25); }
-    .card-sol-usdc { background: rgba(0, 194, 116, 0.03); border: 1px solid rgba(0, 194, 116, 0.25); }
-    .card-cbbtc { background: rgba(247, 147, 26, 0.03); border: 1px solid rgba(247, 147, 26, 0.25); }
-    .card-hype { background: rgba(56, 189, 248, 0.03); border: 1px solid rgba(56, 189, 248, 0.25); }
+    .card-global { background: rgba(20, 241, 149, 0.04); border: 1px solid rgba(20, 241, 149, 0.3); }
+    .card-sol-usdc { background: rgba(0, 194, 116, 0.04); border: 1px solid rgba(0, 194, 116, 0.3); }
+    .card-cbbtc { background: rgba(247, 147, 26, 0.04); border: 1px solid rgba(247, 147, 26, 0.3); }
+    .card-hype { background: rgba(56, 189, 248, 0.04); border: 1px solid rgba(56, 189, 248, 0.3); }
   </style>
 </head>
 <body class="min-h-screen p-3 md:p-6">
@@ -47,33 +50,119 @@
             CriptPool <span class="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/30">Meteora Tri-Pool DLMM</span>
           </h1>
           <p class="text-xs text-gray-400">
-            Cartera Multi-Pool Institucional (50% SOL-USDC / 25% cbBTC-USDC / 25% HYPE-SOL) • Capital Base: <strong class="text-brand-400">1.000,00 € ($1.080,00 USD)</strong>
+            Cartera Multi-Pool Institucional • Capital Total: <strong class="text-brand-400">1.000,00 € ($1.080,00 USD)</strong>
           </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-4">
+      <div class="flex flex-wrap items-center gap-3">
+        <button onclick="forceRefresh()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-200 hover:text-white transition-all cursor-pointer">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-brand-400"></i>
+          <span>Actualizar Ahora</span>
+        </button>
+
         <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
           <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="connectionBadge">EN VIVO (TICK CADA 10s)</span>
+          <span id="connectionBadge">EN VIVO (CADA 10s)</span>
         </div>
-        <div class="text-right text-xs text-gray-400">
-          <div>SOL: <span class="font-mono text-white font-bold" id="solSpotPrice">$0.00</span> | BTC: <span class="font-mono text-white font-bold" id="btcSpotPrice">$0</span></div>
-          <div class="text-[11px] text-emerald-400 font-mono" id="lastUpdated">Sincronizando...</div>
+
+        <div class="text-right text-xs text-gray-400 font-mono">
+          <div>SOL: <span class="text-white font-bold" id="solSpotPrice">$0.00</span> | BTC: <span class="text-white font-bold" id="btcSpotPrice">$0</span></div>
+          <div class="text-[11px] text-emerald-400" id="lastUpdated">Sincronizando...</div>
         </div>
       </div>
     </header>
 
-    <!-- REAL MARKET CONNECTION VERIFICATION BANNER -->
-    <div class="p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/40 via-amber-950/30 to-sky-950/40 border border-emerald-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
-      <div class="flex items-center gap-2 text-emerald-400 font-semibold">
-        <i data-lucide="shield-check" class="w-4 h-4 flex-shrink-0 text-emerald-400"></i>
-        <span>DATOS 100% REALES ENLAZADOS CON SOLANA METEORA DLMM</span>
+    <!-- DESGLOSE DE ASIGNACIÓN Y COMPRA DE MONEDAS DEL CAPITAL INICIAL (1.000 €) -->
+    <div class="glass-card p-5 rounded-2xl border border-brand-500/20 space-y-3">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-2">
+        <h2 class="text-sm font-bold text-white flex items-center gap-2">
+          <i data-lucide="coins" class="w-4 h-4 text-brand-400"></i>
+          Distribución y Compra de Monedas para la Simulación Real (1.000,00 €)
+        </h2>
+        <span class="text-xs font-mono text-brand-400 font-semibold">1.000 € = $1.080 USD (1,08 €/$)</span>
       </div>
-      <div class="flex flex-wrap gap-x-4 gap-y-1 text-gray-400 text-[11px] font-mono">
-        <span>SOL-USDC (50%): <a href="https://app.meteora.ag/dlmm/5rCf1DM8LjKTw4YqhnoLcngyZYeNnQqztScTogYHAS6" target="_blank" class="text-brand-400 hover:underline">5rCf...HAS6 ↗</a></span>
-        <span>cbBTC-USDC (25%): <a href="https://app.meteora.ag/dlmm/7ubS3GccjhQY99AYNKXjNJqnXjaokEdfdV915xnCb96r" target="_blank" class="text-amber-400 hover:underline">7ubS...Cb96r ↗</a></span>
-        <span>HYPE-SOL (25%): <a href="https://app.meteora.ag/dlmm/81GpCm4d13y8TozYtThabuSCLQN2o3bbrvDogXFPn8sA" target="_blank" class="text-sky-400 hover:underline">81Gp...Pn8sA ↗</a></span>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        
+        <!-- Pool 1 Allocation -->
+        <div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/20 space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-emerald-400">1. Pool SOL - USDC (50%)</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">500 € ($540)</span>
+          </div>
+          <p class="text-gray-400 text-[11px]">Compra previa para entrar al pool (50/50):</p>
+          <div class="font-mono text-gray-200 bg-black/40 p-2 rounded-lg space-y-0.5">
+            <div>• 250 € en SOL: <strong class="text-white" id="initSolUsdcSol">~2.947 SOL</strong></div>
+            <div>• 250 € en USDC: <strong class="text-white" id="initSolUsdcUsdc">270.00 USDC</strong></div>
+          </div>
+        </div>
+
+        <!-- Pool 2 Allocation -->
+        <div class="p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-amber-400">2. Pool cbBTC - USDC (25%)</span>
+            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono font-bold">250 € ($270)</span>
+          </div>
+          <p class="text-gray-400 text-[11px]">Compra previa para entrar al pool (50/50):</p>
+          <div class="font-mono text-gray-200 bg-black/40 p-2 rounded-lg space-y-0.5">
+            <div>• 125 € en Bitcoin: <strong class="text-white" id="initCbbtcCoin">~0.00175 cbBTC</strong></div>
+            <div>• 125 € en USDC: <strong class="text-white" id="initCbbtcUsdc">135.00 USDC</strong></div>
+          </div>
+        </div>
+
+        <!-- Pool 3 Allocation -->
+        <div class="p-3 rounded-xl bg-sky-950/20 border border-sky-500/20 space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-sky-400">3. Pool HYPE - SOL (25%)</span>
+            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono font-bold">250 € ($270)</span>
+          </div>
+          <p class="text-gray-400 text-[11px]">Compra previa para entrar al pool (50/50):</p>
+          <div class="font-mono text-gray-200 bg-black/40 p-2 rounded-lg space-y-0.5">
+            <div>• 125 € en Hyperliquid: <strong class="text-white" id="initHypeCoin">~1.622 HYPE</strong></div>
+            <div>• 125 € en SOL: <strong class="text-white" id="initHypeSol">~1.474 SOL</strong></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- INVENTARIO TOTAL DE TOKENS EN CARTERA (4 Assets) -->
+    <div class="space-y-3">
+      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
+        <i data-lucide="wallet" class="w-4 h-4 text-brand-400"></i>
+        Inventario Total de Monedas en tu Cartera (Suma de todos los pools)
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Token SOL -->
+        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-purple-500">
+          <div class="text-[11px] text-gray-400">SOL Total (en Pools SOL-USDC + HYPE-SOL)</div>
+          <div class="text-2xl font-bold font-mono text-white" id="tokenSolTotal">0.0000 SOL</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenSolVal">0,00 € ($0.00)</div>
+        </div>
+
+        <!-- Token USDC -->
+        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-emerald-500">
+          <div class="text-[11px] text-gray-400">USDC Total (en Pools SOL-USDC + cbBTC-USDC)</div>
+          <div class="text-2xl font-bold font-mono text-emerald-400" id="tokenUsdcTotal">0.00 USDC</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenUsdcVal">0,00 € ($0.00)</div>
+        </div>
+
+        <!-- Token cbBTC -->
+        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-amber-500">
+          <div class="text-[11px] text-gray-400">cbBTC Total (Coinbase Wrapped Bitcoin)</div>
+          <div class="text-2xl font-bold font-mono text-amber-400" id="tokenCbbtcTotal">0.000000 cbBTC</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenCbbtcVal">0,00 € ($0.00)</div>
+        </div>
+
+        <!-- Token HYPE -->
+        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-sky-500">
+          <div class="text-[11px] text-gray-400">HYPE Total (Hyperliquid)</div>
+          <div class="text-2xl font-bold font-mono text-sky-400" id="tokenHypeTotal">0.000 HYPE</div>
+          <div class="text-xs text-gray-400 font-mono" id="tokenHypeVal">0,00 € ($0.00)</div>
+        </div>
+
       </div>
     </div>
 
@@ -101,7 +190,7 @@
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Patrimonio Vivo:</span>
-              <span class="font-mono font-bold text-white text-sm" id="globalPortfolioEur">1.000,00 €</span>
+              <span class="font-mono font-bold text-white text-base" id="globalPortfolioEur">1.000,00 €</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">En Dólares (USD):</span>
@@ -109,7 +198,7 @@
             </div>
             <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
               <span class="text-gray-400">Comisiones Cobradas:</span>
-              <span class="font-mono font-bold text-brand-400 text-sm" id="globalFeesEur">+0,0000 €</span>
+              <span class="font-mono font-bold text-brand-400 text-base" id="globalFeesEur">+0,0000 €</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Fees vs Capital Inicial:</span>
@@ -117,7 +206,7 @@
             </div>
             <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
               <span class="text-gray-400">ROI Neto Total:</span>
-              <span class="font-mono font-bold text-brand-400" id="globalRoiPct">+0.00%</span>
+              <span class="font-mono font-bold text-brand-400 text-sm" id="globalRoiPct">+0.00%</span>
             </div>
             <div class="flex justify-between items-center">
               <span class="text-gray-400">Yield Real (APR / APY):</span>
@@ -140,9 +229,10 @@
               <span class="text-gray-400">Valor Posición ($):</span>
               <span class="font-mono font-bold text-white text-sm" id="solUsdcVal">$540.00</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Capital Inicial:</span>
-              <span class="font-mono text-gray-400">$540.00 USD</span>
+            <div class="bg-black/30 p-2 rounded-lg font-mono text-[11px] text-gray-300 border border-white/5 space-y-0.5">
+              <div class="text-gray-400 text-[10px]">Monedas en este Pool:</div>
+              <div>• <strong class="text-white" id="poolSolTokens">0.0000 SOL</strong></div>
+              <div>• <strong class="text-emerald-400" id="poolSolUsdcTokens">0.00 USDC</strong></div>
             </div>
             <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
               <span class="text-gray-400">Comisiones Cobradas:</span>
@@ -177,9 +267,10 @@
               <span class="text-gray-400">Valor Posición ($):</span>
               <span class="font-mono font-bold text-white text-sm" id="cbbtcVal">$270.00</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Capital Inicial:</span>
-              <span class="font-mono text-gray-400">$270.00 USD</span>
+            <div class="bg-black/30 p-2 rounded-lg font-mono text-[11px] text-gray-300 border border-white/5 space-y-0.5">
+              <div class="text-gray-400 text-[10px]">Monedas en este Pool:</div>
+              <div>• <strong class="text-amber-400" id="poolBtcTokens">0.000000 cbBTC</strong></div>
+              <div>• <strong class="text-emerald-400" id="poolBtcUsdcTokens">0.00 USDC</strong></div>
             </div>
             <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
               <span class="text-gray-400">Comisiones Cobradas:</span>
@@ -211,12 +302,13 @@
 
           <div class="space-y-2 text-xs">
             <div class="flex justify-between items-center">
-              <span class="text-gray-400">Valor Posición (SOL):</span>
+              <span class="text-gray-400">Valor Posición:</span>
               <span class="font-mono font-bold text-white text-sm" id="hypeValSol">0.000 SOL</span>
             </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Valor Posición ($):</span>
-              <span class="font-mono text-gray-300" id="hypeValUsd">$270.00</span>
+            <div class="bg-black/30 p-2 rounded-lg font-mono text-[11px] text-gray-300 border border-white/5 space-y-0.5">
+              <div class="text-gray-400 text-[10px]">Monedas en este Pool:</div>
+              <div>• <strong class="text-sky-400" id="poolHypeTokens">0.000 HYPE</strong></div>
+              <div>• <strong class="text-purple-300" id="poolHypeSolTokens">0.0000 SOL</strong></div>
             </div>
             <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
               <span class="text-gray-400">Comisiones Cobradas:</span>
@@ -482,45 +574,6 @@
       </div>
     </div>
 
-    <!-- INVENTARIO REAL DE TOKENS EN CARTERA (4 Assets) -->
-    <div class="space-y-3">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
-        <i data-lucide="wallet" class="w-4 h-4 text-brand-400"></i>
-        Inventario Real de Tokens en Cartera
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- Token SOL -->
-        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-purple-500">
-          <div class="text-[11px] text-gray-400">SOL Total (SOL-USDC + HYPE-SOL)</div>
-          <div class="text-xl font-bold font-mono text-white" id="tokenSolTotal">0.0000 SOL</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenSolVal">0,00 € ($0.00)</div>
-        </div>
-
-        <!-- Token USDC -->
-        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-emerald-500">
-          <div class="text-[11px] text-gray-400">USDC Total (SOL-USDC + cbBTC-USDC)</div>
-          <div class="text-xl font-bold font-mono text-emerald-400" id="tokenUsdcTotal">0.00 USDC</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenUsdcVal">0,00 € ($0.00)</div>
-        </div>
-
-        <!-- Token cbBTC -->
-        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-amber-500">
-          <div class="text-[11px] text-gray-400">cbBTC Total (Coinbase Wrapped BTC)</div>
-          <div class="text-xl font-bold font-mono text-amber-400" id="tokenCbbtcTotal">0.000000 cbBTC</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenCbbtcVal">0,00 € ($0.00)</div>
-        </div>
-
-        <!-- Token HYPE -->
-        <div class="glass-card p-4 rounded-xl space-y-1 border-l-4 border-l-sky-500">
-          <div class="text-[11px] text-gray-400">HYPE Total (Hyperliquid)</div>
-          <div class="text-xl font-bold font-mono text-sky-400" id="tokenHypeTotal">0.000 HYPE</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenHypeVal">0,00 € ($0.00)</div>
-        </div>
-
-      </div>
-    </div>
-
     <!-- VISUALIZADORES DE RANGO INTERACTIVO (3 Pools) -->
     <div class="space-y-3">
       <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
@@ -611,6 +664,6 @@
   <!-- Firebase App Logic -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="app.js?v=5.0"></script>
+  <script src="app.js?v=7.0"></script>
 </body>
 </html>

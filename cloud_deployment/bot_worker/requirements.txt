@@ -1,0 +1,2 @@
+google-cloud-firestore>=2.14.0
+requests>=2.31.0

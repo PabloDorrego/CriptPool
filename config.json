@@ -1,0 +1,12 @@
+{
+  "pool_address": "5rCf1DM8LjKTw4YqhnoLcngyZYeNnQqztScTogYHAS6",
+  "pool_name": "SOL-USDC",
+  "initial_virtual_capital_usd": 1000.0,
+  "half_range_pct": 0.075,
+  "rebalance_threshold": 0.90,
+  "polling_interval_seconds": 15,
+  "swap_fee_pct": 0.001,
+  "swap_slippage_pct": 0.0005,
+  "solana_priority_fee_usd": 0.04,
+  "dynamic_fee_enabled": true
+}

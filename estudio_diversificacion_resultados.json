@@ -1,0 +1,45 @@
+{
+  "days": 365,
+  "initial_capital_usd": 10000.0,
+  "portfolio_stats": {
+    "100% SOL/USDC (Meteora Agresivo)": {
+      "final_val": 39779.55380761343,
+      "roi_pct": 297.79553807613433,
+      "vol_annual_pct": 35.65933107197132,
+      "sharpe": 3.9329268997183267,
+      "sortino": 7.518727192208984,
+      "max_drawdown_pct": -15.463691406422841
+    },
+    "50% JitoSOL + 50% SOL/USDC (Solana Equilibrado)": {
+      "final_val": 28475.241429924834,
+      "roi_pct": 184.75241429924833,
+      "vol_annual_pct": 48.96260206711525,
+      "sharpe": 2.29303023368159,
+      "sortino": 4.214537278964798,
+      "max_drawdown_pct": -30.771908442034253
+    },
+    "Diversificado Cross-Chain (Solana + Ethereum L2)": {
+      "final_val": 20599.505160163433,
+      "roi_pct": 105.99505160163434,
+      "vol_annual_pct": 39.96789053807572,
+      "sharpe": 1.897106303563559,
+      "sortino": 3.4921543462682334,
+      "max_drawdown_pct": -24.9007660017544
+    },
+    "HODL 50% SOL + 50% ETH (Pasivo Sin LP)": {
+      "final_val": 9508.710125902551,
+      "roi_pct": -4.912898740974487,
+      "vol_annual_pct": 55.42484694864584,
+      "sharpe": 0.10305799802129352,
+      "sortino": 0.18454005519993094,
+      "max_drawdown_pct": -44.270895593092334
+    }
+  },
+  "diversified_breakdown": {
+    "sol_accumulated": 26.917247872822642,
+    "sol_gain_pct": 61.50348723693584,
+    "eth_accumulated": 1.09032925843371,
+    "eth_gain_pct": 22.116876944575516,
+    "usd_gain_pct": 174.9349311481038
+  }
+}

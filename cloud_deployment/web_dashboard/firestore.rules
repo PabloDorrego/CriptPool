@@ -1,0 +1,107 @@
+rules_version = '2';
+
+// ============================================================================
+// Cloud Firestore Security Rules - CriptPool Meteora DLMM Forward Test Dashboard
+// ============================================================================
+//
+// Assumed Data Model:
+// ----------------------------------------------------------------------------
+// Collection: meteora_bot
+// Document: current_state
+// Description: Real-time telemetry, position bounds, inventory, and ROI metrics.
+// Fields:
+//   - started_at: string (ISO 8601) - Initial position start timestamp
+//   - last_updated: string (ISO 8601) - Timestamp of latest telemetry tick
+//   - pool_address: string - Solana DLMM pool address
+//   - pool_name: string - Human readable trading pair name (e.g. "SOL-USDC")
+//   - initial_capital_usd: number - Initial capital allocation in USD
+//   - current_capital_usd: number - Current position capital in USD
+//   - entry_price: number - Spot price when range bounds were established
+//   - current_price: number - Latest spot price
+//   - p_lower: number - Lower price bound of active liquidity bins
+//   - p_upper: number - Upper price bound of active liquidity bins
+//   - half_range_pct: number - Half-range width percentage (e.g. 0.075 for 7.5%)
+//   - L: number - Liquidity invariant
+//   - token_x: number - Token X (SOL) balance held
+//   - token_y: number - Token Y (USDC) balance held
+//   - accumulated_fees_usd: number - Total accrued trading fees in USD
+//   - total_rebalances: int - Cumulative rebalance count
+//   - total_rebalance_costs_usd: number - Cumulative friction & gas costs in USD
+//   - hodl_initial_x: number - 50/50 HODL benchmark initial SOL quantity
+//   - hodl_initial_y: number - 50/50 HODL benchmark initial USDC quantity
+//   - last_poll_ts: number - Epoch timestamp of last update
+//   - status: string - Daemon operational status ('RUNNING', etc.)
+//   - is_in_range: bool - Whether current spot price is within active bounds
+//   - current_pos_val_usd: number - Valuation of active bin tokens in USD
+//   - total_portfolio_usd: number - Total equity (position + accrued fees) in USD
+//   - net_profit_usd: number - PnL in USD
+//   - roi_pct: number - Return on Investment percentage
+//   - hodl_val_usd: number - Current value of 50/50 HODL benchmark in USD
+//   - pool_metrics: map - Detailed pool stats (tvl, volume_24h, base_fee, dynamic_fee, pool_apy)
+//
+// Subcollection: meteora_bot/history/snapshots
+// Document: [snapshot_id]
+// Description: Hourly telemetry snapshots for historical equity and drawdown charting.
+// Fields:
+//   - timestamp: string (ISO 8601) - Snapshot timestamp
+//   - epoch: number - Epoch seconds for ordering
+//   - total_portfolio_usd: number - Bot portfolio valuation at snapshot
+//   - hodl_val_usd: number - 50/50 benchmark valuation at snapshot
+//   - price_sol: number - SOL price at snapshot
+//   - fees_usd: number - Cumulative fees at snapshot
+//   - roi_pct: number - ROI percentage at snapshot
+//
+// Subcollection: meteora_bot/history/rebalances
+// Document: [rebalance_id]
+// Description: Execution log of range recentering and capital swap events.
+// Fields:
+//   - timestamp: string (ISO 8601) - Rebalance event timestamp
+//   - price: number - Execution spot price
+//   - rebalance_number: int - Incremental rebalance index
+//   - swap_amount_usd: number - Value swapped to recenter position
+//   - cost_usd: number - Rebalance cost (friction + gas)
+//   - new_bounds: list[number] - [p_lower, p_upper] updated boundaries
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    // Check if the request is from an authenticated Firebase user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the caller has verified admin custom claims
+    function isAdmin() {
+      return isAuthenticated() &&
+        request.auth.token != null &&
+        request.auth.token.admin == true;
+    }
+
+    // ===============================================================
+    // Security Rules & Access Control
+    // ===============================================================
+
+    // 1. Default Deny: All unspecified paths and collections are strictly locked down
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // 2. Meteora Bot Public Forward-Testing Telemetry & History
+    // Path: /databases/{database}/documents/meteora_bot/{document=**}
+    //
+    // - READ: Public / Unauthenticated. Allows web dashboard visitors to inspect
+    //   current_state, historical snapshots, and rebalances in real time.
+    // - WRITE: Disallowed from client applications. All mutations are performed
+    //   by the Cloud Run Python worker using the Google Cloud Admin SDK service
+    //   account, which bypasses security rules entirely.
+    match /meteora_bot/{document=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "Mercado Lateral (Crab)": {
+    "HODL 50/50 (Sin LP)": {
+      "final_total": 10314.615928826031,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 3.1461592882603147,
+      "apr_pct": 12.76816311152311,
+      "in_range_pct": 100.0
+    },
+    "HODL 100% SOL": {
+      "final_total": 10629.231857652065,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 6.292318576520647,
+      "apr_pct": 25.536326223046295,
+      "in_range_pct": 100.0
+    },
+    "Pasivo Amplio (\u00b120%, sin rebalanceo)": {
+      "final_total": 30908.42357969317,
+      "fees": 20673.73072763498,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 209.08423579693172,
+      "apr_pct": 848.5335236092146,
+      "in_range_pct": 100.0
+    },
+    "Bot Estrecho Agresivo (\u00b12.5%, rebalanceo 90%)": {
+      "final_total": 22744.08763108299,
+      "fees": 16428.020237982775,
+      "rebalances": 78,
+      "rebal_cost": 436.4282812986687,
+      "roi_pct": 127.44087631082992,
+      "apr_pct": 517.1975563614515,
+      "in_range_pct": 99.76851851851852
+    },
+    "Bot Moderado \u00d3ptimo (\u00b17.5%, rebalanceo 90%)": {
+      "final_total": 26295.975472655977,
+      "fees": 18393.006751325604,
+      "rebalances": 16,
+      "rebal_cost": 96.03645124864146,
+      "roi_pct": 162.95975472655977,
+      "apr_pct": 661.3450045986217,
+      "in_range_pct": 100.0
+    },
+    "Bot Cuantitativo ATR Adaptativo": {
+      "final_total": 23976.736726226238,
+      "fees": 17069.24157816417,
+      "rebalances": 50,
+      "rebal_cost": 281.1344680197186,
+      "roi_pct": 139.76736726226238,
+      "apr_pct": 567.2225654726815,
+      "in_range_pct": 100.0
+    }
+  },
+  "Mercado Alcista (Bull Run)": {
+    "HODL 50/50 (Sin LP)": {
+      "final_total": 10149.124530055175,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 1.4912453005517456,
+      "apr_pct": 6.051970511405835,
+      "in_range_pct": 100.0
+    },
+    "HODL 100% SOL": {
+      "final_total": 10298.249060110351,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 2.982490601103509,
+      "apr_pct": 12.10394102281174,
+      "in_range_pct": 100.0
+    },
+    "Pasivo Amplio (\u00b120%, sin rebalanceo)": {
+      "final_total": 35884.869480696376,
+      "fees": 25761.389066737967,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 258.84869480696375,
+      "apr_pct": 1050.4942864249279,
+      "in_range_pct": 54.53703703703704
+    },
+    "Bot Estrecho Agresivo (\u00b12.5%, rebalanceo 90%)": {
+      "final_total": 35187.89068007751,
+      "fees": 31295.515160538795,
+      "rebalances": 127,
+      "rebal_cost": 660.4800437317307,
+      "roi_pct": 251.8789068007751,
+      "apr_pct": 1022.2085634331456,
+      "in_range_pct": 97.22222222222221
+    },
+    "Bot Moderado \u00d3ptimo (\u00b17.5%, rebalanceo 90%)": {
+      "final_total": 49125.55087480107,
+      "fees": 42259.1941515177,
+      "rebalances": 22,
+      "rebal_cost": 142.93206212377447,
+      "roi_pct": 391.2555087480107,
+      "apr_pct": 1587.8452730023434,
+      "in_range_pct": 99.86111111111111
+    },
+    "Bot Cuantitativo ATR Adaptativo": {
+      "final_total": 44474.93604686916,
+      "fees": 38750.37629978737,
+      "rebalances": 50,
+      "rebal_cost": 297.1461087659296,
+      "roi_pct": 344.7493604686916,
+      "apr_pct": 1399.10782123544,
+      "in_range_pct": 99.44444444444444
+    }
+  },
+  "Mercado Bajista (Bear Crash)": {
+    "HODL 50/50 (Sin LP)": {
+      "final_total": 6967.084585824036,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": -30.329154141759634,
+      "apr_pct": -123.08581722530785,
+      "in_range_pct": 100.0
+    },
+    "HODL 100% SOL": {
+      "final_total": 3934.1691716480723,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": -60.65830828351927,
+      "apr_pct": -246.1716344506157,
+      "in_range_pct": 100.0
+    },
+    "Pasivo Amplio (\u00b120%, sin rebalanceo)": {
+      "final_total": 23006.378803349642,
+      "fees": 18817.80428153768,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 130.06378803349642,
+      "apr_pct": 527.8422064359397,
+      "in_range_pct": 34.629629629629626
+    },
+    "Bot Estrecho Agresivo (\u00b12.5%, rebalanceo 90%)": {
+      "final_total": 28982.96960457251,
+      "fees": 27388.9012193234,
+      "rebalances": 170,
+      "rebal_cost": 586.6473661535614,
+      "roi_pct": 189.82969604572511,
+      "apr_pct": 770.3921831189011,
+      "in_range_pct": 95.32407407407408
+    },
+    "Bot Moderado \u00d3ptimo (\u00b17.5%, rebalanceo 90%)": {
+      "final_total": 42566.64297090177,
+      "fees": 38818.800478351666,
+      "rebalances": 29,
+      "rebal_cost": 133.00439079582208,
+      "roi_pct": 325.6664297090177,
+      "apr_pct": 1321.6629272357634,
+      "in_range_pct": 99.81481481481481
+    },
+    "Bot Cuantitativo ATR Adaptativo": {
+      "final_total": 42649.050473544834,
+      "fees": 39132.08915092103,
+      "rebalances": 41,
+      "rebal_cost": 175.72185127374493,
+      "roi_pct": 326.4905047354484,
+      "apr_pct": 1325.0072983846949,
+      "in_range_pct": 99.53703703703704
+    }
+  },
+  "Volatilidad Extrema (Whipsaw)": {
+    "HODL 50/50 (Sin LP)": {
+      "final_total": 10092.857849756378,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 0.9285784975637762,
+      "apr_pct": 3.7684810692796584,
+      "in_range_pct": 100.0
+    },
+    "HODL 100% SOL": {
+      "final_total": 10185.715699512755,
+      "fees": 0.0,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 1.8571569951275524,
+      "apr_pct": 7.536962138559317,
+      "in_range_pct": 100.0
+    },
+    "Pasivo Amplio (\u00b120%, sin rebalanceo)": {
+      "final_total": 75450.07906562481,
+      "fees": 65370.54225300001,
+      "rebalances": 0,
+      "rebal_cost": 0.0,
+      "roi_pct": 654.5007906562481,
+      "apr_pct": 2656.182375413274,
+      "in_range_pct": 78.47222222222221
+    },
+    "Bot Estrecho Agresivo (\u00b12.5%, rebalanceo 90%)": {
+      "final_total": 22488.140404071783,
+      "fees": 22054.250441400043,
+      "rebalances": 349,
+      "rebal_cost": 753.085928072104,
+      "roi_pct": 124.88140404071784,
+      "apr_pct": 506.81036473191324,
+      "in_range_pct": 88.8425925925926
+    },
+    "Bot Moderado \u00d3ptimo (\u00b17.5%, rebalanceo 90%)": {
+      "final_total": 53853.455399788516,
+      "fees": 50153.70745035053,
+      "rebalances": 54,
+      "rebal_cost": 230.918582600746,
+      "roi_pct": 438.5345539978852,
+      "apr_pct": 1779.7193983080842,
+      "in_range_pct": 99.35185185185185
+    },
+    "Bot Cuantitativo ATR Adaptativo": {
+      "final_total": 60870.5838412041,
+      "fees": 56456.87371855986,
+      "rebalances": 41,
+      "rebal_cost": 184.1141910858758,
+      "roi_pct": 508.705838412041,
+      "apr_pct": 2064.4978608888664,
+      "in_range_pct": 99.49074074074075
+    }
+  },
+  "JitoSOL_SOL": {
+    "initial_sol": 100.0,
+    "final_sol": 112.91360452327305,
+    "fees_sol": 12.703336949983488,
+    "rebalances": 1,
+    "net_yield_pct": 12.913604523273051,
+    "net_apr_pct": 52.407711690283136
+  },
+  "Capital_Scalability": {
+    "capitals": [
+      500,
+      1000,
+      2500,
+      5000,
+      10000,
+      25000,
+      50000,
+      100000
+    ],
+    "rois_moderate": [
+      162.73698264006734,
+      162.85423110664289,
+      162.92458018658806,
+      162.9480298799029,
+      162.95975472655977,
+      162.9667896345546,
+      162.96913460388623,
+      162.9703070885527
+    ],
+    "rois_narrow": [
+      126.43080217917182,
+      126.9624201432016,
+      127.28139092161983,
+      127.38771451442625,
+      127.44087631082992,
+      127.4727733886704,
+      127.48340574795229,
+      127.48872192759218
+    ]
+  }
+}

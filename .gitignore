@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Firebase & Cloud
+.firebase/
+.firebaserc
+*-debug.log
+firebase-debug.log*
+firestore-debug.log*
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local credentials
+*credentials*.json
+*service-account*.json

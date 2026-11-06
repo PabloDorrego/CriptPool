@@ -172,19 +172,19 @@ function renderHeaderSolana() {
   
   const priceFeed = document.getElementById("headerPricesFeed");
   if (priceFeed) {
-    const sol = Number(latestData.sol_price_usd) || 89.48;
-    const btc = Number(latestData.btc_price_usd) || 75952.0;
-    const hype = Number(latestData.hype_price_usd) || 77.81;
+    const sol = Number(latestData.sol_price_usd) || 90.10;
+    const jup = Number(latestData.btc_price_usd) || 0.2462;
+    const hype = Number(latestData.hype_price_usd) || 78.28;
     const sol30 = prices30mAgo.SOL || (latestData.sol_usdc && Number(latestData.sol_usdc.entry_price)) || sol;
-    const btc30 = prices30mAgo.BTC || (latestData.cbbtc_usdc && Number(latestData.cbbtc_usdc.entry_price)) || btc;
+    const jup30 = prices30mAgo.JUP || (latestData.cbbtc_usdc && Number(latestData.cbbtc_usdc.entry_price)) || jup;
     const hype30 = prices30mAgo.HYPE || (latestData.hype_sol && Number(latestData.hype_sol.entry_price)) || hype;
     const sPct = sol30 > 0 ? (((sol - sol30) / sol30) * 100.0) : 0.0;
-    const bPct = btc30 > 0 ? (((btc - btc30) / btc30) * 100.0) : 0.0;
+    const jPct = jup30 > 0 ? (((jup - jup30) / jup30) * 100.0) : 0.0;
     const hPct = hype30 > 0 ? (((hype - hype30) / hype30) * 100.0) : 0.0;
     const sTag = sPct >= 0 ? `<span class="text-emerald-400">▲+${sPct.toFixed(2)}%</span>` : `<span class="text-rose-400">▼${sPct.toFixed(2)}%</span>`;
-    const bTag = bPct >= 0 ? `<span class="text-emerald-400">▲+${bPct.toFixed(2)}%</span>` : `<span class="text-rose-400">▼${bPct.toFixed(2)}%</span>`;
+    const jTag = jPct >= 0 ? `<span class="text-emerald-400">▲+${jPct.toFixed(2)}%</span>` : `<span class="text-rose-400">▼${jPct.toFixed(2)}%</span>`;
     const hTag = hPct >= 0 ? `<span class="text-emerald-400">▲+${hPct.toFixed(2)}%</span>` : `<span class="text-rose-400">▼${hPct.toFixed(2)}%</span>`;
-    priceFeed.innerHTML = `30m RT | SOL: <span class="text-white font-bold">$${sol.toFixed(2)}</span> ${sTag} | ${btc < 10.0 ? "JUP" : "BTC"}: <span class="text-white font-bold">$${btc < 10.0 ? btc.toFixed(4) : Math.round(btc).toLocaleString()}</span> ${bTag} | HYPE: <span class="text-white font-bold">$${hype.toFixed(2)}</span> ${hTag}`;
+    priceFeed.innerHTML = `30m RT | SOL: <span class="text-white font-bold">$${sol.toFixed(2)}</span> ${sTag} | JUP: <span class="text-white font-bold">$${jup.toFixed(4)}</span> ${jTag} | HYPE: <span class="text-white font-bold">$${hype.toFixed(2)}</span> ${hTag}`;
   }
 }
 
@@ -377,7 +377,7 @@ function recomputePoolClmmLive(poolObj, livePx, defaultCap, halfRange) {
 function normalizeRealisticFees(d) {
   if (!d) return d;
   const solPrice = Number(d.sol_price_usd) || 89.48;
-  const btcPrice = Number(d.btc_price_usd) || 75952.0;
+  const btcPrice = Number(d.btc_price_usd) || 0.2462;
   const hypePriceSol = Number(d.hype_price_sol) || 0.87;
   const hypePriceUsd = Number(d.hype_price_usd) || (hypePriceSol * solPrice);
   const eurRate = Number(d.eur_usd_rate) || 1.08;
@@ -500,7 +500,7 @@ function renderView() {
   tickCount++;
 
   const solPrice = Number(latestData.sol_price_usd) || 89.48;
-  const btcPrice = Number(latestData.btc_price_usd) || 75952.0;
+  const btcPrice = Number(latestData.btc_price_usd) || 0.2462;
   const hypePriceSol = Number(latestData.hype_price_sol) || 0.87;
   const hypePriceUsd = Number(latestData.hype_price_usd) || (hypePriceSol * solPrice);
   const eurRate = Number(latestData.eur_usd_rate) || 1.08;
@@ -915,7 +915,7 @@ function updateSolanaGauge(prefix, current, low, high) {
   }
 }
 
-let prices30mAgo = { SOL: null, BTC: null, HYPE: null };
+let prices30mAgo = { SOL: null, JUP: null, HYPE: null };
 
 function renderSingleRtCard(prefix, sym, curPx, entryPx, decimals, fundingApr) {
   const ref30m = prices30mAgo[sym] || entryPx;
@@ -970,16 +970,16 @@ function renderSingleRtCard(prefix, sym, curPx, entryPx, decimals, fundingApr) {
 }
 
 function updateRealTimePriceMonitor(solPx, btcPx, hypePx, solUsdc, cbbtc, hype, hl) {
-  const solEntry = (solUsdc && Number(solUsdc.entry_price)) || 89.4752;
-  const btcEntry = (cbbtc && Number(cbbtc.entry_price)) || 75951.81;
-  const hypeEntry = (hype && Number(hype.entry_price)) || 77.8130;
+  const solEntry = (solUsdc && Number(solUsdc.entry_price)) || 90.1035;
+  const jupEntry = (cbbtc && Number(cbbtc.entry_price)) || 0.2462;
+  const hypeEntry = (hype && Number(hype.entry_price)) || 78.2808;
 
   const solFundApr = hl && hl.positions && hl.positions.SOL ? hl.positions.SOL.funding_apr_pct : -0.34;
-  const btcFundApr = hl && hl.positions && hl.positions.BTC ? hl.positions.BTC.funding_apr_pct : 10.96;
+  const jupFundApr = hl && hl.positions && hl.positions.BTC ? hl.positions.BTC.funding_apr_pct : 10.96;
   const hypeFundApr = hl && hl.positions && hl.positions.HYPE ? hl.positions.HYPE.funding_apr_pct : 10.96;
 
   renderSingleRtCard("Sol", "SOL", solPx, solEntry, 2, solFundApr);
-  renderSingleRtCard("Btc", "BTC", btcPx, btcEntry, 0, btcFundApr);
+  renderSingleRtCard("Btc", "JUP", btcPx, jupEntry, 4, jupFundApr);
   renderSingleRtCard("Hype", "HYPE", hypePx, hypeEntry, 2, hypeFundApr);
 }
 
@@ -1005,7 +1005,7 @@ function pollHyperliquidLiveRT() {
         if (name === "SOL") {
           solMark = parseFloat(c.markPx);
           solF = parseFloat(c.funding) * 24.0 * 365.25 * 100.0;
-        } else if (name === "JUP" || name === "BTC") {
+        } else if (name === "JUP") {
           btcMark = parseFloat(c.markPx);
           btcF = parseFloat(c.funding) * 24.0 * 365.25 * 100.0;
         } else if (name === "HYPE") {
@@ -1034,11 +1034,11 @@ function pollHyperliquidLiveRT() {
     .catch(() => {});
 }
 
-// Fetch exact 30-minute ago candle open price from Hyperliquid L1 for SOL, BTC, HYPE
+// Fetch exact 30-minute ago candle open price from Hyperliquid L1 for SOL, JUP, HYPE
 function pollHyperliquid30mCandles() {
   const now = Date.now();
   const start30m = now - (30 * 60 * 1000);
-  ["SOL", "BTC", "HYPE", "JUP"].forEach(coin => {
+  ["SOL", "JUP", "HYPE"].forEach(coin => {
     fetch("https://api.hyperliquid.xyz/info", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

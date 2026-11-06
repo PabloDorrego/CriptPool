@@ -28,10 +28,10 @@ class PaperTradingEngine:
                 return json.load(f)
         # Defaults
         return {
-            "pool_address": "5rCf1DM8LjKTw4YqhnoLcngyZYeNnQqztScTogYHAS6",
+            "pool_address": "BGm1tav58oGcsQJehL9WXBFXF7D27vZsKefj4xJKD5Y",
             "pool_name": "SOL-USDC",
             "initial_virtual_capital_usd": 1000.0,
-            "half_range_pct": 0.075,
+            "half_range_pct": 0.070,
             "rebalance_threshold": 0.90,
             "polling_interval_seconds": 15,
             "swap_fee_pct": 0.001,
@@ -142,20 +142,24 @@ class PaperTradingEngine:
         new_fee = 0.0
         if is_in_range:
             # Meteora pool metrics
-            vol_24h = pool.get("volume_24h", 0.0)
-            vol_per_sec = vol_24h / 86400.0
+            tvl = max(pool.get("tvl", 1000000.0), 1000.0)
+            fees_24h = pool.get("fees_24h", 0.0)
+            if fees_24h <= 0:
+                vol_24h = pool.get("volume_24h", 0.0)
+                fee_pct = (pool.get("base_fee_pct", 0.04) + pool.get("dynamic_fee_pct", 0.0)) / 100.0
+                fees_24h = vol_24h * fee_pct
+                
+            # In DLMM, only the active bin earns swap fees at any instant.
+            # Effective active TVL half-width scales with pool bin_step (~25 bins per side).
+            bin_step = float(pool.get("bin_step", 10))
+            effective_pool_half_range = bin_step * 0.0001 * 25.0
+            half_range = max(self.state.get("half_range_pct", 0.070), 0.001)
+            range_dilution = min(effective_pool_half_range / half_range, 1.0)
             
-            # Base fee + dynamic fee
-            fee_pct = (pool.get("base_fee_pct", 0.04) + pool.get("dynamic_fee_pct", 0.0)) / 100.0
-            
-            # Concentration depth: active band contains ~8% of pool TVL
-            active_tvl = max(pool.get("tvl", 1000000.0) * 0.08, 1000.0)
-            user_share = min(pos_val / active_tvl, 1.0)
-            
-            # Meteora protocol cut ~5%
+            user_share = min((pos_val * range_dilution) / tvl, 1.0)
             protocol_cut = pool.get("protocol_fee_pct", 5.0) / 100.0
             
-            new_fee = vol_per_sec * dt_seconds * fee_pct * user_share * (1.0 - protocol_cut)
+            new_fee = (fees_24h / 86400.0) * dt_seconds * user_share * (1.0 - protocol_cut)
             self.state["accumulated_fees_usd"] += new_fee
             
         # 3. Check Rebalance Trigger

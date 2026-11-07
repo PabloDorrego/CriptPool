@@ -70,8 +70,8 @@ ADDR_CBBTC_USDC = ADDR_JUP_USDC
 ADDR_HYPE_USDC = "ANCx141SujgVdbKz9NTEH8F38qWsnyyXsVju64aU3qLB"  # bin_step=20, 0.20% base fee ($1.15M TVL, ±2.5% range -> ~177% APR + 50% USDC shield)
 ADDR_HYPE_SOL = ADDR_HYPE_USDC
 
-# Anti-Whipsaw confirmation delay before executing rebalance (15 minutes = 900 seconds)
-REBALANCE_CONFIRM_SEC = 900.0
+# Anti-Whipsaw confirmation delay before executing rebalance (30 minutes = 1800 seconds)
+REBALANCE_CONFIRM_SEC = 1800.0
 # Auto-Compound / Rebalance threshold in Meteora whenever $5.00 USD in fees accumulate
 AUTO_COMPOUND_FEE_THRESHOLD_USD = 2.50
 
@@ -126,7 +126,7 @@ class HealthHandler(BaseHTTPRequestHandler):
         pass
 
 class PositionTracker:
-    def __init__(self, name, pool_address, initial_cap, half_range_pct, rebal_thresh=1.02, quote_is_usd=True, token_x_symbol="SOL", token_y_symbol="USDC"):
+    def __init__(self, name, pool_address, initial_cap, half_range_pct, rebal_thresh=1.05, quote_is_usd=True, token_x_symbol="SOL", token_y_symbol="USDC"):
         self.name = name
         self.pool_address = pool_address
         self.initial_cap = initial_cap
@@ -271,13 +271,13 @@ class PositionTracker:
         if p_new <= t_low or p_new >= t_high:
             if self.out_of_range_since is None:
                 self.out_of_range_since = now_ts
-                print(f"[*] [{self.name}] Precio fuera de umbral ({p_new:.4f}). Iniciando confirmación anti-mechas de 15 min...")
+                print(f"[*] [{self.name}] Precio fuera de umbral ({p_new:.4f}). Iniciando confirmación anti-mechas de 30 min...")
             elif (now_ts - self.out_of_range_since) >= self.rebal_confirm_sec:
                 rebal_event = self.execute_rebalance(p_new)
                 self.out_of_range_since = None
         else:
             if self.out_of_range_since is not None:
-                print(f"[+] [{self.name}] Mecha absorbida: el precio ({p_new:.4f}) volvió al rango antes de 15 min sin gastar en rebalanceo.")
+                print(f"[+] [{self.name}] Mecha absorbida: el precio ({p_new:.4f}) volvió al rango antes de 30 min sin gastar en rebalanceo.")
             self.out_of_range_since = None
             
         return rebal_event
@@ -464,7 +464,7 @@ class TriPoolCloudDaemon:
             pool_address=ADDR_SOL_USDC,
             initial_cap=ALLOC_SOL_USDC_USD,
             half_range_pct=0.035,
-            rebal_thresh=1.02,
+            rebal_thresh=1.05,
             quote_is_usd=True,
             token_x_symbol="SOL",
             token_y_symbol="USDC"
@@ -476,7 +476,7 @@ class TriPoolCloudDaemon:
             pool_address=ADDR_CBBTC_USDC,
             initial_cap=ALLOC_CBBTC_USDC_USD,
             half_range_pct=0.025,
-            rebal_thresh=1.02,
+            rebal_thresh=1.05,
             quote_is_usd=True,
             token_x_symbol="cbBTC",
             token_y_symbol="USDC"
@@ -488,7 +488,7 @@ class TriPoolCloudDaemon:
             pool_address=ADDR_HYPE_USDC,
             initial_cap=ALLOC_HYPE_SOL_USD,
             half_range_pct=0.025,
-            rebal_thresh=1.02,
+            rebal_thresh=1.05,
             quote_is_usd=True,
             token_x_symbol="HYPE",
             token_y_symbol="USDC"

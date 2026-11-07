@@ -423,13 +423,13 @@ function normalizeRealisticFees(d) {
     const hl = d.hyperliquid_hedge;
     if (!hl.positions) hl.positions = {};
 
-    const solEntryPx = Number(d.sol_usdc.entry_price) || solPrice;
-    const btcEntryPx = Number(d.cbbtc_usdc.entry_price) || btcPrice;
-    const hypeEntryPx = Number(d.hype_sol.entry_price) || hypePriceUsd;
+    const solEntryPx = Number(d.sol_usdc.short_entry_price) || (hl.positions && hl.positions.SOL && Number(hl.positions.SOL.entry_px)) || Number(d.sol_usdc.entry_price) || solPrice;
+    const btcEntryPx = Number(d.cbbtc_usdc.short_entry_price) || (hl.positions && hl.positions.BTC && Number(hl.positions.BTC.entry_px)) || (hl.positions && hl.positions.JUP && Number(hl.positions.JUP.entry_px)) || Number(d.cbbtc_usdc.entry_price) || btcPrice;
+    const hypeEntryPx = Number(d.hype_sol.short_entry_price) || (hl.positions && hl.positions.HYPE && Number(hl.positions.HYPE.entry_px)) || Number(d.hype_sol.entry_price) || hypePriceUsd;
 
-    const solSize = (hl.positions.SOL && Number(hl.positions.SOL.size_tokens)) || (270.0 / solEntryPx);
-    const btcSize = (hl.positions.BTC && Number(hl.positions.BTC.size_tokens)) || (135.0 / btcEntryPx);
-    const hypeSize = (hl.positions.HYPE && Number(hl.positions.HYPE.size_tokens)) || (135.0 / hypeEntryPx);
+    const solSize = Number(d.sol_usdc.short_tokens) || (hl.positions && hl.positions.SOL && Number(hl.positions.SOL.size_tokens)) || (270.0 / solEntryPx);
+    const btcSize = Number(d.cbbtc_usdc.short_tokens) || (hl.positions && hl.positions.BTC && Number(hl.positions.BTC.size_tokens)) || (hl.positions && hl.positions.JUP && Number(hl.positions.JUP.size_tokens)) || (135.0 / btcEntryPx);
+    const hypeSize = Number(d.hype_sol.short_tokens) || (hl.positions && hl.positions.HYPE && Number(hl.positions.HYPE.size_tokens)) || (135.0 / hypeEntryPx);
 
     const solTxCost = Number(d.sol_usdc.short_tx_costs) || (270.0 * 0.00035);
     const btcTxCost = Number(d.cbbtc_usdc.short_tx_costs) || (135.0 * 0.00035);
@@ -460,7 +460,8 @@ function normalizeRealisticFees(d) {
     hl.positions.HYPE.pnl_usd = hypeShortPnl;
     hl.positions.HYPE.lp_price_pnl_usd = d.hype_sol.lp_price_pnl_usd;
 
-    const totShortPnlUsd = solShortPnl + btcShortPnl + hypeShortPnl;
+    const serverShortPnl = Number(hl.total_short_pnl_usd);
+    const totShortPnlUsd = (!isNaN(serverShortPnl) && Math.abs(serverShortPnl) > 0.01) ? serverShortPnl : (solShortPnl + btcShortPnl + hypeShortPnl);
     const totFundingUsd = Number(hl.total_funding_usd) || 0.0;
     const totNotionalUsd = (solSize * solPrice) + (btcSize * btcPrice) + (hypeSize * hypePriceUsd);
 

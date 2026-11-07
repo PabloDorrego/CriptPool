@@ -166,9 +166,10 @@ function renderHeaderSolana() {
   const hl = latestData.hyperliquid_hedge;
   const patEur = (deltaHedgeViewEnabled && hl && hl.hedged_portfolio_eur)
     ? Number(hl.hedged_portfolio_eur)
-    : (Number(comb.total_portfolio_eur) || 1001.35);
+    : (Number(comb.hedged_portfolio_eur) || Number(comb.total_portfolio_eur) || 1000.00);
   setTxt("headerPatrimonio", patEur.toFixed(2).replace(".", ",") + " €");
-  setTxt("headerTotalFees", "+" + (comb.total_fees_eur || 2.4600).toFixed(4).replace(".", ",") + " €");
+  const totPassiveEur = Number(comb.total_passive_yield_eur || comb.total_fees_eur || 0.0);
+  setTxt("headerTotalFees", "+" + totPassiveEur.toFixed(4).replace(".", ",") + " €");
   
   const priceFeed = document.getElementById("headerPricesFeed");
   if (priceFeed) {
@@ -567,8 +568,18 @@ function renderView() {
 
   // --------------------------------------------------------------------------
   // BLOQUE 1: 🌍 RESUMEN GENERAL CONSOLIDADO
+  // --- BANNER DE CLARIDAD DE RESULTADOS ---
+  setTxt("clearFeesTotalEur", fmtSignedEur(totalPassiveEur, 2));
+  setTxt("clearFeesTotalUsd", `${fmtSignedUsd(totalPassiveUsd, 2)} USD cobrados`);
+  setTxt("clearPriceNetEur", fmtSignedEur(netPriceHedgeEur, 2));
+  setTxt("clearPriceNetDetail", `Pool (${fmtSignedEur(lpPricePnlEur, 2)}) + Short (${fmtSignedEur(shortPnlEur, 2)})`);
+  setTxt("clearHedgedTotalEur", hedgedEur.toFixed(2).replace(".", ",") + " €");
+  const clearPnlEur = hedgedEur - 1000.0;
+  const clearPnlPct = (clearPnlEur / 1000.0) * 100.0;
+  setTxt("clearHedgedPnlPct", `${fmtSignedEur(clearPnlEur, 2)} (${clearPnlPct >= 0 ? "+" : ""}${clearPnlPct.toFixed(2)}% neto)`);
+
   // --------------------------------------------------------------------------
-  setTxt("heroPatrimonioEur", totalEur.toFixed(2).replace(".", ",") + " €");
+  setTxt("heroPatrimonioEur" , totalEur.toFixed(2).replace(".", ",") + " €");
   setTxt("heroPatrimonioUsd", "$" + totalUsd.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
   setTxt("heroNetPnlPct", (netPnlPct >= 0 ? "+" : "") + netPnlPct.toFixed(2) + "%");
   setTxt("heroNetPnlEur", fmtSignedEur(netProfitEur, 2) + (deltaHedgeViewEnabled ? " neto (Consolidado)" : " neto (Solo LP)"));
@@ -711,7 +722,7 @@ function renderView() {
   setTxt("solUsdcFees", "+$" + fSolUsd.toFixed(4));
   setTxt("solUsdcFeesNative", `+${(fSolUsd * 0.5 / solPrice).toFixed(5)} SOL + ${(fSolUsd * 0.5).toFixed(3)} USDC`);
   setTxt("solUsdcFeesCapPct", "+" + ((fSolUsd / 540.0) * 100.0).toFixed(3) + "%");
-  const solAprVal = Number(solUsdc.real_fee_apr) || 111.0;
+  const solAprVal = Number(solUsdc.real_fee_apr || 0.0);
   setTxt("solUsdcRoiPct", (solUsdc.roi_pct >= 0 ? "+" : "") + (Number(solUsdc.roi_pct) || 0.134).toFixed(3) + "%");
   setTxt("solUsdcApr", `${solAprVal.toFixed(2)}% APR (~${(solAprVal / 365.25).toFixed(3).replace(".", ",")}%/día)`);
 
@@ -721,7 +732,7 @@ function renderView() {
   setTxt("cbbtcFees", "+$" + fBtcUsd.toFixed(4));
   setTxt("cbbtcFeesNative", btcPrice < 10.0 ? (`+${(fBtcUsd * 0.5 / btcPrice).toFixed(2)} JUP + ${(fBtcUsd * 0.5).toFixed(3)} USDC`) : (`+${(fBtcUsd * 0.5 / btcPrice).toFixed(7)} cbBTC + ${(fBtcUsd * 0.5).toFixed(3)} USDC`));
   setTxt("cbbtcFeesCapPct", "+" + ((fBtcUsd / 270.0) * 100.0).toFixed(3) + "%");
-  const btcAprVal = Number(cbbtc.real_fee_apr) || 177.1;
+  const btcAprVal = Number(cbbtc.real_fee_apr || 0.0);
   setTxt("cbbtcRoiPct", (cbbtc.roi_pct >= 0 ? "+" : "") + (Number(cbbtc.roi_pct) || 0.033).toFixed(3) + "%");
   setTxt("cbbtcApr", `${btcAprVal.toFixed(2)}% APR (~${(btcAprVal / 365.25).toFixed(3).replace(".", ",")}%/día)`);
 

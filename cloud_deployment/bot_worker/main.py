@@ -361,7 +361,7 @@ class PositionTracker:
         # 1. KPIs de Rendimiento (Real Fee APR basado en la concentración actual y fees reales)
         elapsed_days = max(self.total_time_sec / 86400.0, 1.0 / 86400.0)
         raw_apr = (self.accumulated_fees / max(self.initial_cap, 0.001)) * (365.25 / elapsed_days) * 100.0
-        active_apr = self.instant_fee_apr if self.instant_fee_apr > 0 else raw_apr
+        active_apr = raw_apr if elapsed_days >= 0.05 else (self.instant_fee_apr if self.instant_fee_apr > 0 else raw_apr)
         real_fee_apr = max(0.0, min(active_apr, 350.0))
         real_fee_apy = ((math.pow(1.0 + (real_fee_apr / 100.0) / 365.25, 365.25) - 1.0)) * 100.0
         fees_vs_capital_pct = (self.accumulated_fees / max(self.initial_cap, 0.001)) * 100.0
@@ -860,9 +860,9 @@ class TriPoolCloudDaemon:
         hedged_roi_pct = ((hedged_portfolio_usd - total_initial_usd) / total_initial_usd) * 100.0
 
         # Pure LP Price PnL (excluding fees) vs Short PnL reconciliation
-        sol_lp_price_pnl_usd = d_sol["pos_val"] - d_sol.get("current_cap", ALLOC_SOL_USDC_USD)
-        btc_lp_price_pnl_usd = d_btc["pos_val"] - d_btc.get("current_cap", ALLOC_CBBTC_USDC_USD)
-        hype_lp_price_pnl_usd = d_hype["pos_val"] - d_hype.get("current_cap", ALLOC_HYPE_SOL_USD)
+        sol_lp_price_pnl_usd = d_sol["pos_val"] - d_sol.get("initial_cap", ALLOC_SOL_USDC_USD)
+        btc_lp_price_pnl_usd = d_btc["pos_val"] - d_btc.get("initial_cap", ALLOC_CBBTC_USDC_USD)
+        hype_lp_price_pnl_usd = d_hype["pos_val"] - d_hype.get("initial_cap", ALLOC_HYPE_SOL_USD)
         d_sol["lp_price_pnl_usd"] = sol_lp_price_pnl_usd
         d_btc["lp_price_pnl_usd"] = btc_lp_price_pnl_usd
         d_hype["lp_price_pnl_usd"] = hype_lp_price_pnl_usd

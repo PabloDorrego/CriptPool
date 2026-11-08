@@ -1,4 +1,9 @@
-// Official Firebase Web Configuration for Project criptpool-meteora
+// ============================================================================
+// CriptPool · Panel de Seguimiento (v30)
+// Fuente de verdad: Firestore meteora_bot/current_state (escrito por el worker)
+// + meteora_bot/history/snapshots para las series temporales.
+// ============================================================================
+
 const firebaseConfig = {
   apiKey: "AIzaSyAtBmFx1xpxc70BnFwkoOWXS9KeHHokwz8",
   authDomain: "criptpool-meteora.firebaseapp.com",
@@ -7,1175 +12,594 @@ const firebaseConfig = {
   messagingSenderId: "724237130149"
 };
 
-let db = null;
-let equityChart = null;
-let lastUpdateEpoch = Date.now();
-let tickCount = 0;
-
-const CHART_CACHE_KEY_SOL = "cp_tri_pool_chart_cache_v4";
-
-// ============================================================================
-// BASELINE DATA: SOLANA METEORA DLMM (1.000 € / $1.080 USD) - CLEAN RESET
-// ============================================================================
-const DEFAULT_FALLBACK_DATA = {
-  sol_price_usd: 90.10,
-  btc_price_usd: 0.2462,
-  hype_price_sol: 0.8688,
-  hype_price_usd: 78.28,
-  eur_usd_rate: 1.08,
-  portfolio_combined: {
-    total_portfolio_eur: 1000.00,
-    total_portfolio_usd: 1080.00,
-    total_fees_eur: 0.0000,
-    total_fees_usd: 0.0000,
-    fees_vs_capital_pct: 0.0000,
-    combined_roi_pct: 0.000,
-    real_fee_apr: 141.05,
-    real_fee_apy: 308.70,
-    il_amount_eur: 0.00,
-    net_vs_hodl_eur: 0.00,
-    activity_ratio_pct: 100.0,
-    fees_cover_il: true,
-    total_rebalances: 0,
-    total_rebalance_costs_eur: 0.00,
-    friction_ratio_pct: 0.00
-  },
-  sol_usdc: {
-    total_val: 540.0000,
-    pos_val: 540.00,
-    token_x: 2.8532,
-    token_y: 270.00,
-    accumulated_fees: 0.0000,
-    fees_vs_capital_pct: 0.000,
-    roi_pct: 0.000,
-    real_fee_apr: 79.15,
-    current_price: 94.63,
-    p_lower: 91.32,
-    p_upper: 97.94,
-    dist_p_lower_pct: 3.50,
-    dist_p_upper_pct: 3.50,
-    dist_rebal_lower_pct: 3.57,
-    dist_rebal_upper_pct: 3.57,
-    net_vs_hodl: 0.0000,
-    activity_ratio_pct: 100.0,
-    total_rebalances: 0,
-    total_rebal_costs: 0.00,
-    friction_ratio_pct: 0.00
-  },
-  cbbtc_usdc: {
-    total_val: 270.0000,
-    pos_val: 270.00,
-    token_x: 548.33,
-    token_y: 135.00,
-    accumulated_fees: 0.0000,
-    fees_vs_capital_pct: 0.000,
-    roi_pct: 0.000,
-    real_fee_apr: 85.00,
-    current_price: 0.2462,
-    p_lower: 0.2376,
-    p_upper: 0.2548,
-    dist_p_lower_pct: 2.50,
-    dist_p_upper_pct: 2.50,
-    dist_rebal_lower_pct: 2.55,
-    dist_rebal_upper_pct: 2.55,
-    net_vs_hodl: 0.0000,
-    activity_ratio_pct: 100.0,
-    total_rebalances: 0,
-    total_rebal_costs: 0.00,
-    friction_ratio_pct: 0.00
-  },
-  hype_sol: {
-    quote_is_usd: true,
-    total_val: 270.0000,
-    pos_val: 270.00,
-    token_x: 1.653,
-    token_y: 135.00,
-    accumulated_fees: 0.0000,
-    fees_vs_capital_pct: 0.000,
-    roi_pct: 0.000,
-    real_fee_apr: 177.20,
-    current_price: 81.64,
-    p_lower: 79.60,
-    p_upper: 83.68,
-    dist_p_lower_pct: 2.50,
-    dist_p_upper_pct: 2.50,
-    dist_rebal_lower_pct: 2.55,
-    dist_rebal_upper_pct: 2.55,
-    net_vs_hodl: 0.0000,
-    activity_ratio_pct: 100.0,
-    total_rebalances: 0,
-    total_rebal_costs: 0.00,
-    friction_ratio_pct: 0.00
-  },
-  tokens: {
-    sol_total: 2.8532,
-    sol_eur_val: 250.00,
-    sol_usd_val: 270.00,
-    usdc_total: 540.00,
-    usdc_eur_val: 500.00,
-    usdc_usd_val: 540.00,
-    cbbtc_total: 0.001685,
-    cbbtc_eur_val: 125.00,
-    cbbtc_usd_val: 135.00,
-    hype_total: 1.653,
-    hype_eur_val: 125.00,
-    hype_usd_val: 135.00
-  }
+const CFG = {
+  restBase: "https://firestore.googleapis.com/v1/projects/criptpool-meteora/databases/(default)/documents",
+  workerUrl: "https://meteora-bot-worker-724237130149.europe-west1.run.app/",
+  targetAprMin: 85,
+  targetAprMax: 120,
+  testDays: 30,
+  rebalThresh: 1.05,          // Igual que PositionTracker.rebal_thresh en el worker
+  rebalConfirmSec: 1800,      // Igual que REBALANCE_CONFIRM_SEC en el worker
+  maxLev: { SOL: 20, JUP: 10, HYPE: 10 } // Para estimar margen de mantenimiento (1 / (2·maxLev))
 };
 
-let latestData = DEFAULT_FALLBACK_DATA;
+// Mapeo de los 3 pools. El pool JUP-USDC se guarda en Firestore con claves heredadas (cbbtc_usdc / jup_usdc).
+const POOLS = [
+  { keys: ["sol_usdc"], label: "SOL-USDC", base: "SOL", perp: "SOL", volKey: "sol_usdc_24h_vol", color: "#34D399", role: "Motor principal" },
+  { keys: ["jup_usdc", "cbbtc_usdc"], label: "JUP-USDC", base: "JUP", perp: "JUP", volKey: "cbbtc_usdc_24h_vol", color: "#FBBF24", role: "Ecosistema Jupiter" },
+  { keys: ["hype_sol"], label: "HYPE-USDC", base: "HYPE", perp: "HYPE", volKey: "hype_sol_24h_vol", color: "#38BDF8", role: "Acelerador alpha" }
+];
 
-// Helper functions for resilient DOM updates
-function setTxt(id, val) {
-  const el = document.getElementById(id);
-  if (el) el.textContent = val;
-}
+let state = null;          // Último documento current_state
+let snapshots = [];        // Snapshots históricos del ciclo actual
+let lastFetchMs = 0;
+let historyChart = null, bridgeChart = null;
+let activeTab = "equity";
 
-function setCls(id, cls) {
-  const el = document.getElementById(id);
-  if (el) el.className = cls;
-}
-
-// Global Manual Force Refresh
-window.forceRefresh = function() {
-  console.log("[*] Forzando actualización inmediata...");
-  const btn = document.getElementById("lastUpdated");
-  if (btn) btn.textContent = "Actualizando ahora...";
-  pollFirestoreREST();
+// ----------------------------------------------------------------------------
+// Formateadores (es-ES)
+// ----------------------------------------------------------------------------
+const nfCache = {};
+const nf = (d) => nfCache[d] || (nfCache[d] = new Intl.NumberFormat("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d }));
+const num = (v, fb = 0) => { const n = Number(v); return Number.isFinite(n) ? n : fb; };
+const eur = (v, d = 2) => nf(d).format(v) + " €";
+const sEur = (v, d = 2) => (v >= 0 ? "+" : "−") + nf(d).format(Math.abs(v)) + " €";
+const usd = (v, d = 2) => nf(d).format(v) + " $";
+const sUsd = (v, d = 2) => (v >= 0 ? "+" : "−") + nf(d).format(Math.abs(v)) + " $";
+const pct = (v, d = 2) => nf(d).format(v) + "%";
+const sPct = (v, d = 2) => (v >= 0 ? "+" : "−") + nf(d).format(Math.abs(v)) + "%";
+const px = (v) => v < 1 ? nf(4).format(v) : nf(2).format(v);
+const tok = (v) => Math.abs(v) >= 100 ? nf(1).format(v) : Math.abs(v) >= 1 ? nf(3).format(v) : nf(5).format(v);
+const cls = (v, eps = 1e-9) => v > eps ? "pos" : v < -eps ? "neg" : "neu";
+const $ = (id) => document.getElementById(id);
+const setTxt = (id, t) => { const e = $(id); if (e) e.textContent = t; };
+const setHtml = (id, h) => { const e = $(id); if (e) e.innerHTML = h; };
+const setCls = (id, c) => { const e = $(id); if (e) e.className = c; };
+const fmtDur = (sec) => {
+  if (sec < 3600) return Math.round(sec / 60) + " min";
+  if (sec < 86400) return nf(1).format(sec / 3600) + " h";
+  return nf(1).format(sec / 86400) + " d";
 };
-
-let deltaHedgeViewEnabled = true;
-
-window.toggleDeltaHedgeMode = function() {
-  deltaHedgeViewEnabled = !deltaHedgeViewEnabled;
-  const btn = document.getElementById("btnToggleDeltaHedge");
-  if (btn) {
-    if (deltaHedgeViewEnabled) {
-      btn.textContent = "🛡️ Vista: Con Cobertura Delta-Neutral";
-      btn.className = "px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/50 text-xs font-bold text-sky-300 transition-all cursor-pointer";
-    } else {
-      btn.textContent = "⚠️ Vista: Sin Cobertura (Solo LP)";
-      btn.className = "px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 text-xs font-bold text-amber-300 transition-all cursor-pointer";
-    }
-  }
-  renderView();
-};
-
-function renderHeaderSolana() {
-  const comb = latestData.portfolio_combined || DEFAULT_FALLBACK_DATA.portfolio_combined;
-  const hl = latestData.hyperliquid_hedge;
-  const patEur = (deltaHedgeViewEnabled && hl && hl.hedged_portfolio_eur)
-    ? Number(hl.hedged_portfolio_eur)
-    : (Number(comb.hedged_portfolio_eur) || Number(comb.total_portfolio_eur) || 1000.00);
-  setTxt("headerPatrimonio", patEur.toFixed(2).replace(".", ",") + " €");
-  const totPassiveEur = Number(comb.total_passive_yield_eur || comb.total_fees_eur || 0.0);
-  setTxt("headerTotalFees", "+" + totPassiveEur.toFixed(4).replace(".", ",") + " €");
-  
-  const priceFeed = document.getElementById("headerPricesFeed");
-  if (priceFeed) {
-    const sol = Number(latestData.sol_price_usd) || 90.10;
-    const jup = Number(latestData.btc_price_usd) || 0.2462;
-    const hype = Number(latestData.hype_price_usd) || 78.28;
-    const sol30 = prices30mAgo.SOL || (latestData.sol_usdc && Number(latestData.sol_usdc.entry_price)) || sol;
-    const jup30 = prices30mAgo.JUP || (latestData.cbbtc_usdc && Number(latestData.cbbtc_usdc.entry_price)) || jup;
-    const hype30 = prices30mAgo.HYPE || (latestData.hype_sol && Number(latestData.hype_sol.entry_price)) || hype;
-    const sPct = sol30 > 0 ? (((sol - sol30) / sol30) * 100.0) : 0.0;
-    const jPct = jup30 > 0 ? (((jup - jup30) / jup30) * 100.0) : 0.0;
-    const hPct = hype30 > 0 ? (((hype - hype30) / hype30) * 100.0) : 0.0;
-    const sTag = sPct >= 0 ? `<span class="text-emerald-400">▲+${sPct.toFixed(2)}%</span>` : `<span class="text-rose-400">▼${sPct.toFixed(2)}%</span>`;
-    const jTag = jPct >= 0 ? `<span class="text-emerald-400">▲+${jPct.toFixed(2)}%</span>` : `<span class="text-rose-400">▼${jPct.toFixed(2)}%</span>`;
-    const hTag = hPct >= 0 ? `<span class="text-emerald-400">▲+${hPct.toFixed(2)}%</span>` : `<span class="text-rose-400">▼${hPct.toFixed(2)}%</span>`;
-    priceFeed.innerHTML = `30m RT | SOL: <span class="text-white font-bold">$${sol.toFixed(2)}</span> ${sTag} | JUP: <span class="text-white font-bold">$${jup.toFixed(4)}</span> ${jTag} | HYPE: <span class="text-white font-bold">$${hype.toFixed(2)}</span> ${hTag}`;
-  }
-}
-
-// Initialize Firebase SDK
-try {
-  if (typeof firebase !== "undefined") {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    console.log("[+] Firebase SDK inicializado:", firebaseConfig.projectId);
-  }
-} catch (e) {
-  console.warn("[!] Error inicializando Firebase SDK:", e);
-}
-
-// ============================================================================
-// CHARTS SETUP (SOLANA & ETHEREUM)
-// ============================================================================
-function generateInitialHistorySol() {
-  const points = 20;
-  const labels = [];
-  const dsGlobal = [];
-  const dsSol = [];
-  const dsBtc = [];
-  const dsHype = [];
-
-  const now = Date.now();
-  const baseEur = 1000.0;
-  for (let i = points - 1; i >= 0; i--) {
-    const dt = new Date(now - i * 12000);
-    labels.push(dt.toLocaleTimeString("es-ES", { hour12: false }));
-    const progress = 1 - (i / points);
-    const accumFees = 0.16 * progress;
-    const priceOscillation = Math.sin(i * 0.7) * 0.15;
-    
-    const val = Number((baseEur + accumFees + priceOscillation).toFixed(2));
-    dsGlobal.push(val);
-    dsSol.push(Number((500.0 + (accumFees * 0.5) + priceOscillation * 0.6).toFixed(2)));
-    dsBtc.push(Number((250.0 + (accumFees * 0.25) + priceOscillation * 0.2).toFixed(2)));
-    dsHype.push(Number((250.0 + (accumFees * 0.25) + priceOscillation * 0.2).toFixed(2)));
-  }
-
-  return { labels, dsGlobal, dsSol, dsBtc, dsHype };
-}
-
-function initSolChart() {
-  const canvas = document.getElementById("equityChart");
-  if (!canvas) return;
-  const ctx = canvas.getContext("2d");
-  const baseline = generateInitialHistorySol();
-
-  equityChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: baseline.labels,
-      datasets: [
-        {
-          label: "Cartera Total (€)",
-          borderColor: "#14F195",
-          backgroundColor: "rgba(20, 241, 149, 0.12)",
-          fill: true,
-          tension: 0.35,
-          borderWidth: 2.5,
-          pointRadius: 2,
-          pointHoverRadius: 5,
-          yAxisID: 'y',
-          data: baseline.dsGlobal
-        },
-        {
-          label: "SOL-USDC (€)",
-          borderColor: "#00C274",
-          borderDash: [4, 4],
-          tension: 0.35,
-          borderWidth: 1.5,
-          pointRadius: 0,
-          yAxisID: 'y1',
-          data: baseline.dsSol
-        },
-        {
-          label: "JUP-USDC (€)",
-          borderColor: "#F7931A",
-          borderDash: [3, 3],
-          tension: 0.35,
-          borderWidth: 1.5,
-          pointRadius: 0,
-          yAxisID: 'y1',
-          data: baseline.dsBtc
-        },
-        {
-          label: "HYPE-USDC (€)",
-          borderColor: "#38BDF8",
-          borderDash: [2, 2],
-          tension: 0.35,
-          borderWidth: 1.5,
-          pointRadius: 0,
-          yAxisID: 'y1',
-          data: baseline.dsHype
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: { duration: 400, easing: 'easeOutQuart' },
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { labels: { color: "#A0AEC0", font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: function(c) { return `${c.dataset.label}: ${c.parsed.y.toFixed(2)} €`; }
-          }
-        }
-      },
-      scales: {
-        x: { grid: { color: "rgba(255, 255, 255, 0.05)" }, ticks: { color: "#718096", maxTicksLimit: 8 } },
-        y: {
-          type: 'linear', display: true, position: 'left',
-          grid: { color: "rgba(255, 255, 255, 0.05)" },
-          ticks: { color: "#14F195", font: { weight: 'bold' }, callback: function(v) { return v.toFixed(1) + " €"; } }
-        },
-        y1: {
-          type: 'linear', display: true, position: 'right',
-          grid: { drawOnChartArea: false },
-          ticks: { color: "#718096", callback: function(v) { return v.toFixed(0) + " €"; } }
-        }
-      }
-    }
-  });
-}
-
-// ============================================================================
-// REAL-TIME MATHEMATICAL RECONCILIATION ENGINE (100% VERACIDAD EN CADA TICK)
-// ============================================================================
-function recomputePoolClmmLive(poolObj, livePx, defaultCap, halfRange) {
-  if (!poolObj) return;
-  const p0 = Number(poolObj.entry_price) || livePx;
-  const pLow = Number(poolObj.p_lower) || (p0 * (1.0 - halfRange));
-  const pHigh = Number(poolObj.p_upper) || (p0 * (1.0 + halfRange));
-  const curCap = Number(poolObj.current_cap) || defaultCap;
-  const initCap = Number(poolObj.initial_cap) || defaultCap;
-  const p = Math.max(livePx, 0.0001);
-
-  poolObj.current_price = p;
-  poolObj.p_lower = pLow;
-  poolObj.p_upper = pHigh;
-
-  const sp0 = Math.sqrt(p0);
-  const spa = Math.sqrt(pLow);
-  const spb = Math.sqrt(pHigh);
-  const denom = (2.0 * sp0 - spa - (p0 / spb));
-  const L = denom > 0 ? (curCap / denom) : 1.0;
-
-  let tx = 0.0, ty = 0.0;
-  if (p <= pLow) {
-    tx = L * (1.0 / spa - 1.0 / spb);
-    ty = 0.0;
-  } else if (p >= pHigh) {
-    tx = 0.0;
-    ty = L * (spb - spa);
-  } else {
-    const sp = Math.sqrt(p);
-    tx = L * (1.0 / sp - 1.0 / spb);
-    ty = L * (sp - spa);
-  }
-
-  const posVal = (tx * p) + ty;
-  const compFees = Number(poolObj.compounded_fees) || 0.0;
-  const accFees = Number(poolObj.accumulated_fees) || 0.0;
-  const uncompFees = Math.max(0.0, accFees - compFees);
-  const totalVal = posVal + uncompFees;
-  const lpPricePnlUsd = posVal - curCap;
-
-  const hodlX = (initCap / 2.0) / p0;
-  const hodlY = initCap / 2.0;
-  const hodlVal = (hodlX * p) + hodlY;
-  const ilUsd = posVal - hodlVal - compFees;
-
-  poolObj.token_x = tx;
-  poolObj.token_y = ty;
-  poolObj.pos_val = posVal;
-  poolObj.uncompounded_fees = uncompFees;
-  poolObj.total_val = totalVal;
-  poolObj.lp_price_pnl_usd = lpPricePnlUsd;
-  poolObj.hodl_val = hodlVal;
-  poolObj.il_amount = ilUsd;
-  poolObj.il_pct = hodlVal > 0 ? ((ilUsd / hodlVal) * 100.0) : 0.0;
-  poolObj.net_vs_hodl = totalVal - hodlVal;
-  poolObj.roi_pct = ((totalVal - initCap) / initCap) * 100.0;
-}
-
-function normalizeRealisticFees(d) {
-  if (!d) return d;
-  const solPrice = Number(d.sol_price_usd) || 89.48;
-  const btcPrice = Number(d.btc_price_usd) || 0.2462;
-  const hypePriceSol = Number(d.hype_price_sol) || 0.87;
-  const hypePriceUsd = Number(d.hype_price_usd) || (hypePriceSol * solPrice);
-  const eurRate = Number(d.eur_usd_rate) || 1.08;
-
-  if (d.sol_usdc) {
-    d.sol_usdc.quote_is_usd = true;
-    recomputePoolClmmLive(d.sol_usdc, solPrice, 540.0, Number(d.sol_usdc.half_range_pct) || 0.035);
-  }
-  if (d.cbbtc_usdc) {
-    d.cbbtc_usdc.quote_is_usd = true;
-    recomputePoolClmmLive(d.cbbtc_usdc, btcPrice, 270.0, Number(d.cbbtc_usdc.half_range_pct) || 0.025);
-  }
-  if (d.hype_sol) {
-    d.hype_sol.quote_is_usd = true;
-    recomputePoolClmmLive(d.hype_sol, hypePriceUsd, 270.0, Number(d.hype_sol.half_range_pct) || 0.025);
-  }
-
-  if (d.sol_usdc && d.cbbtc_usdc && d.hype_sol) {
-    if (!d.portfolio_combined) d.portfolio_combined = {};
-    const fSol = Number(d.sol_usdc.accumulated_fees) || 0;
-    const fBtc = Number(d.cbbtc_usdc.accumulated_fees) || 0;
-    const fHypeUsd = Number(d.hype_sol.accumulated_fees) || 0;
-    const totFeesUsd = fSol + fBtc + fHypeUsd;
-    const totFeesEur = totFeesUsd / eurRate;
-
-    const totPortUsd = Number(d.sol_usdc.total_val) + Number(d.cbbtc_usdc.total_val) + Number(d.hype_sol.total_val);
-    const totPortEur = totPortUsd / eurRate;
-    const totLpPricePnlUsd = Number(d.sol_usdc.lp_price_pnl_usd) + Number(d.cbbtc_usdc.lp_price_pnl_usd) + Number(d.hype_sol.lp_price_pnl_usd);
-
-    d.portfolio_combined.total_fees_usd = totFeesUsd;
-    d.portfolio_combined.total_fees_eur = totFeesEur;
-    d.portfolio_combined.total_portfolio_usd = totPortUsd;
-    d.portfolio_combined.total_portfolio_eur = totPortEur;
-    d.portfolio_combined.lp_price_pnl_usd = totLpPricePnlUsd;
-    d.portfolio_combined.lp_price_pnl_eur = totLpPricePnlUsd / eurRate;
-    d.portfolio_combined.fees_vs_capital_pct = (totFeesUsd / 1080.0) * 100.0;
-    d.portfolio_combined.combined_roi_pct = ((totPortUsd - 1080.0) / 1080.0) * 100.0;
-    d.portfolio_combined.real_fee_apr = ((Number(d.sol_usdc.real_fee_apr) || 0) * 0.5) + ((Number(d.cbbtc_usdc.real_fee_apr) || 0) * 0.25) + ((Number(d.hype_sol.real_fee_apr) || 0) * 0.25);
-    d.portfolio_combined.real_fee_apy = (Math.pow(1.0 + (d.portfolio_combined.real_fee_apr / 100.0) / 365.25, 365.25) - 1.0) * 100.0;
-
-    // Live Hyperliquid Short PnL & Reconciliation
-    if (!d.hyperliquid_hedge) d.hyperliquid_hedge = { enabled: true, positions: {} };
-    const hl = d.hyperliquid_hedge;
-    if (!hl.positions) hl.positions = {};
-
-    const solEntryPx = Number(d.sol_usdc.short_entry_price) || (hl.positions && hl.positions.SOL && Number(hl.positions.SOL.entry_px)) || Number(d.sol_usdc.entry_price) || solPrice;
-    const btcEntryPx = Number(d.cbbtc_usdc.short_entry_price) || (hl.positions && hl.positions.BTC && Number(hl.positions.BTC.entry_px)) || (hl.positions && hl.positions.JUP && Number(hl.positions.JUP.entry_px)) || Number(d.cbbtc_usdc.entry_price) || btcPrice;
-    const hypeEntryPx = Number(d.hype_sol.short_entry_price) || (hl.positions && hl.positions.HYPE && Number(hl.positions.HYPE.entry_px)) || Number(d.hype_sol.entry_price) || hypePriceUsd;
-
-    const solSize = Number(d.sol_usdc.short_tokens) || (hl.positions && hl.positions.SOL && Number(hl.positions.SOL.size_tokens)) || (270.0 / solEntryPx);
-    const btcSize = Number(d.cbbtc_usdc.short_tokens) || (hl.positions && hl.positions.BTC && Number(hl.positions.BTC.size_tokens)) || (hl.positions && hl.positions.JUP && Number(hl.positions.JUP.size_tokens)) || (135.0 / btcEntryPx);
-    const hypeSize = Number(d.hype_sol.short_tokens) || (hl.positions && hl.positions.HYPE && Number(hl.positions.HYPE.size_tokens)) || (135.0 / hypeEntryPx);
-
-    const solTxCost = Number(d.sol_usdc.short_tx_costs) || (270.0 * 0.00035);
-    const btcTxCost = Number(d.cbbtc_usdc.short_tx_costs) || (135.0 * 0.00035);
-    const hypeTxCost = Number(d.hype_sol.short_tx_costs) || (135.0 * 0.00035);
-
-    const solShortPnl = ((solEntryPx - solPrice) * solSize) - solTxCost + (Number(d.sol_usdc.realized_short_pnl) || 0);
-    const btcShortPnl = ((btcEntryPx - btcPrice) * btcSize) - btcTxCost + (Number(d.cbbtc_usdc.realized_short_pnl) || 0);
-    const hypeShortPnl = ((hypeEntryPx - hypePriceUsd) * hypeSize) - hypeTxCost + (Number(d.hype_sol.realized_short_pnl) || 0);
-
-    if (!hl.positions.SOL) hl.positions.SOL = {};
-    hl.positions.SOL.size_tokens = solSize;
-    hl.positions.SOL.entry_px = solEntryPx;
-    hl.positions.SOL.mark_px = solPrice;
-    hl.positions.SOL.pnl_usd = solShortPnl;
-    hl.positions.SOL.lp_price_pnl_usd = d.sol_usdc.lp_price_pnl_usd;
-
-    if (!hl.positions.BTC) hl.positions.BTC = {};
-    hl.positions.BTC.size_tokens = btcSize;
-    hl.positions.BTC.entry_px = btcEntryPx;
-    hl.positions.BTC.mark_px = btcPrice;
-    hl.positions.BTC.pnl_usd = btcShortPnl;
-    hl.positions.BTC.lp_price_pnl_usd = d.cbbtc_usdc.lp_price_pnl_usd;
-
-    if (!hl.positions.HYPE) hl.positions.HYPE = {};
-    hl.positions.HYPE.size_tokens = hypeSize;
-    hl.positions.HYPE.entry_px = hypeEntryPx;
-    hl.positions.HYPE.mark_px = hypePriceUsd;
-    hl.positions.HYPE.pnl_usd = hypeShortPnl;
-    hl.positions.HYPE.lp_price_pnl_usd = d.hype_sol.lp_price_pnl_usd;
-
-    const serverShortPnl = Number(hl.total_short_pnl_usd);
-    const totShortPnlUsd = (!isNaN(serverShortPnl) && Math.abs(serverShortPnl) > 0.01) ? serverShortPnl : (solShortPnl + btcShortPnl + hypeShortPnl);
-    const totFundingUsd = Number(hl.total_funding_usd) || 0.0;
-    const totNotionalUsd = (solSize * solPrice) + (btcSize * btcPrice) + (hypeSize * hypePriceUsd);
-
-    hl.total_short_notional_usd = totNotionalUsd;
-    hl.total_short_pnl_usd = totShortPnlUsd;
-    hl.total_short_pnl_eur = totShortPnlUsd / eurRate;
-    hl.total_lp_price_pnl_usd = totLpPricePnlUsd;
-    hl.total_lp_price_pnl_eur = totLpPricePnlUsd / eurRate;
-    hl.net_price_hedge_pnl_usd = totLpPricePnlUsd + totShortPnlUsd;
-    hl.net_price_hedge_pnl_eur = (totLpPricePnlUsd + totShortPnlUsd) / eurRate;
-    hl.unhedged_portfolio_usd = totPortUsd;
-    hl.unhedged_portfolio_eur = totPortEur;
-    hl.hedged_portfolio_usd = totPortUsd + totShortPnlUsd + totFundingUsd;
-    hl.hedged_portfolio_eur = hl.hedged_portfolio_usd / eurRate;
-    hl.hedged_roi_pct = ((hl.hedged_portfolio_usd - 1080.0) / 1080.0) * 100.0;
-    hl.uncompounded_fees_usd = Number(d.sol_usdc.uncompounded_fees) + Number(d.cbbtc_usdc.uncompounded_fees) + Number(d.hype_sol.uncompounded_fees);
-    hl.compounded_fees_usd = (Number(d.sol_usdc.compounded_fees) || 0) + (Number(d.cbbtc_usdc.compounded_fees) || 0) + (Number(d.hype_sol.compounded_fees) || 0);
-  }
-  return d;
-}
-
-function fmtSignedEur(val, dec = 2) {
-  const s = val >= 0 ? "+" : "-";
-  return `${s}${Math.abs(val).toFixed(dec).replace(".", ",")} €`;
-}
-function fmtSignedUsd(val, dec = 2) {
-  const s = val >= 0 ? "+$" : "-$";
-  return `${s}${Math.abs(val).toFixed(dec)}`;
-}
-
-// ============================================================================
-// SOLANA DASHBOARD RENDERING (3 BLOQUES EJECUTIVOS CONCILIADOS)
-// ============================================================================
-function renderView() {
-  if (!latestData) return;
-  normalizeRealisticFees(latestData);
-  tickCount++;
-
-  const solPrice = Number(latestData.sol_price_usd) || 89.48;
-  const btcPrice = Number(latestData.btc_price_usd) || 0.2462;
-  const hypePriceSol = Number(latestData.hype_price_sol) || 0.87;
-  const hypePriceUsd = Number(latestData.hype_price_usd) || (hypePriceSol * solPrice);
-  const eurRate = Number(latestData.eur_usd_rate) || 1.08;
-
-  setTxt("solSpotPrice", "$" + solPrice.toFixed(2));
-  setTxt("btcSpotPrice", btcPrice < 10.0 ? ("$" + btcPrice.toFixed(4)) : ("$" + Math.round(btcPrice).toLocaleString()));
-
-  const comb = latestData.portfolio_combined || DEFAULT_FALLBACK_DATA.portfolio_combined;
-  const solUsdc = latestData.sol_usdc || DEFAULT_FALLBACK_DATA.sol_usdc;
-  const cbbtc = latestData.cbbtc_usdc || DEFAULT_FALLBACK_DATA.cbbtc_usdc;
-  const hype = latestData.hype_sol || DEFAULT_FALLBACK_DATA.hype_sol;
-  const tokens = latestData.tokens || DEFAULT_FALLBACK_DATA.tokens;
-  const hl = latestData.hyperliquid_hedge || {};
-  const hypeIsUsd = true;
-
-  const badge = document.getElementById("connectionBadge");
-  if (badge) badge.textContent = `EN VIVO • TICK #${tickCount}`;
-
-  renderHeaderSolana();
-
-  // --------------------------------------------------------------------------
-  // CÁLCULOS MAESTROS CONCILIADOS (GENERAL = METEORA + HYPERLIQUID)
-  // --------------------------------------------------------------------------
-  const unhedgedUsd = Number(comb.total_portfolio_usd) || 1080.0;
-  const unhedgedEur = unhedgedUsd / eurRate;
-
-  const lpPricePnlUsd = Number(comb.lp_price_pnl_usd) || 0.0;
-  const lpPricePnlEur = lpPricePnlUsd / eurRate;
-
-  const shortPnlUsd = Number(hl.total_short_pnl_usd) || 0.0;
-  const shortPnlEur = shortPnlUsd / eurRate;
-
-  const netPriceHedgeUsd = lpPricePnlUsd + shortPnlUsd;
-  const netPriceHedgeEur = netPriceHedgeUsd / eurRate;
-
-  const fSolUsd = Number(solUsdc.accumulated_fees) || 0.0;
-  const fBtcUsd = Number(cbbtc.accumulated_fees) || 0.0;
-  const fHypeUsd = Number(hype.accumulated_fees) || 0.0;
-  const totalFeesUsd = fSolUsd + fBtcUsd + fHypeUsd;
-  const totalFeesEur = totalFeesUsd / eurRate;
-
-  const fundingUsd = Number(hl.total_funding_usd) || 0.0;
-  const fundingEur = fundingUsd / eurRate;
-
-  const totalPassiveUsd = deltaHedgeViewEnabled ? (totalFeesUsd + fundingUsd) : totalFeesUsd;
-  const totalPassiveEur = totalPassiveUsd / eurRate;
-
-  const hedgedUsd = unhedgedUsd + shortPnlUsd + fundingUsd;
-  const hedgedEur = hedgedUsd / eurRate;
-
-  const totalEur = deltaHedgeViewEnabled ? hedgedEur : unhedgedEur;
-  const totalUsd = deltaHedgeViewEnabled ? hedgedUsd : unhedgedUsd;
-  const netProfitEur = totalEur - 1000.0;
-  const netProfitUsd = totalUsd - 1080.0;
-  const netPnlPct = (netProfitEur / 1000.0) * 100.0;
-
-  // APRs: Meteora DLMM + Hyperliquid Funding (50% capital weight)
-  const meteoraApr = Number(comb.real_fee_apr) || 0.0;
-  const weightedFundingApr = Number(hl.weighted_funding_apr) || 0.0;
-  const fundingPortfolioApr = weightedFundingApr * 0.50;
-  const totalCombinedApr = deltaHedgeViewEnabled ? (meteoraApr + fundingPortfolioApr) : meteoraApr;
-  const totalCombinedApy = (Math.pow(1.0 + (totalCombinedApr / 100.0) / 365.25, 365.25) - 1.0) * 100.0;
-
-  // --------------------------------------------------------------------------
-  // BLOQUE 1: 🌍 RESUMEN GENERAL CONSOLIDADO
-  // --- BANNER DE CLARIDAD DE RESULTADOS ---
-  setTxt("clearFeesTotalEur", fmtSignedEur(totalPassiveEur, 2));
-  setTxt("clearFeesTotalUsd", `${fmtSignedUsd(totalPassiveUsd, 2)} USD cobrados`);
-  setTxt("clearPriceNetEur", fmtSignedEur(netPriceHedgeEur, 2));
-  setTxt("clearPriceNetDetail", `Pool (${fmtSignedEur(lpPricePnlEur, 2)}) + Short (${fmtSignedEur(shortPnlEur, 2)})`);
-  setTxt("clearHedgedTotalEur", hedgedEur.toFixed(2).replace(".", ",") + " €");
-  const clearPnlEur = hedgedEur - 1000.0;
-  const clearPnlPct = (clearPnlEur / 1000.0) * 100.0;
-  setTxt("clearHedgedPnlPct", `${fmtSignedEur(clearPnlEur, 2)} (${clearPnlPct >= 0 ? "+" : ""}${clearPnlPct.toFixed(2)}% neto)`);
-
-  // --------------------------------------------------------------------------
-  setTxt("heroPatrimonioEur" , totalEur.toFixed(2).replace(".", ",") + " €");
-  setTxt("heroPatrimonioUsd", "$" + totalUsd.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ","));
-  setTxt("heroNetPnlPct", (netPnlPct >= 0 ? "+" : "") + netPnlPct.toFixed(2) + "%");
-  setTxt("heroNetPnlEur", fmtSignedEur(netProfitEur, 2) + (deltaHedgeViewEnabled ? " neto (Consolidado)" : " neto (Solo LP)"));
-  setTxt("heroPatrimonioUsdPnl", `${fmtSignedUsd(netProfitUsd, 2)} USD s/ $1.080`);
-
-  // Card 2: Efecto Precio Conciliado (Pool LP + Short HL)
-  setTxt("genNetPriceHedgeEur", fmtSignedEur(deltaHedgeViewEnabled ? netPriceHedgeEur : lpPricePnlEur, 2));
-  setTxt("genLpPricePnlBreak", `💧 Pools LP: ${fmtSignedEur(lpPricePnlEur, 2)}`);
-  setTxt("genShortPnlBreak", `🛡️ Shorts HL: ${fmtSignedEur(shortPnlEur, 2)}`);
-  setTxt("genNetPriceHedgeUsd", `Suma Neta Precio: ${fmtSignedUsd(netPriceHedgeUsd, 2)} USD (Cobertura activa)`);
-
-  // Card 3: Ingresos Netos Totales (Comisiones DLMM + Funding HL)
-  setTxt("heroFeesEurValue", fmtSignedEur(totalPassiveEur, 4));
-  setTxt("genFeesBreakEur", `💧 DLMM: ${fmtSignedEur(totalFeesEur, 4)}`);
-  setTxt("genFundingBreakEur", `🛡️ Funding: ${fmtSignedEur(fundingEur, 4)}`);
-  setTxt("heroFeesUsdValue", `${fmtSignedUsd(totalPassiveUsd, 4)} USD cobrados (DLMM + Funding)`);
-  setTxt("heroFeesVsCapBadge", "+" + ((totalPassiveEur / 1000.0) * 100.0).toFixed(3) + "%");
-
-  // Card 4: Rendimiento Total Consolidado (APR DLMM + APR Funding)
-  setTxt("heroGlobalApr", totalCombinedApr.toFixed(2) + "% APR");
-  setTxt("genAprMeteoraBreak", `💧 DLMM: ${meteoraApr.toFixed(1)}%`);
-  setTxt("genAprFundingBreak", `🛡️ Funding: ${fundingPortfolioApr >= 0 ? "+" : ""}${fundingPortfolioApr.toFixed(1)}%`);
-  setTxt("heroGlobalApy", `Interés Compuesto (APY): ${totalCombinedApy.toFixed(2)}%`);
-
-  // --------------------------------------------------------------------------
-  // BLOQUE 2: 💧 MÓDULO METEORA DLMM (SOLANA)
-  // --------------------------------------------------------------------------
-  setTxt("heroFeesApr", meteoraApr.toFixed(2) + "% APR Exclusivo DLMM");
-  setTxt("metTotalValEur", unhedgedEur.toFixed(2).replace(".", ",") + " €");
-  setTxt("metTotalValUsd", `$${unhedgedUsd.toFixed(2)} USD en los 3 pools (LP + Fees)`);
-  setTxt("metLpPriceDeltaBadge", `Δ Precio LP: ${fmtSignedEur(lpPricePnlEur, 2)}`);
-  setTxt("metLpPriceDeltaDetail", `Variación pura por precio en Pools: ${fmtSignedUsd(lpPricePnlUsd, 2)} USD`);
-
-  setTxt("heroTotalFeesEur", fmtSignedEur(totalFeesEur, 4));
-  setTxt("heroTotalFeesUsd", `${fmtSignedUsd(totalFeesUsd, 4)} USD generados en Meteora`);
-  setTxt("heroFeesPct", "+" + ((totalFeesEur / 1000.0) * 100.0).toFixed(3) + "%");
-
-  const uncompUsd = Number(hl.uncompounded_fees_usd ?? totalFeesUsd);
-  const targetThreshold = Number(hl.auto_compound_threshold_usd) || 2.50;
-  const compTotUsd = Number(hl.compounded_fees_usd || 0.0);
-  const totRebals = (Number(solUsdc.total_rebalances) || 0) + (Number(cbbtc.total_rebalances) || 0) + (Number(hype.total_rebalances) || 0);
-  const compPct = Math.min(100, Math.max(2, (uncompUsd / targetThreshold) * 100.0));
-  setTxt("metUncompoundedStatus", `$${uncompUsd.toFixed(4)} / $${targetThreshold.toFixed(2)} USD`);
-  setTxt("metCompoundPctBadge", `${((uncompUsd / targetThreshold) * 100.0).toFixed(1)}% → $${targetThreshold.toFixed(2)}`);
-  const barEl = document.getElementById("metCompoundProgressBar");
-  if (barEl) barEl.style.width = `${compPct}%`;
-  setTxt("metCompoundedHistory", `Ya reinvertido: $${compTotUsd.toFixed(2)} USD | Rebalanceos: ${totRebals}`);
-
-  // Precios rápidos y estado de rango
-  const inRangeCount = (solUsdc.in_range ? 1 : 0) + (cbbtc.in_range ? 1 : 0) + (hype.in_range ? 1 : 0);
-  setTxt("metPoolsStatusBadge", `${inRangeCount}/3 EN RANGO`);
-  setTxt("metSolQuickPrice", `$${solPrice.toFixed(2)} (${solUsdc.in_range ? "DENTRO" : "FUERA"})`);
-  setTxt("metBtcQuickPrice", btcPrice < 10.0 ? (`$${btcPrice.toFixed(4)} (${cbbtc.in_range ? "DENTRO" : "FUERA"})`) : (`$${Math.round(btcPrice).toLocaleString()} (${cbbtc.in_range ? "DENTRO" : "FUERA"})`));
-  setTxt("metHypeQuickPrice", `$${hypePriceUsd.toFixed(2)} (${hype.in_range ? "DENTRO" : "FUERA"})`);
-
-  // Tarjetas de los 3 Pools de Meteora
-  setTxt("heroSolFeesUsd", "+$" + fSolUsd.toFixed(4));
-  setTxt("heroSolFeesEur", `(+${(fSolUsd / eurRate).toFixed(4).replace(".", ",")} €)`);
-  setTxt("heroBtcFeesUsd", "+$" + fBtcUsd.toFixed(4));
-  setTxt("heroBtcFeesEur", `(+${(fBtcUsd / eurRate).toFixed(4).replace(".", ",")} €)`);
-  setTxt("heroHypeFeesSol", "+$" + fHypeUsd.toFixed(4));
-  setTxt("heroHypeFeesEur", `(+${(fHypeUsd / eurRate).toFixed(4).replace(".", ",")} €)`);
-
-  const solLpDeltaUsd = Number(solUsdc.lp_price_pnl_usd) || 0.0;
-  const btcLpDeltaUsd = Number(cbbtc.lp_price_pnl_usd) || 0.0;
-  const hypeLpDeltaUsd = Number(hype.lp_price_pnl_usd) || 0.0;
-
-  setTxt("metSolLpDelta", `${fmtSignedUsd(solLpDeltaUsd, 2)} USD (${fmtSignedEur(solLpDeltaUsd / eurRate, 2)})`);
-  setTxt("metBtcLpDelta", `${fmtSignedUsd(btcLpDeltaUsd, 2)} USD (${fmtSignedEur(btcLpDeltaUsd / eurRate, 2)})`);
-  setTxt("metHypeLpDelta", `${fmtSignedUsd(hypeLpDeltaUsd, 2)} USD (${fmtSignedEur(hypeLpDeltaUsd / eurRate, 2)})`);
-
-  // --------------------------------------------------------------------------
-  // BLOQUE 3: 🛡️ MÓDULO HYPERLIQUID L1 (CORTOS MANUALES + FUNDING)
-  // --------------------------------------------------------------------------
-  const hlNetAccountUsd = shortPnlUsd + fundingUsd;
-  const hlNetAccountEur = hlNetAccountUsd / eurRate;
-
-  setTxt("hlTotalShortPnlEur", fmtSignedEur(shortPnlEur, 2));
-  setTxt("hlTotalShortPnlUsd", `${fmtSignedUsd(shortPnlUsd, 2)} USDC en cortos`);
-  setTxt("hlLpOffsetSummary", `Compensado por Pools LP: ${fmtSignedUsd(lpPricePnlUsd, 2)} USD (${fmtSignedEur(lpPricePnlEur, 2)})`);
-
-  setTxt("hlTotalFundingEur", fmtSignedEur(fundingEur, 4));
-  setTxt("hlTotalFundingUsd", `${fmtSignedUsd(fundingUsd, 4)} USDC cobrados (c/1h)`);
-  setTxt("hlWeightedFundingApr", `${weightedFundingApr >= 0 ? "+" : ""}${weightedFundingApr.toFixed(2)}% APR (s/ cortos)`);
-
-  setTxt("hlNetAccountEur", fmtSignedEur(hlNetAccountEur, 2));
-  setTxt("hlNetAccountUsd", `${fmtSignedUsd(hlNetAccountUsd, 2)} USDC (Shorts + Funding)`);
-  setTxt("hlHedgedPortfolioEur", hedgedEur.toFixed(2).replace(".", ",") + " €");
-  setTxt("hlHedgedRoiBadge", (netPnlPct >= 0 ? "+" : "") + netPnlPct.toFixed(2) + "%");
-  setTxt("hlShortNotionalInfo", `Short: $${Math.round(hl.total_short_notional_usd || 540)} USDC (Modo Manual)`);
-  setTxt("hlDynamicRebalInfo", `Modo Manual en Hyperliquid • Auto-Compound Meteora: $${uncompUsd.toFixed(2)}/$5.00`);
-
-  if (hl && hl.positions) {
-    const pSol = hl.positions.SOL || {};
-    const pBtc = hl.positions.BTC || {};
-    const pHype = hl.positions.HYPE || {};
-
-    if (pSol.mark_px) {
-      setTxt("hlSolFundingApr", `Funding: ${pSol.funding_apr_pct >= 0 ? "+" : ""}${Number(pSol.funding_apr_pct || 0).toFixed(2)}% APR`);
-      setTxt("hlSolSize", `Tamaño: -${Number(pSol.size_tokens).toFixed(4)} SOL`);
-      setTxt("hlSolPrices", `Entrada $${Number(pSol.entry_px).toFixed(2)} → Actual $${Number(pSol.mark_px).toFixed(2)}`);
-      setTxt("hlSolShortPnl", `${fmtSignedUsd(Number(pSol.pnl_usd), 2)} USDC (${fmtSignedEur(Number(pSol.pnl_usd) / eurRate, 2)})`);
-      setTxt("hlSolPoolOffset", `${fmtSignedUsd(solLpDeltaUsd, 2)} USD (${fmtSignedEur(solLpDeltaUsd / eurRate, 2)})`);
-      const solFundUsd = Number(pSol.funding_earned_usd) || 0.0;
-      setTxt("hlSolFundingEarned", `${solFundUsd >= 0 ? "+$" : "-$"}${Math.abs(solFundUsd).toFixed(4)} USDC`);
-    }
-    if (pBtc.mark_px) {
-      setTxt("hlBtcFundingApr", `Funding: ${pBtc.funding_apr_pct >= 0 ? "+" : ""}${Number(pBtc.funding_apr_pct || 0).toFixed(2)}% APR`);
-      setTxt("hlBtcSize", btcPrice < 10.0 ? (`Tamaño: -${Number(pBtc.size_tokens).toFixed(2)} JUP`) : (`Tamaño: -${Number(pBtc.size_tokens).toFixed(5)} BTC`));
-      setTxt("hlBtcPrices", btcPrice < 10.0 ? (`Entrada $${Number(pBtc.entry_px).toFixed(4)} → Actual $${Number(pBtc.mark_px).toFixed(4)}`) : (`Entrada $${Math.round(pBtc.entry_px).toLocaleString()} → Actual $${Math.round(pBtc.mark_px).toLocaleString()}`));
-      setTxt("hlBtcShortPnl", `${fmtSignedUsd(Number(pBtc.pnl_usd), 2)} USDC (${fmtSignedEur(Number(pBtc.pnl_usd) / eurRate, 2)})`);
-      setTxt("hlBtcPoolOffset", `${fmtSignedUsd(btcLpDeltaUsd, 2)} USD (${fmtSignedEur(btcLpDeltaUsd / eurRate, 2)})`);
-      const btcFundUsd = Number(pBtc.funding_earned_usd) || 0.0;
-      setTxt("hlBtcFundingEarned", `${btcFundUsd >= 0 ? "+$" : "-$"}${Math.abs(btcFundUsd).toFixed(4)} USDC`);
-    }
-    if (pHype.mark_px) {
-      setTxt("hlHypeFundingApr", `Funding: ${pHype.funding_apr_pct >= 0 ? "+" : ""}${Number(pHype.funding_apr_pct || 0).toFixed(2)}% APR`);
-      setTxt("hlHypeSize", `Tamaño: -${Number(pHype.size_tokens).toFixed(4)} HYPE`);
-      setTxt("hlHypePrices", `Entrada $${Number(pHype.entry_px).toFixed(2)} → Actual $${Number(pHype.mark_px).toFixed(2)}`);
-      setTxt("hlHypeShortPnl", `${fmtSignedUsd(Number(pHype.pnl_usd), 2)} USDC (${fmtSignedEur(Number(pHype.pnl_usd) / eurRate, 2)})`);
-      setTxt("hlHypePoolOffset", `${fmtSignedUsd(hypeLpDeltaUsd, 2)} USD (${fmtSignedEur(hypeLpDeltaUsd / eurRate, 2)})`);
-      const hypeFundUsd = Number(pHype.funding_earned_usd) || 0.0;
-      setTxt("hlHypeFundingEarned", `${hypeFundUsd >= 0 ? "+$" : "-$"}${Math.abs(hypeFundUsd).toFixed(4)} USDC`);
-    }
-  }
-
-  // 3. 4-COLUMN KPI CARDS (SOLANA LOWER DETAILS)
-  const globalApr = totalCombinedApr;
-  const globalApy = totalCombinedApy;
-  setTxt("globalPortfolioEur", totalEur.toFixed(2).replace(".", ",") + " €");
-  setTxt("globalPortfolioUsd", "$" + totalUsd.toFixed(2));
-  setTxt("globalFeesEur", "+" + totalPassiveEur.toFixed(4).replace(".", ",") + " €");
-  setTxt("globalFeesVsCapPct", "+" + ((totalPassiveEur / 1000.0) * 100.0).toFixed(3) + "%");
-  setTxt("globalRoiPct", (netPnlPct >= 0 ? "+" : "") + netPnlPct.toFixed(3) + "%");
-  setTxt("globalAprApy", `${globalApr.toFixed(2)}% / ${globalApy.toFixed(2)}%`);
-
-  setTxt("solUsdcVal", "$" + (Number(solUsdc.total_val) || 540.72).toFixed(2));
-  setTxt("poolSolTokens", (Number(solUsdc.token_x) || 2.9095).toFixed(4) + " SOL");
-  setTxt("poolSolUsdcTokens", (Number(solUsdc.token_y) || 270.0).toFixed(2) + " USDC");
-  setTxt("solUsdcFees", "+$" + fSolUsd.toFixed(4));
-  setTxt("solUsdcFeesNative", `+${(fSolUsd * 0.5 / solPrice).toFixed(5)} SOL + ${(fSolUsd * 0.5).toFixed(3)} USDC`);
-  setTxt("solUsdcFeesCapPct", "+" + ((fSolUsd / 540.0) * 100.0).toFixed(3) + "%");
-  const solAprVal = Number(solUsdc.real_fee_apr || 0.0);
-  setTxt("solUsdcRoiPct", (solUsdc.roi_pct >= 0 ? "+" : "") + (Number(solUsdc.roi_pct) || 0.134).toFixed(3) + "%");
-  setTxt("solUsdcApr", `${solAprVal.toFixed(2)}% APR (~${(solAprVal / 365.25).toFixed(3).replace(".", ",")}%/día)`);
-
-  setTxt("cbbtcVal", "$" + (Number(cbbtc.total_val) || 270.09).toFixed(2));
-  setTxt("poolBtcTokens", btcPrice < 10.0 ? ((Number(cbbtc.token_x) || 550.0).toFixed(2) + " JUP") : ((Number(cbbtc.token_x) || 0.001725).toFixed(6) + " cbBTC"));
-  setTxt("poolBtcUsdcTokens", (Number(cbbtc.token_y) || 135.0).toFixed(2) + " USDC");
-  setTxt("cbbtcFees", "+$" + fBtcUsd.toFixed(4));
-  setTxt("cbbtcFeesNative", btcPrice < 10.0 ? (`+${(fBtcUsd * 0.5 / btcPrice).toFixed(2)} JUP + ${(fBtcUsd * 0.5).toFixed(3)} USDC`) : (`+${(fBtcUsd * 0.5 / btcPrice).toFixed(7)} cbBTC + ${(fBtcUsd * 0.5).toFixed(3)} USDC`));
-  setTxt("cbbtcFeesCapPct", "+" + ((fBtcUsd / 270.0) * 100.0).toFixed(3) + "%");
-  const btcAprVal = Number(cbbtc.real_fee_apr || 0.0);
-  setTxt("cbbtcRoiPct", (cbbtc.roi_pct >= 0 ? "+" : "") + (Number(cbbtc.roi_pct) || 0.033).toFixed(3) + "%");
-  setTxt("cbbtcApr", `${btcAprVal.toFixed(2)}% APR (~${(btcAprVal / 365.25).toFixed(3).replace(".", ",")}%/día)`);
-
-  const hypeValUsd = hypeIsUsd ? (Number(hype.total_val) || 270.0) : ((Number(hype.total_val) || 2.85) * solPrice);
-  setTxt("hypeValSol", "$" + hypeValUsd.toFixed(2));
-  setTxt("hypeValUsd", `(${(hypeValUsd / eurRate).toFixed(2).replace(".", ",")} €)`);
-  setTxt("poolHypeTokens", (Number(hype.token_x) || 1.653).toFixed(3) + " HYPE");
-  setTxt("poolHypeSolTokens", hypeIsUsd ? ((Number(hype.token_y) || 135.0).toFixed(2) + " USDC") : ((Number(hype.token_y) || 1.4547).toFixed(4) + " SOL"));
-  const hypeAprVal = Number(hype.real_fee_apr) || 177.20;
-  setTxt("hypeFees", "+$" + fHypeUsd.toFixed(4));
-  setTxt("hypeFeesNative", `+${(fHypeUsd * 0.5 / hypePriceUsd).toFixed(4)} HYPE + ${(fHypeUsd * 0.5).toFixed(3)} USDC`);
-  setTxt("hypeFeesUsd", "+" + ((fHypeUsd / 270.0) * 100.0).toFixed(3) + "%");
-  setTxt("hypeRoiPct", (hype.roi_pct >= 0 ? "+" : "") + (Number(hype.roi_pct) || 0.214).toFixed(3) + "%");
-  setTxt("hypeApr", `${hypeAprVal.toFixed(2)}% APR (~${(hypeAprVal / 365.25).toFixed(3).replace(".", ",")}%/día)`);
-
-  // Tokens breakdown
-  const solFeeTok = (fSolUsd * 0.5 / solPrice) + (hypeIsUsd ? 0.0 : (fHypeRaw * 0.5));
-  const usdcFeeTok = (fSolUsd * 0.5) + (fBtcUsd * 0.5) + (hypeIsUsd ? (fHypeUsd * 0.5) : 0.0);
-  const btcFeeTok = (fBtcUsd * 0.5) / btcPrice;
-  const hypeFeeTok = (fHypeUsd * 0.5) / hypePriceUsd;
-
-  setTxt("feesTokenSol", "+" + solFeeTok.toFixed(5) + " SOL");
-  setTxt("feesTokenSolEur", "~" + (solFeeTok * solPrice / eurRate).toFixed(3) + " €");
-  setTxt("feesTokenUsdc", "+$" + usdcFeeTok.toFixed(4) + " USDC");
-  setTxt("feesTokenUsdcEur", "~" + (usdcFeeTok / eurRate).toFixed(3) + " €");
-  setTxt("feesTokenCbbtc", btcPrice < 10.0 ? ("+" + btcFeeTok.toFixed(2) + " JUP") : ("+" + btcFeeTok.toFixed(7) + " cbBTC"));
-  setTxt("feesTokenCbbtcEur", "~" + (btcFeeTok * btcPrice / eurRate).toFixed(3) + " €");
-  setTxt("feesTokenHype", "+" + hypeFeeTok.toFixed(4) + " HYPE");
-  setTxt("feesTokenHypeEur", "~" + (hypeFeeTok * hypePriceUsd / eurRate).toFixed(3) + " €");
-
-  // Initial allocation
-  setTxt("initSolUsdcSol", `~${(270.0 / solPrice).toFixed(3)} SOL`);
-  setTxt("initCbbtcCoin", btcPrice < 10.0 ? (`~${(135.0 / btcPrice).toFixed(1)} JUP`) : (`~${(135.0 / btcPrice).toFixed(6)} cbBTC`));
-
-  // Tokens inventory
-  const solTot = Number(tokens.sol_total) || 2.8532;
-  const usdcTot = Number(tokens.usdc_total) || 540.00;
-  const btcTot = Number(tokens.cbbtc_total) || 0.001685;
-  const hypeTot = Number(tokens.hype_total) || 1.653;
-
-  setTxt("tokenSolTotal", solTot.toFixed(4) + " SOL");
-  setTxt("tokenSolVal", `${(solTot * solPrice / eurRate).toFixed(2).replace(".", ",")} € ($${(solTot * solPrice).toFixed(2)})`);
-
-  setTxt("tokenUsdcTotal", usdcTot.toFixed(2) + " USDC");
-  setTxt("tokenUsdcVal", `${(usdcTot / eurRate).toFixed(2).replace(".", ",")} € ($${usdcTot.toFixed(2)})`);
-
-  setTxt("tokenCbbtcTotal", btcPrice < 10.0 ? (`${(btcTot < 1.0 ? 135.0 / btcPrice : btcTot).toFixed(2)} JUP`) : (`${btcTot.toFixed(6)} cbBTC`));
-  setTxt("tokenCbbtcVal", `${(btcTot * btcPrice / eurRate).toFixed(2).replace(".", ",")} € ($${(btcTot * btcPrice).toFixed(2)})`);
-
-  setTxt("tokenHypeTotal", hypeTot.toFixed(3) + " HYPE");
-  setTxt("tokenHypeVal", `${(hypeTot * hypePriceUsd / eurRate).toFixed(2).replace(".", ",")} € ($${(hypeTot * hypePriceUsd).toFixed(2)})`);
-
-  setTxt(
-    "liveValuationFormula",
-    `Valor Cartera = (${solTot.toFixed(3)} SOL × $${solPrice.toFixed(2)}) + (${btcPrice < 10.0 ? (btcTot < 1.0 ? 135.0 / btcPrice : btcTot).toFixed(1) + " JUP × $" + btcPrice.toFixed(4) : btcTot.toFixed(5) + " cbBTC × $" + Math.round(btcPrice).toLocaleString()}) + (${hypeTot.toFixed(3)} HYPE × $${hypePriceUsd.toFixed(2)}) + ${usdcTot.toFixed(2)} USDC + Fees = ${totalEur.toFixed(2).replace(".", ",")} € ($${totalUsd.toFixed(2)})`
-  );
-
-  // 4. RIESGO Y OPERATIVA (SECTION 2)
-  const ilEur = Number(comb.il_amount_eur) || 0.0;
-  const netAlphaEur = Number(comb.net_vs_hodl_eur) || totalFeesEur;
-  setTxt("globalIlEur", (ilEur >= 0 ? "+" : "") + ilEur.toFixed(2).replace(".", ",") + " €");
-  setTxt("globalNetAlphaEur", (netAlphaEur >= 0 ? "+" : "") + netAlphaEur.toFixed(2).replace(".", ",") + " €");
-  setTxt("globalActivityRatio", (Number(comb.activity_ratio_pct) || 100.0).toFixed(1) + "%");
-
-  const solDistL = Number(solUsdc.dist_p_lower_pct) ?? 3.5;
-  const solDistU = Number(solUsdc.dist_p_upper_pct) ?? 3.5;
-  const solMinReb = Math.min(Number(solUsdc.dist_rebal_lower_pct) ?? 3.57, Number(solUsdc.dist_rebal_upper_pct) ?? 3.57);
-  setTxt("solDistLower", solDistL.toFixed(2) + "%");
-  setTxt("solDistUpper", solDistU.toFixed(2) + "%");
-  setTxt("solDistRebal", solMinReb < 0.8 ? `⚠️ Alerta (${solMinReb.toFixed(2)}%)` : `Seguro (${solMinReb.toFixed(2)}%)`);
-  setTxt("solNetAlpha", (Number(solUsdc.net_vs_hodl) >= 0 ? "+$" : "-$") + Math.abs(Number(solUsdc.net_vs_hodl) || fSolUsd).toFixed(2));
-  setTxt("solActivityRatio", (Number(solUsdc.activity_ratio_pct) || 100.0).toFixed(1) + "%");
-
-  const btcDistL = Number(cbbtc.dist_p_lower_pct) ?? 2.5;
-  const btcDistU = Number(cbbtc.dist_p_upper_pct) ?? 2.5;
-  const btcMinReb = Math.min(Number(cbbtc.dist_rebal_lower_pct) ?? 2.55, Number(cbbtc.dist_rebal_upper_pct) ?? 2.55);
-  setTxt("btcDistLower", btcDistL.toFixed(2) + "%");
-  setTxt("btcDistUpper", btcDistU.toFixed(2) + "%");
-  setTxt("btcDistRebal", btcMinReb < 0.8 ? `⚠️ Alerta (${btcMinReb.toFixed(2)}%)` : `Seguro (${btcMinReb.toFixed(2)}%)`);
-  setTxt("btcNetAlpha", (Number(cbbtc.net_vs_hodl) >= 0 ? "+$" : "-$") + Math.abs(Number(cbbtc.net_vs_hodl) || fBtcUsd).toFixed(2));
-  setTxt("btcActivityRatio", (Number(cbbtc.activity_ratio_pct) || 100.0).toFixed(1) + "%");
-
-  const hypeDistL = Number(hype.dist_p_lower_pct) ?? 2.5;
-  const hypeDistU = Number(hype.dist_p_upper_pct) ?? 2.5;
-  const hypeMinReb = Math.min(Number(hype.dist_rebal_lower_pct) ?? 2.55, Number(hype.dist_rebal_upper_pct) ?? 2.55);
-  setTxt("hypeDistLower", hypeDistL.toFixed(2) + "%");
-  setTxt("hypeDistUpper", hypeDistU.toFixed(2) + "%");
-  setTxt("hypeDistRebal", hypeMinReb < 0.8 ? `⚡ Próximo (${hypeMinReb.toFixed(2)}%)` : `Seguro (${hypeMinReb.toFixed(2)}%)`);
-  const hypeNetVal = Number(hype.net_vs_hodl) || fHypeUsd;
-  setTxt("hypeNetAlpha", (hypeNetVal >= 0 ? "+$" : "-$") + Math.abs(hypeNetVal).toFixed(2));
-  setTxt("hypeActivityRatio", (Number(hype.activity_ratio_pct) || 100.0).toFixed(1) + "%");
-
-  // 5. COSTES Y REBALANCEOS (SECTION 3)
-  const rebSol = Number(solUsdc.total_rebalances) || 0;
-  const rebBtc = Number(cbbtc.total_rebalances) || 0;
-  const rebHype = Number(hype.total_rebalances) || 0;
-  const rebTotal = Number(comb.total_rebalances) || (rebSol + rebBtc + rebHype);
-
-  const costSolUsd = Number(solUsdc.total_rebal_costs) || 0.0;
-  const costBtcUsd = Number(cbbtc.total_rebal_costs) || 0.0;
-  const costHypeRaw = Number(hype.total_rebal_costs) || 0.0;
-  const costHypeUsd = hypeIsUsd ? costHypeRaw : (costHypeRaw * solPrice);
-  const costTotalEur = Number(comb.total_rebalance_costs_eur) || ((costSolUsd + costBtcUsd + costHypeUsd) / eurRate);
-
-  setTxt("globalRebalances", String(rebTotal));
-  setTxt("globalGasCostEur", costTotalEur.toFixed(3).replace(".", ",") + " €");
-  setTxt("globalFrictionRatio", (Number(comb.friction_ratio_pct) || 0.0).toFixed(2) + "%");
-
-  setTxt("solRebalances", String(rebSol));
-  setTxt("solGasCost", "$" + costSolUsd.toFixed(3));
-  setTxt("solFrictionRatio", (Number(solUsdc.friction_ratio_pct) || 0.0).toFixed(2) + "%");
-
-  setTxt("btcRebalances", String(rebBtc));
-  setTxt("btcGasCost", "$" + costBtcUsd.toFixed(3));
-  setTxt("btcFrictionRatio", (Number(cbbtc.friction_ratio_pct) || 0.0).toFixed(2) + "%");
-
-  setTxt("hypeRebalances", String(rebHype));
-  setTxt("hypeGasCost", "$" + costHypeUsd.toFixed(3));
-  setTxt("hypeFrictionRatio", (Number(hype.friction_ratio_pct) || 0.0).toFixed(2) + "%");
-
-  // 6. VISUALIZADORES DE RANGO ACTIVO (SECTION 4)
-  setTxt("solRangePrice", "$" + solPrice.toFixed(2));
-  setTxt("solRangeLower", "$" + (Number(solUsdc.p_lower) || (solPrice * 0.965)).toFixed(2));
-  setTxt("solRangeUpper", "$" + (Number(solUsdc.p_upper) || (solPrice * 1.035)).toFixed(2));
-  const solBar = document.getElementById("solRangeProgress");
-  if (solBar && solUsdc.p_upper > solUsdc.p_lower) {
-    const pct = Math.max(2, Math.min(98, ((solPrice - solUsdc.p_lower) / (solUsdc.p_upper - solUsdc.p_lower)) * 100));
-    solBar.style.width = pct.toFixed(1) + "%";
-  }
-
-  setTxt("btcRangePrice", "$" + Math.round(btcPrice).toLocaleString());
-  setTxt("btcRangeLower", "$" + Math.round(Number(cbbtc.p_lower) || (btcPrice * 0.975)).toLocaleString());
-  setTxt("btcRangeUpper", "$" + Math.round(Number(cbbtc.p_upper) || (btcPrice * 1.025)).toLocaleString());
-  const btcBar = document.getElementById("btcRangeProgress");
-  if (btcBar && cbbtc.p_upper > cbbtc.p_lower) {
-    const pct = Math.max(2, Math.min(98, ((btcPrice - cbbtc.p_lower) / (cbbtc.p_upper - cbbtc.p_lower)) * 100));
-    btcBar.style.width = pct.toFixed(1) + "%";
-  }
-
-  const hypeCurPrice = Number(hype.current_price) || (hypeIsUsd ? hypePriceUsd : hypePriceSol);
-  setTxt("hypeRangePrice", hypeIsUsd ? ("$" + hypeCurPrice.toFixed(2)) : (hypeCurPrice.toFixed(4) + " SOL"));
-  setTxt("hypeRangeLower", hypeIsUsd ? ("$" + (Number(hype.p_lower) || (hypeCurPrice * 0.975)).toFixed(2)) : ((Number(hype.p_lower) || (hypeCurPrice * 0.975)).toFixed(4) + " SOL"));
-  setTxt("hypeRangeUpper", hypeIsUsd ? ("$" + (Number(hype.p_upper) || (hypeCurPrice * 1.025)).toFixed(2)) : ((Number(hype.p_upper) || (hypeCurPrice * 1.025)).toFixed(4) + " SOL"));
-  const hypeBar = document.getElementById("hypeRangeProgress");
-  if (hypeBar && hype.p_upper > hype.p_lower) {
-    const pct = Math.max(2, Math.min(98, ((hypeCurPrice - hype.p_lower) / (hype.p_upper - hype.p_lower)) * 100));
-    hypeBar.style.width = pct.toFixed(1) + "%";
-  }
-
-  // Update Solana Chart
-  if (equityChart && equityChart.data && equityChart.data.labels) {
-    const labels = equityChart.data.labels;
-    const dsGlobal = equityChart.data.datasets[0].data;
-    const dsSol = equityChart.data.datasets[1].data;
-    const dsBtc = equityChart.data.datasets[2].data;
-    const dsHype = equityChart.data.datasets[3].data;
-
-    const timeLabel = new Date().toLocaleTimeString("es-ES", { hour12: false });
-    labels.push(timeLabel);
-    dsGlobal.push(totalEur);
-    dsSol.push(Number((solUsdc.total_val / eurRate).toFixed(2)));
-    dsBtc.push(Number((cbbtc.total_val / eurRate).toFixed(2)));
-    dsHype.push(Number((hypeValUsd / eurRate).toFixed(2)));
-
-    if (labels.length > 30) {
-      labels.shift();
-      dsGlobal.shift();
-      dsSol.shift();
-      dsBtc.shift();
-      dsHype.shift();
-    }
-    equityChart.update();
-  }
-}
-
-function updateSolanaGauge(prefix, current, low, high) {
-  const bar = document.getElementById(`${prefix}Bar`);
-  const status = document.getElementById(`${prefix}Status`);
-  const currentEl = document.getElementById(`${prefix}Current`);
-  if (!bar || !current || !low || !high) return;
-
-  const pct = Math.max(0, Math.min(100, ((current - low) / (high - low)) * 100));
-  bar.style.width = pct.toFixed(1) + "%";
-  if (status) {
-    if (pct < 10 || pct > 90) {
-      status.textContent = `ALERTA REBALANCEO (${pct.toFixed(1)}%)`;
-      status.className = "text-amber-400 font-bold font-mono";
-    } else {
-      status.textContent = `DENTRO (${pct.toFixed(1)}%)`;
-      status.className = "text-emerald-400 font-bold font-mono";
-    }
-  }
-}
-
-let prices30mAgo = { SOL: null, JUP: null, HYPE: null };
-
-function renderSingleRtCard(prefix, sym, curPx, entryPx, decimals, fundingApr) {
-  const ref30m = prices30mAgo[sym] || entryPx;
-  setTxt(`rt${prefix}Price`, decimals === 0 ? ("$" + Math.round(curPx).toLocaleString()) : ("$" + curPx.toFixed(decimals)));
-  const str30m = decimals === 0 ? Math.round(ref30m).toLocaleString() : ref30m.toFixed(decimals);
-  const strEnt = decimals === 0 ? Math.round(entryPx).toLocaleString() : entryPx.toFixed(decimals);
-  setTxt(`rt${prefix}EntryRef`, `Entrada inicial: $${strEnt}`);
-  setTxt(`rt${prefix}TickDelta`, `Hace 30 min: $${str30m}`);
-
-  const diff30m = curPx - ref30m;
-  const pct30m = ref30m > 0 ? ((diff30m / ref30m) * 100.0) : 0.0;
-  const badge = document.getElementById(`rt${prefix}Badge`);
-  const effectEl = document.getElementById(`rt${prefix}EffectText`);
-  const diffStr = decimals === 0 ? (`$${Math.round(Math.abs(diff30m)).toLocaleString()}`) : (`$${Math.abs(diff30m).toFixed(2)}`);
-
-  if (Math.abs(pct30m) < 0.005) {
-    if (badge) {
-      badge.textContent = `30m: = 0.00% ($0.00)`;
-      badge.className = "px-2 py-0.5 rounded-md text-xs font-mono font-extrabold bg-white/10 text-gray-200 border border-white/20";
-    }
-    if (effectEl) {
-      effectEl.textContent = "Últimos 30 min: Sin variación";
-      effectEl.className = "text-gray-300";
-    }
-  } else if (diff30m > 0) {
-    if (badge) {
-      badge.textContent = `30m: ▲ SUBIÓ +${pct30m.toFixed(2)}% (+${diffStr})`;
-      badge.className = "px-2 py-0.5 rounded-md text-xs font-mono font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
-    }
-    if (effectEl) {
-      effectEl.textContent = `▲ Subió en 30m → Pool LP GANA +$ / Short resta -$`;
-      effectEl.className = "text-emerald-400 font-semibold";
-    }
-  } else {
-    if (badge) {
-      badge.textContent = `30m: ▼ BAJÓ ${pct30m.toFixed(2)}% (-${diffStr})`;
-      badge.className = "px-2 py-0.5 rounded-md text-xs font-mono font-extrabold bg-rose-500/20 text-rose-300 border border-rose-500/40";
-    }
-    if (effectEl) {
-      effectEl.textContent = `▼ Bajó en 30m → Short GANA +USDC / Pool LP resta -$`;
-      effectEl.className = "text-sky-400 font-semibold";
-    }
-  }
-
-  if (fundingApr !== undefined && fundingApr !== null) {
-    const fEl = document.getElementById(`rt${prefix}FundingLive`);
-    if (fEl) {
-      fEl.textContent = `Funding Auto: ${fundingApr >= 0 ? "+" : ""}${Number(fundingApr).toFixed(2)}% APR`;
-      fEl.className = fundingApr >= 0 ? "text-emerald-300 font-bold" : "text-amber-300 font-bold";
-    }
-  }
-}
-
-function updateRealTimePriceMonitor(solPx, btcPx, hypePx, solUsdc, cbbtc, hype, hl) {
-  const solEntry = (solUsdc && Number(solUsdc.entry_price)) || 90.1035;
-  const jupEntry = (cbbtc && Number(cbbtc.entry_price)) || 0.2462;
-  const hypeEntry = (hype && Number(hype.entry_price)) || 78.2808;
-
-  const solFundApr = hl && hl.positions && hl.positions.SOL ? hl.positions.SOL.funding_apr_pct : -0.34;
-  const jupFundApr = hl && hl.positions && hl.positions.BTC ? hl.positions.BTC.funding_apr_pct : 10.96;
-  const hypeFundApr = hl && hl.positions && hl.positions.HYPE ? hl.positions.HYPE.funding_apr_pct : 10.96;
-
-  renderSingleRtCard("Sol", "SOL", solPx, solEntry, 2, solFundApr);
-  renderSingleRtCard("Btc", "JUP", btcPx, jupEntry, 4, jupFundApr);
-  renderSingleRtCard("Hype", "HYPE", hypePx, hypeEntry, 2, hypeFundApr);
-}
-
-// Direct 2.5s Real-Time Hyperliquid L1 Oracle Feed (Prices + Auto-Updating Hourly Funding Rates)
-function pollHyperliquidLiveRT() {
-  fetch("https://api.hyperliquid.xyz/info", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ type: "metaAndAssetCtxs" })
-  })
-    .then(r => r.json())
-    .then(res => {
-      if (!Array.isArray(res) || res.length < 2) return;
-      const universe = (res[0] && res[0].universe) || [];
-      const ctxs = res[1] || [];
-      let solMark = null, btcMark = null, hypeMark = null;
-      let solF = null, btcF = null, hypeF = null;
-
-      for (let i = 0; i < universe.length; i++) {
-        const name = universe[i].name;
-        const c = ctxs[i];
-        if (!c) continue;
-        if (name === "SOL") {
-          solMark = parseFloat(c.markPx);
-          solF = parseFloat(c.funding) * 24.0 * 365.25 * 100.0;
-        } else if (name === "JUP") {
-          btcMark = parseFloat(c.markPx);
-          btcF = parseFloat(c.funding) * 24.0 * 365.25 * 100.0;
-        } else if (name === "HYPE") {
-          hypeMark = parseFloat(c.markPx);
-          hypeF = parseFloat(c.funding) * 24.0 * 365.25 * 100.0;
-        }
-      }
-
-      if (latestData) {
-        if (solMark) latestData.sol_price_usd = solMark;
-        if (btcMark) latestData.btc_price_usd = btcMark;
-        if (hypeMark) latestData.hype_price_usd = hypeMark;
-        if (latestData.hyperliquid_hedge && latestData.hyperliquid_hedge.positions) {
-          const pos = latestData.hyperliquid_hedge.positions;
-          if (pos.SOL && solMark) { pos.SOL.mark_px = solMark; pos.SOL.funding_apr_pct = solF; }
-          if (pos.BTC && btcMark) { pos.BTC.mark_px = btcMark; pos.BTC.funding_apr_pct = btcF; }
-          if (pos.HYPE && hypeMark) { pos.HYPE.mark_px = hypeMark; pos.HYPE.funding_apr_pct = hypeF; }
-          if (solF !== null && btcF !== null && hypeF !== null) {
-            latestData.hyperliquid_hedge.weighted_funding_apr = (solF * 0.50) + (btcF * 0.25) + (hypeF * 0.25);
-          }
-        }
-        setTxt("rtFeedTimestamp", `Comparativa cada 30 min (Hyperliquid L1 + Meteora)`);
-        renderView();
-      }
-    })
-    .catch(() => {});
-}
-
-// Fetch exact 30-minute ago candle open price from Hyperliquid L1 for SOL, JUP, HYPE
-function pollHyperliquid30mCandles() {
-  const now = Date.now();
-  const start30m = now - (30 * 60 * 1000);
-  ["SOL", "JUP", "HYPE"].forEach(coin => {
-    fetch("https://api.hyperliquid.xyz/info", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        type: "candleSnapshot",
-        req: { coin: coin, interval: "1m", startTime: start30m, endTime: now }
-      })
-    })
-      .then(r => r.json())
-      .then(candles => {
-        if (Array.isArray(candles) && candles.length > 0 && candles[0].o) {
-          prices30mAgo[coin] = parseFloat(candles[0].o);
-          renderView();
-        }
-      })
-      .catch(() => {});
-  });
-}
-
-// ============================================================================
-// LIVE DATA STREAM & POLLING
-// ============================================================================
-function pollFirestoreREST() {
-  fetch("https://firestore.googleapis.com/v1/projects/criptpool-meteora/databases/(default)/documents/meteora_bot/current_state", {
-    cache: "no-store",
-    headers: { "Cache-Control": "no-cache" }
-  })
-    .then(r => {
-      if (!r.ok) throw new Error("HTTP error " + r.status);
-      return r.json();
-    })
-    .then(doc => {
-      if (!doc || !doc.fields) return;
-
-      function parse(val) {
-        if (!val) return null;
-        if (val.doubleValue !== undefined) return Number(val.doubleValue);
-        if (val.integerValue !== undefined) return Number(val.integerValue);
-        if (val.stringValue !== undefined) return val.stringValue;
-        if (val.booleanValue !== undefined) return val.booleanValue;
-        if (val.mapValue !== undefined) {
-          const res = {};
-          const f = val.mapValue.fields || {};
-          for (let k in f) res[k] = parse(f[k]);
-          return res;
-        }
-        if (val.arrayValue !== undefined) {
-          const arr = val.arrayValue.values || [];
-          return arr.map(parse);
-        }
-        return null;
-      }
-
-      const parsed = {};
-      for (let k in doc.fields) {
-        parsed[k] = parse(doc.fields[k]);
-      }
-
-      latestData = parsed;
-      lastUpdateEpoch = Date.now();
-      renderView();
-    })
-    .catch(err => {
-      console.warn("[!] Error en REST fallback:", err);
-    });
-}
-
-// Heartbeat ticker
-setInterval(() => {
-  const sec = Math.max(0, Math.round((Date.now() - lastUpdateEpoch) / 1000));
-  setTxt("tickerSeconds", sec + "s");
-  const el = document.getElementById("lastUpdated");
-  if (el) {
-    if (sec <= 4) {
-      el.textContent = `Sincronizado (hace ${sec}s)`;
-      el.className = "text-[11px] text-emerald-400 font-mono";
-    } else {
-      el.textContent = `Actualizado hace ${sec}s`;
-      el.className = "text-[11px] text-gray-400 font-mono";
-    }
-  }
-}, 1000);
-
-// Robust Immediate Startup
-function startApp() {
-  console.log("[*] Iniciando CriptPool Solana DLMM + Hyperliquid Delta-Neutral Web App...");
-  initSolChart();
-  
-  // Render baseline immediately
-  renderView();
-
-  // Try real-time WebSocket listener for Firestore
-  if (db) {
-    try {
-      db.collection("meteora_bot").document("current_state")
-        .onSnapshot((doc) => {
-          if (doc.exists) {
-            latestData = doc.data();
-            lastUpdateEpoch = Date.now();
-            renderView();
-          }
-        }, (err) => {
-          console.warn("[!] WebSocket stalled, falling back to REST polling:", err);
-        });
-    } catch (e) {
-      console.warn("[!] Error en listener Firestore:", e);
-    }
-  }
-
-  // Active polling & on-demand worker wakeup (Free-Tier 0.00 EUR/month mode)
-  const triggerWorkerTick = () => {
-    fetch("https://meteora-bot-worker-724237130149.europe-west1.run.app/", { mode: "no-cors", cache: "no-store" }).catch(() => {});
+const parseUtc = (s) => s ? new Date(/Z|[+-]\d\d:\d\d$/.test(s) ? s : s + "Z") : null;
+
+// ----------------------------------------------------------------------------
+// Modelo: deriva todos los KPIs a partir del documento del worker
+// ----------------------------------------------------------------------------
+function buildModel(d) {
+  const fx = num(d.eur_usd_rate, 1.08);
+  const pc = d.portfolio_combined || {};
+  const hl = d.hyperliquid_hedge || {};
+  const hlPos = hl.positions || {};
+  const mli = d.market_link_info || {};
+  const initUsd = num(pc.total_initial_usd, num(d.initial_capital_usd, 1080));
+  const initEur = num(d.initial_capital_eur, initUsd / fx);
+
+  const pools = POOLS.map((cfg) => {
+    const p = cfg.keys.map((k) => d[k]).find(Boolean);
+    if (!p) return null;
+    const price = num(p.current_price);
+    const entry = num(p.entry_price, price);
+    const lo = num(p.p_lower, price * 0.97);
+    const hi = num(p.p_upper, price * 1.03);
+    const tLo = entry - CFG.rebalThresh * (entry - lo);
+    const tHi = entry + CFG.rebalThresh * (hi - entry);
+    const init = num(p.initial_cap);
+    const posVal = num(p.pos_val);
+    const fees = num(p.accumulated_fees);
+    const comp = num(p.compounded_fees);
+    const costs = num(p.total_rebal_costs);
+    // Efecto precio "puro": variación del LP sin fees reinvertidas y sin costes descontados del capital
+    const pricePure = (posVal - init) - comp + costs;
+
+    const sp = hlPos[cfg.perp] || {};
+    const shortTok = num(sp.size_tokens, num(p.short_tokens));
+    const mark = num(sp.mark_px, price);
+    const shortEntry = num(sp.entry_px, num(p.short_entry_price, entry));
+    const shortPnl = Number.isFinite(Number(sp.pnl_usd)) ? Number(sp.pnl_usd) : (shortEntry - mark) * shortTok;
+    const lpTok = num(p.token_x);
+    const lpExpo = lpTok * price;
+    const shortExpo = shortTok * mark;
+
+    const days = Math.max(num(p.total_time_sec) / 86400, 1e-6);
+    return {
+      cfg, raw: p, price, entry, lo, hi, tLo, tHi, init, posVal, fees, comp, costs, pricePure,
+      totalVal: num(p.total_val), netProfit: num(p.total_val) - init,
+      roi: init > 0 ? ((num(p.total_val) - init) / init) * 100 : 0,
+      feeApr: num(p.real_fee_apr), feeAprRaw: init > 0 ? (fees / init) * (365.25 / days) * 100 : 0,
+      inRange: !!p.is_in_range, outSec: num(p.out_of_range_sec),
+      distLo: num(p.dist_p_lower_pct), distHi: num(p.dist_p_upper_pct),
+      distRebal: Math.min(num(p.dist_rebal_lower_pct, 99), num(p.dist_rebal_upper_pct, 99)),
+      activity: num(p.activity_ratio_pct, 100), rebals: num(p.total_rebalances),
+      friction: fees > 0 ? (costs / fees) * 100 : 0,
+      il: num(p.il_amount), ilPct: num(p.il_pct), netVsHodl: num(p.net_vs_hodl),
+      tokX: lpTok, tokY: num(p.token_y), symX: cfg.base, symY: p.token_y_symbol || "USDC",
+      halfRange: num(p.half_range_pct) * 100, vol24: num(mli[cfg.volKey]),
+      shortTok, mark, shortEntry, shortPnl, lpExpo, shortExpo, netDelta: lpExpo - shortExpo,
+      hedgeRatio: lpTok > 0 ? shortTok / lpTok : null,
+      fundingApr: num(sp.funding_apr_pct), funding: num(sp.funding_earned_usd)
+    };
+  }).filter(Boolean);
+
+  const sum = (f) => pools.reduce((a, p) => a + f(p), 0);
+  const days = Math.max(num((d.sol_usdc || {}).total_time_sec, sum((p) => num(p.raw.total_time_sec)) / Math.max(pools.length, 1)) / 86400, 1e-6);
+
+  const fees = sum((p) => p.fees);
+  const funding = Number.isFinite(Number(hl.total_funding_usd)) ? Number(hl.total_funding_usd) : sum((p) => p.funding);
+  const shortPnl = Number.isFinite(Number(hl.total_short_pnl_usd)) ? Number(hl.total_short_pnl_usd) : sum((p) => p.shortPnl);
+  const costs = sum((p) => p.costs);
+  const pricePure = sum((p) => p.pricePure);
+  const unhedged = num(pc.total_portfolio_usd, sum((p) => p.totalVal));
+  const hedged = unhedged + shortPnl + funding;
+  const pnl = hedged - initUsd;
+  const income = fees + funding;
+
+  const notional = sum((p) => p.shortExpo);
+  const collat = num(hl.margin_collateral_usd, 216);
+  const hlEquity = collat + shortPnl + funding;
+  const mm = notional > 0 ? pools.reduce((a, p) => a + p.shortExpo * (1 / (2 * (CFG.maxLev[p.cfg.perp] || 10))), 0) / notional : 0.05;
+  const liqMove = notional > 0 ? (hlEquity - mm * notional) / (notional * (1 + mm)) * 100 : null;
+
+  const compounded = sum((p) => p.comp);
+  const uncompounded = Math.max(fees - compounded, 0);
+
+  return {
+    fx, initUsd, initEur, days, pools, fees, funding, shortPnl, costs, pricePure, unhedged, hedged, pnl, income,
+    priceNet: pricePure + shortPnl,
+    netApr: (pnl / initUsd) * (365.25 / days) * 100,
+    incomeApr: (income / initUsd) * (365.25 / days) * 100,
+    feeApr: num(pc.real_fee_apr), fundingAprPortfolio: num(hl.funding_portfolio_apr), weightedFundingApr: num(hl.weighted_funding_apr),
+    roiTotalCapital: (pnl / (initUsd + collat)) * 100,
+    netDelta: sum((p) => p.netDelta), absDelta: sum((p) => Math.abs(p.netDelta)), grossCrypto: sum((p) => p.lpExpo),
+    notional, collat, hlEquity, lev: hlEquity > 0 ? notional / hlEquity : null, liqMove,
+    compounded, uncompounded, compoundThreshold: num(hl.auto_compound_threshold_usd, 2.5),
+    rebals: sum((p) => p.rebals), friction: fees > 0 ? (costs / fees) * 100 : 0,
+    activity: pools.length ? sum((p) => p.activity) / pools.length : 100,
+    inRange: pools.filter((p) => p.inRange).length,
+    lastUpdated: parseUtc(d.last_updated),
+    startedAt: parseUtc(d.last_updated) ? new Date(parseUtc(d.last_updated).getTime() - days * 86400000) : null,
+    hlPos
   };
-  triggerWorkerTick();
-  pollFirestoreREST();
-  pollHyperliquid30mCandles();
-  pollHyperliquidLiveRT();
-  setInterval(triggerWorkerTick, 10000);
-  setInterval(pollFirestoreREST, 3000);
-  setInterval(pollHyperliquidLiveRT, 2500);
-  setInterval(pollHyperliquid30mCandles, 15000);
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", startApp);
-} else {
-  startApp();
+// ----------------------------------------------------------------------------
+// Alertas: reglas de seguimiento
+// ----------------------------------------------------------------------------
+function buildAlerts(M) {
+  const A = [];
+  const add = (lvl, msg) => A.push({ lvl, msg });
+  const ageSec = M.lastUpdated ? (Date.now() - M.lastUpdated.getTime()) / 1000 : Infinity;
+  if (ageSec > 900) add("crit", `Datos sin actualizar desde hace ${fmtDur(ageSec)}: revisar el worker de Cloud Run.`);
+  else if (ageSec > 180) add("warn", `Último tick del worker hace ${fmtDur(ageSec)}.`);
+
+  M.pools.forEach((p) => {
+    const n = p.cfg.label;
+    if (!p.inRange) add("crit", `${n} fuera de rango: no genera comisiones.`);
+    if (p.outSec > 0) add("warn", `${n} superó el umbral de rebalanceo; se ejecutará en ${fmtDur(Math.max(CFG.rebalConfirmSec - p.outSec, 0))} si no vuelve.`);
+    else if (p.inRange && p.distRebal < 1) add("warn", `${n} a ${pct(p.distRebal)} del disparo de rebalanceo.`);
+    if (p.fees > 0.05 && p.friction > 50) add("warn", `${n}: los costes consumen el ${pct(p.friction, 0)} de sus comisiones.`);
+    if (p.hedgeRatio !== null && p.lpExpo > 5) {
+      const dev = Math.abs(p.hedgeRatio - 1) * 100;
+      const dir = p.netDelta > 0 ? "infracubierto (largo)" : "sobrecubierto (corto)";
+      if (dev > 25) add("crit", `Cobertura ${p.cfg.base} ${dir}: ratio ${pct(p.hedgeRatio * 100, 0)}, delta ${sUsd(p.netDelta, 0)}. Ajustar short.`);
+      else if (dev > 10) add("warn", `Cobertura ${p.cfg.base} ${dir}: ratio ${pct(p.hedgeRatio * 100, 0)}, delta ${sUsd(p.netDelta, 0)}.`);
+    }
+  });
+
+  if (M.lev !== null && M.lev > 3.5) add("warn", `Apalancamiento en Hyperliquid elevado: ${nf(2).format(M.lev)}x.`);
+  if (M.liqMove !== null && M.liqMove < 20) add("crit", `Margen a liquidación estimado solo ${pct(M.liqMove, 1)}.`);
+  if (M.days >= 1 && M.incomeApr < CFG.targetAprMin) add("info", `APR de ingresos ${pct(M.incomeApr, 1)} por debajo del objetivo mínimo (${CFG.targetAprMin}%).`);
+  if (M.fees < Math.abs(M.pools.reduce((a, p) => a + Math.min(p.il, 0), 0))) add("info", "Las comisiones aún no cubren la pérdida impermanente acumulada.");
+  return A;
 }
+
+// ----------------------------------------------------------------------------
+// Render
+// ----------------------------------------------------------------------------
+function render() {
+  if (!state) return;
+  const M = buildModel(state);
+  const fx = M.fx;
+
+  // Cabecera
+  setTxt("hdrCapital", eur(M.initEur, 0));
+  setTxt("hdrTestDay", `Día ${nf(1).format(M.days)} / ${CFG.testDays}`);
+  $("hdrTestBar").style.width = Math.min(100, (M.days / CFG.testDays) * 100) + "%";
+  renderFeed(M);
+
+  // KPI 1: Patrimonio
+  setTxt("kEquity", eur(M.hedged / fx));
+  setTxt("kPnl", sEur(M.pnl / fx)); setCls("kPnl", "num font-semibold " + cls(M.pnl));
+  setTxt("kPnlPct", sPct((M.pnl / M.initUsd) * 100)); setCls("kPnlPct", "num text-xs " + cls(M.pnl));
+  setTxt("kEquityUsd", `${usd(M.hedged)} · solo pools ${eur(M.unhedged / fx)}`);
+
+  // KPI 2: Rentabilidad neta anualizada vs objetivo
+  setTxt("kNetApr", sPct(M.netApr, 1));
+  const aprCls = M.netApr >= CFG.targetAprMin ? "pos" : M.netApr >= 0 ? "warn" : "neg";
+  setCls("kNetApr", "num text-3xl font-bold mt-2 " + aprCls);
+  setTxt("kTargetLbl", `${CFG.targetAprMin}–${CFG.targetAprMax}%`);
+  const scaleMax = Math.max(CFG.targetAprMax * 1.5, M.netApr * 1.1);
+  $("kNetAprBar").style.width = Math.max(0, Math.min(100, (M.netApr / scaleMax) * 100)) + "%";
+  $("kNetAprBar").className = M.netApr >= CFG.targetAprMin ? "bg-emerald-400" : M.netApr >= 0 ? "bg-amber-400" : "bg-rose-400";
+  const zone = $("kTargetZone");
+  zone.style.left = (CFG.targetAprMin / scaleMax) * 100 + "%";
+  zone.style.width = ((CFG.targetAprMax - CFG.targetAprMin) / scaleMax) * 100 + "%";
+  setHtml("kNetAprNote", M.days < 7
+    ? `<span class="warn">Muestra de ${nf(1).format(M.days)} días: alta varianza.</span>`
+    : `<span class="muted">Sobre ${nf(1).format(M.days)} días de operación.</span>`);
+
+  // KPI 3: Ingresos pasivos
+  setTxt("kIncome", sEur(M.income / fx, 2));
+  setTxt("kIncomeSplit", `DLMM ${sEur(M.fees / fx)} · Funding ${sEur(M.funding / fx)}`);
+  setTxt("kIncomeApr", pct(M.incomeApr, 1));
+  setCls("kIncomeApr", "num font-semibold " + (M.incomeApr >= CFG.targetAprMin ? "pos" : "warn"));
+  setTxt("kIncome30", sEur((M.income / M.days) * CFG.testDays / fx));
+
+  // KPI 4: Efecto precio neto / cobertura
+  setTxt("kPriceNet", sEur(M.priceNet / fx)); setCls("kPriceNet", "num text-3xl font-bold mt-2 " + cls(M.priceNet));
+  setTxt("kPriceSplit", `Pools ${sEur(M.pricePure / fx)} · Shorts ${sEur(M.shortPnl / fx)}`);
+  // Desviación bruta: suma de |delta| por activo (los activos no se compensan entre sí)
+  const deltaPct = M.grossCrypto > 0 ? (M.absDelta / M.grossCrypto) * 100 : 0;
+  setTxt("kDelta", `${usd(M.absDelta, 0)} (${pct(deltaPct, 0)})`);
+  setCls("kDelta", "num font-semibold " + (Math.abs(deltaPct) > 25 ? "neg" : Math.abs(deltaPct) > 10 ? "warn" : "pos"));
+  const eff = Math.abs(M.pricePure) > 0.01 ? (-M.shortPnl / M.pricePure) * 100 : null;
+  setTxt("kHedgeEff", eff === null ? "—" : pct(eff, 0));
+
+  // Alertas y salud
+  const alerts = buildAlerts(M);
+  const crit = alerts.filter((a) => a.lvl === "crit").length, warn = alerts.filter((a) => a.lvl === "warn").length;
+  const sum = $("alertSummary");
+  if (crit) { sum.className = "chip chip-crit"; sum.textContent = `${crit} crítica${crit > 1 ? "s" : ""} · ${warn} aviso${warn !== 1 ? "s" : ""}`; }
+  else if (warn) { sum.className = "chip chip-warn"; sum.textContent = `${warn} aviso${warn > 1 ? "s" : ""}`; }
+  else { sum.className = "chip chip-ok"; sum.textContent = "Todo en orden"; }
+  const icon = { crit: "●", warn: "▲", info: "i" };
+  setHtml("alertList", alerts.length ? alerts.map((a) =>
+    `<div class="flex gap-2 items-start rounded-lg px-3 py-2 bg-white/[0.03]"><span class="chip chip-${a.lvl} !px-1.5">${icon[a.lvl]}</span><span class="text-slate-200">${a.msg}</span></div>`
+  ).join("") : `<div class="text-sm muted">Sin incidencias: pools en rango, cobertura equilibrada y datos al día.</div>`);
+
+  setTxt("hInRange", `${M.inRange}/${M.pools.length}`); setCls("hInRange", "num text-lg font-semibold mt-1 " + (M.inRange === M.pools.length ? "pos" : "neg"));
+  setTxt("hTimeInRange", pct(M.activity, 1));
+  setTxt("hRebal", `${M.rebals} · ${eur(M.costs / fx)}`);
+  setTxt("hFriction", pct(M.friction, 1)); setCls("hFriction", "num text-lg font-semibold mt-1 " + (M.friction > 50 ? "neg" : M.friction > 20 ? "warn" : "pos"));
+  setTxt("hLev", M.lev === null ? "—" : nf(2).format(M.lev) + "x"); setCls("hLev", "num text-lg font-semibold mt-1 " + (M.lev > 3.5 ? "warn" : "neu"));
+  setTxt("hLiq", M.liqMove === null ? "—" : "+" + pct(M.liqMove, 1)); setCls("hLiq", "num text-lg font-semibold mt-1 " + (M.liqMove < 20 ? "neg" : M.liqMove < 30 ? "warn" : "pos"));
+
+  // Pools, cobertura y gráficos
+  renderPools(M);
+  renderHedge(M);
+  renderBridge(M);
+  renderHistory(M);
+}
+
+function renderFeed(M) {
+  const chip = $("feedChip");
+  const ageSec = M && M.lastUpdated ? Math.max(0, (Date.now() - M.lastUpdated.getTime()) / 1000) : null;
+  if (ageSec === null) { chip.className = "chip chip-info"; setTxt("feedText", "Conectando…"); return; }
+  const lbl = ageSec < 60 ? `${Math.round(ageSec)} s` : fmtDur(ageSec);
+  if (ageSec <= 180) { chip.className = "chip chip-ok"; setTxt("feedText", `En vivo · hace ${lbl}`); }
+  else if (ageSec <= 900) { chip.className = "chip chip-warn"; setTxt("feedText", `Retraso · hace ${lbl}`); }
+  else { chip.className = "chip chip-crit"; setTxt("feedText", `Sin datos · hace ${lbl}`); }
+}
+
+function rangeBar(p) {
+  // Escala visual: desde el disparo inferior al superior (con margen) para ver rango y umbral de rebalanceo
+  const span = p.tHi - p.tLo;
+  const min = p.tLo - span * 0.08, max = p.tHi + span * 0.08;
+  const pos = (v) => Math.max(0, Math.min(100, ((v - min) / (max - min)) * 100));
+  const markerCol = p.inRange ? (p.distRebal < 1 ? "#FBBF24" : "#FFFFFF") : "#FB7185";
+  return `
+    <div class="relative h-7 mt-1">
+      <div class="absolute top-3 left-0 right-0 h-1 rounded bg-white/5"></div>
+      <div class="absolute top-2.5 h-2 rounded" style="left:${pos(p.lo)}%;width:${pos(p.hi) - pos(p.lo)}%;background:${p.cfg.color}33;border:1px solid ${p.cfg.color}88"></div>
+      <div class="absolute top-1.5 h-4 w-px bg-rose-400/70" style="left:${pos(p.tLo)}%" title="Disparo rebalanceo inferior"></div>
+      <div class="absolute top-1.5 h-4 w-px bg-rose-400/70" style="left:${pos(p.tHi)}%" title="Disparo rebalanceo superior"></div>
+      <div class="absolute top-1.5 h-4 w-px bg-slate-400/60" style="left:${pos(p.entry)}%" title="Precio de entrada"></div>
+      <div class="absolute top-0.5 w-3 h-3 -ml-1.5 rounded-full border-2 border-ink-900" style="left:${pos(p.price)}%;background:${markerCol}" title="Precio actual"></div>
+    </div>
+    <div class="flex justify-between text-[11px] num muted">
+      <span>${px(p.lo)}</span><span class="text-slate-200">${px(p.price)}</span><span>${px(p.hi)}</span>
+    </div>`;
+}
+
+function renderPools(M) {
+  const fx = M.fx;
+  const progress = Math.min(100, (M.uncompounded / M.compoundThreshold) * 100);
+  setHtml("compoundTxt", `${usd(M.uncompounded)} / ${usd(M.compoundThreshold)} (${pct(progress, 0)}) · reinvertido ${usd(M.compounded)}`);
+
+  setHtml("poolsGrid", M.pools.map((p) => {
+    const status = !p.inRange ? `<span class="chip chip-crit">Fuera de rango</span>`
+      : p.outSec > 0 ? `<span class="chip chip-warn">Confirmando rebalanceo</span>`
+      : p.distRebal < 1 ? `<span class="chip chip-warn">Cerca del borde</span>`
+      : `<span class="chip chip-ok">En rango</span>`;
+    const aprCls = p.feeApr >= CFG.targetAprMin ? "pos" : p.feeApr >= CFG.targetAprMin / 2 ? "warn" : "neg";
+    const row = (k, v, c = "text-slate-200") => `<div class="flex justify-between"><span class="muted">${k}</span><span class="num ${c}">${v}</span></div>`;
+    return `
+    <div class="card p-4" style="border-top:3px solid ${p.cfg.color}">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="font-bold text-white">${p.cfg.label}</div>
+          <div class="text-[11px] muted">${p.cfg.role} · ${pct((p.init / M.initUsd) * 100, 0)} · rango ±${nf(1).format(p.halfRange)}%</div>
+        </div>
+        ${status}
+      </div>
+
+      <div class="grid grid-cols-3 gap-2 mt-4">
+        <div><div class="kpi-label">Valor</div><div class="num font-semibold text-white mt-0.5">${eur(p.totalVal / fx)}</div><div class="num text-[11px] ${cls(p.netProfit)}">${sPct(p.roi)}</div></div>
+        <div><div class="kpi-label">Fees</div><div class="num font-semibold pos mt-0.5">${sEur(p.fees / fx, 3)}</div><div class="num text-[11px] muted">${usd(p.fees, 3)}</div></div>
+        <div><div class="kpi-label">APR fees</div><div class="num font-semibold mt-0.5 ${aprCls}">${pct(p.feeApr, 1)}</div><div class="num text-[11px] muted">obj. ${CFG.targetAprMin}%</div></div>
+      </div>
+
+      <div class="mt-4">
+        <div class="flex justify-between text-[11px]"><span class="kpi-label">Rango activo</span><span class="num muted">rebalanceo a ${pct(p.distRebal)}</span></div>
+        ${rangeBar(p)}
+      </div>
+
+      <div class="mt-4 space-y-1.5 text-xs">
+        ${row("Tiempo en rango", pct(p.activity, 1), p.activity >= 90 ? "pos" : "warn")}
+        ${row("Distancia a Pmin / Pmax", `${pct(p.distLo)} / ${pct(p.distHi)}`)}
+        ${row("Pérdida impermanente", `${sUsd(p.il)} (${sPct(p.ilPct)})`, cls(p.il))}
+        ${row("Neto vs HODL 50/50", sUsd(p.netVsHodl), cls(p.netVsHodl))}
+        ${row("Rebalanceos · costes", `${p.rebals} · ${usd(p.costs, 3)}`)}
+        ${row("Costes / fees", pct(p.friction, 1), p.friction > 50 ? "neg" : p.friction > 20 ? "warn" : "pos")}
+        ${row("Inventario", `${tok(p.tokX)} ${p.symX} + ${nf(2).format(p.tokY)} ${p.symY}`)}
+        ${row("Volumen 24h pool", p.vol24 ? usd(p.vol24, 0) : "—")}
+      </div>
+    </div>`;
+  }).join(""));
+}
+
+function renderHedge(M) {
+  const ratioCell = (r) => {
+    if (r === null) return `<span class="muted">—</span>`;
+    const dev = Math.abs(r - 1) * 100;
+    const c = dev > 25 ? "chip-crit" : dev > 10 ? "chip-warn" : "chip-ok";
+    return `<span class="chip ${c}">${pct(r * 100, 0)}</span>`;
+  };
+  setHtml("hedgeBody", M.pools.map((p) => `
+    <tr>
+      <td class="font-sans"><span class="inline-block w-2 h-2 rounded-full mr-2" style="background:${p.cfg.color}"></span><span class="font-semibold text-white">${p.cfg.base}</span></td>
+      <td>${tok(p.tokX)}<div class="text-[11px] muted">${usd(p.lpExpo, 0)}</div></td>
+      <td>−${tok(p.shortTok)}<div class="text-[11px] muted">${usd(p.shortExpo, 0)} · ent. ${px(p.shortEntry)}</div></td>
+      <td>${ratioCell(p.hedgeRatio)}</td>
+      <td class="${Math.abs(p.netDelta) > 0.25 * p.lpExpo ? "neg" : Math.abs(p.netDelta) > 0.1 * p.lpExpo ? "warn" : "pos"}">${sUsd(p.netDelta, 0)}</td>
+      <td class="${cls(p.pricePure)}">${sUsd(p.pricePure)}</td>
+      <td class="${cls(p.shortPnl)}">${sUsd(p.shortPnl)}</td>
+      <td class="${cls(p.pricePure + p.shortPnl)} font-semibold">${sUsd(p.pricePure + p.shortPnl)}</td>
+      <td class="${cls(p.fundingApr)}">${sPct(p.fundingApr)}</td>
+      <td class="${cls(p.funding)}">${sUsd(p.funding, 3)}</td>
+    </tr>`).join(""));
+  setHtml("hedgeFoot", `
+    <tr>
+      <td class="font-sans text-slate-300">Total</td>
+      <td>${usd(M.grossCrypto, 0)}</td>
+      <td>${usd(M.notional, 0)}</td>
+      <td>${M.grossCrypto > 0 ? pct((M.notional / M.grossCrypto) * 100, 0) : "—"}</td>
+      <td class="${cls(M.netDelta)}">${sUsd(M.netDelta, 0)}</td>
+      <td class="${cls(M.pricePure)}">${sUsd(M.pricePure)}</td>
+      <td class="${cls(M.shortPnl)}">${sUsd(M.shortPnl)}</td>
+      <td class="${cls(M.priceNet)}">${sUsd(M.priceNet)}</td>
+      <td>${sPct(M.weightedFundingApr)}</td>
+      <td class="${cls(M.funding)}">${sUsd(M.funding, 3)}</td>
+    </tr>`);
+
+  setTxt("mCollat", usd(M.collat));
+  setTxt("mEquity", `${usd(M.hlEquity)} (${sUsd(M.hlEquity - M.collat)})`);
+  setTxt("mNotional", `${usd(M.notional, 0)} · ${M.lev ? nf(2).format(M.lev) + "x" : "—"}`);
+  setTxt("mFundApr", `${sPct(M.weightedFundingApr)} → ${sPct(M.fundingAprPortfolio)} cartera`);
+  setTxt("mRoiTotal", sPct(M.roiTotalCapital, 3)); setCls("mRoiTotal", "num mt-1 " + cls(M.roiTotalCapital));
+}
+
+// ----------------------------------------------------------------------------
+// Gráficos
+// ----------------------------------------------------------------------------
+Chart.defaults.color = "#8B98AD";
+Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+const gridColor = "rgba(255,255,255,0.05)";
+
+function renderBridge(M) {
+  const fx = M.fx;
+  const steps = [
+    ["Fees DLMM", M.fees / fx],
+    ["Funding", M.funding / fx],
+    ["Precio pools", M.pricePure / fx],
+    ["Shorts", M.shortPnl / fx],
+    ["Costes", -M.costs / fx]
+  ];
+  const labels = [], data = [], colors = [];
+  let acc = 0;
+  steps.forEach(([l, v]) => {
+    labels.push(l); data.push([acc, acc + v]); colors.push(v >= 0 ? "#34D399" : "#FB7185"); acc += v;
+  });
+  labels.push("PnL neto"); data.push([0, acc]); colors.push(acc >= 0 ? "#38BDF8" : "#F472B6");
+
+  if (!bridgeChart) {
+    bridgeChart = new Chart($("bridgeChart"), {
+      type: "bar",
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 4, borderSkipped: false }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 250 },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => { const [a, b] = c.raw; return sEur(c.dataIndex === labels.length - 1 ? b : b - a); } } } },
+        scales: { x: { grid: { display: false } }, y: { grid: { color: gridColor }, ticks: { callback: (v) => nf(1).format(v) + " €" } } }
+      }
+    });
+  } else {
+    bridgeChart.data.labels = labels;
+    bridgeChart.data.datasets[0].data = data;
+    bridgeChart.data.datasets[0].backgroundColor = colors;
+    bridgeChart.update("none");
+  }
+}
+
+function historySeries(M) {
+  // Reconstruye el patrimonio cubierto de cada snapshot: los shorts son de tamaño fijo (modo manual),
+  // así que su PnL histórico se obtiene con el precio del snapshot. El funding se prorratea en el tiempo.
+  const start = M.startedAt ? M.startedAt.getTime() : null;
+  if (!start) return [];
+  const nowH = M.days * 24;
+  const shortDefs = M.pools.map((p) => ({ perp: p.cfg.perp, size: p.shortTok, entry: p.shortEntry }));
+  const priceOf = (s, perp) => perp === "SOL" ? num(s.sol_price_usd) : perp === "JUP" ? num(s.btc_price_usd) : num(s.hype_price_usd);
+
+  const pts = snapshots.map((s) => {
+    const t = parseUtc(s.timestamp);
+    if (!t) return null;
+    const h = (t.getTime() - start) / 3600000;
+    if (h < -0.1 || h > nowH + 0.1) return null;
+    const shortPnl = shortDefs.reduce((a, d) => { const pr = priceOf(s, d.perp); return a + (pr > 0 ? (d.entry - pr) * d.size : 0); }, 0);
+    const funding = nowH > 0 ? M.funding * Math.max(h, 0) / nowH : 0;
+    const lpUsd = num(s.total_portfolio_usd, num(s.total_portfolio_eur) * M.fx);
+    return {
+      h: Math.max(h, 0),
+      lpEur: lpUsd / M.fx,
+      hedgedEur: (lpUsd + shortPnl + funding) / M.fx,
+      incomeEur: (num(s.total_fees_usd, num(s.total_fees_eur) * M.fx) + funding) / M.fx
+    };
+  }).filter(Boolean);
+  pts.unshift({ h: 0, lpEur: M.initEur, hedgedEur: M.initEur, incomeEur: 0 });
+  pts.push({ h: nowH, lpEur: M.unhedged / M.fx, hedgedEur: M.hedged / M.fx, incomeEur: M.income / M.fx });
+  return pts.sort((a, b) => a.h - b.h);
+}
+
+function renderHistory(M) {
+  const pts = historySeries(M);
+  if (!pts.length) return;
+  const start = M.startedAt.getTime();
+  const maxH = Math.max(pts[pts.length - 1].h, 1);
+  const tgt = (apr) => [{ x: 0, y: activeTab === "equity" ? M.initEur : 0 }, { x: maxH, y: (activeTab === "equity" ? M.initEur : 0) + M.initEur * (apr / 100) * (maxH / 24 / 365.25) }];
+
+  let datasets;
+  if (activeTab === "equity") {
+    datasets = [
+      { label: "Patrimonio neto (cubierto)", data: pts.map((p) => ({ x: p.h, y: p.hedgedEur })), borderColor: "#34D399", backgroundColor: "rgba(52,211,153,0.08)", fill: true, tension: 0.25, pointRadius: 0, borderWidth: 2 },
+      { label: "Solo pools (sin cobertura)", data: pts.map((p) => ({ x: p.h, y: p.lpEur })), borderColor: "#94A3B8", borderDash: [4, 4], tension: 0.25, pointRadius: 0, borderWidth: 1.5 },
+      { label: `Senda objetivo ${CFG.targetAprMin}% APR`, data: tgt(CFG.targetAprMin), borderColor: "#FBBF24", borderDash: [2, 4], pointRadius: 0, borderWidth: 1.5 }
+    ];
+  } else {
+    datasets = [
+      { label: "Ingresos acumulados (fees + funding)", data: pts.map((p) => ({ x: p.h, y: p.incomeEur })), borderColor: "#38BDF8", backgroundColor: "rgba(56,189,248,0.1)", fill: true, tension: 0.25, pointRadius: 0, borderWidth: 2 },
+      { label: `Objetivo ${CFG.targetAprMin}% APR`, data: tgt(CFG.targetAprMin), borderColor: "#FBBF24", borderDash: [4, 4], pointRadius: 0, borderWidth: 1.5 },
+      { label: `Objetivo ${CFG.targetAprMax}% APR`, data: tgt(CFG.targetAprMax), borderColor: "#34D399", borderDash: [2, 4], pointRadius: 0, borderWidth: 1.5 }
+    ];
+  }
+
+  const fmtX = (h) => new Date(start + h * 3600000).toLocaleString("es-ES", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  const yFmt = (v) => activeTab === "equity" ? nf(0).format(v) + " €" : nf(2).format(v) + " €";
+
+  if (!historyChart) {
+    historyChart = new Chart($("historyChart"), {
+      type: "line",
+      data: { datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: { duration: 250 }, parsing: false,
+        interaction: { mode: "nearest", axis: "x", intersect: false },
+        plugins: {
+          legend: { labels: { boxWidth: 12, usePointStyle: true } },
+          tooltip: { callbacks: { title: (items) => fmtX(items[0].parsed.x), label: (c) => `${c.dataset.label}: ${nf(activeTab === "equity" ? 2 : 3).format(c.parsed.y)} €` } }
+        },
+        scales: {
+          x: { type: "linear", min: 0, grid: { color: gridColor }, ticks: { maxTicksLimit: 8, callback: (v) => fmtX(v) } },
+          y: { grid: { color: gridColor }, ticks: { callback: yFmt } }
+        }
+      }
+    });
+  } else {
+    historyChart.data.datasets = datasets;
+    historyChart.options.scales.x.max = maxH;
+    historyChart.options.scales.y.ticks.callback = yFmt;
+    historyChart.update("none");
+  }
+  setTxt("historyNote", `${pts.length - 2} snapshots desde ${fmtX(0)} · el patrimonio cubierto se reconstruye con el precio de cada snapshot (shorts de tamaño fijo) y funding prorrateado.`);
+}
+
+document.querySelectorAll("#chartTabs .tab").forEach((b) => b.addEventListener("click", () => {
+  activeTab = b.dataset.tab;
+  document.querySelectorAll("#chartTabs .tab").forEach((x) => x.className = "tab px-2.5 py-1 rounded-md " + (x === b ? "bg-white/10 text-white" : "text-slate-400 hover:text-white"));
+  if (historyChart) { historyChart.destroy(); historyChart = null; }
+  render();
+}));
+
+// ----------------------------------------------------------------------------
+// Datos: Firestore (listener + REST de respaldo) y snapshots históricos
+// ----------------------------------------------------------------------------
+function parseFsValue(v) {
+  if (!v) return null;
+  if (v.doubleValue !== undefined) return Number(v.doubleValue);
+  if (v.integerValue !== undefined) return Number(v.integerValue);
+  if (v.stringValue !== undefined) return v.stringValue;
+  if (v.booleanValue !== undefined) return v.booleanValue;
+  if (v.timestampValue !== undefined) return v.timestampValue;
+  if (v.mapValue !== undefined) { const o = {}; const f = v.mapValue.fields || {}; for (const k in f) o[k] = parseFsValue(f[k]); return o; }
+  if (v.arrayValue !== undefined) return (v.arrayValue.values || []).map(parseFsValue);
+  return null;
+}
+const parseFsDoc = (doc) => { const o = {}; for (const k in (doc.fields || {})) o[k] = parseFsValue(doc.fields[k]); return o; };
+
+function onState(d) {
+  if (!d) return;
+  const prevStart = state ? buildModel(state).startedAt : null;
+  state = d;
+  lastFetchMs = Date.now();
+  render();
+  const newStart = buildModel(state).startedAt;
+  // Recarga el histórico si cambia el ciclo o si aún no se ha cargado
+  if (!snapshots.length || (prevStart && newStart && Math.abs(newStart - prevStart) > 3600000)) loadSnapshots();
+}
+
+function pollState() {
+  return fetch(`${CFG.restBase}/meteora_bot/current_state`, { cache: "no-store" })
+    .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then((doc) => onState(parseFsDoc(doc)))
+    .catch((e) => console.warn("[!] REST current_state:", e));
+}
+
+function loadSnapshots() {
+  if (!state) return;
+  const M = buildModel(state);
+  if (!M.startedAt) return;
+  const since = new Date(M.startedAt.getTime() - 5 * 60000).toISOString().replace("Z", "");
+  const body = {
+    structuredQuery: {
+      from: [{ collectionId: "snapshots" }],
+      where: { fieldFilter: { field: { fieldPath: "timestamp" }, op: "GREATER_THAN_OR_EQUAL", value: { stringValue: since } } },
+      orderBy: [{ field: { fieldPath: "timestamp" } }],
+      limit: 2000
+    }
+  };
+  fetch(`${CFG.restBase}/meteora_bot/history:runQuery`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+    .then((r) => r.json())
+    .then((rows) => {
+      snapshots = (Array.isArray(rows) ? rows : []).filter((r) => r.document).map((r) => parseFsDoc(r.document));
+      render();
+    })
+    .catch((e) => console.warn("[!] Snapshots:", e));
+}
+
+window.forceRefresh = function () {
+  setTxt("feedText", "Actualizando…");
+  wakeWorker();
+  pollState().then(loadSnapshots);
+};
+
+// El worker de Cloud Run ejecuta un tick bajo demanda al recibir una petición HTTP (modo free-tier).
+function wakeWorker() {
+  fetch(CFG.workerUrl, { mode: "no-cors", cache: "no-store" }).catch(() => {});
+}
+
+function start() {
+  try {
+    if (typeof firebase !== "undefined") {
+      firebase.initializeApp(firebaseConfig);
+      firebase.firestore().collection("meteora_bot").doc("current_state")
+        .onSnapshot((doc) => { if (doc.exists) onState(doc.data()); }, (err) => console.warn("[!] Listener Firestore:", err));
+    }
+  } catch (e) { console.warn("[!] Firebase SDK:", e); }
+
+  wakeWorker();
+  pollState();
+  setInterval(wakeWorker, 20000);
+  setInterval(pollState, 15000);
+  setInterval(loadSnapshots, 10 * 60000);
+  setInterval(() => { if (state) renderFeed(buildModel(state)); }, 1000);
+}
+
+if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+else start();

@@ -4,1173 +4,229 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0">
-  <title>CriptPool | Meteora DLMM Tri-Pool Portfolio Dashboard</title>
+  <title>CriptPool | Panel de Seguimiento Delta-Neutral DLMM</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script>
     tailwind.config = {
       darkMode: 'class',
       theme: {
         extend: {
-          colors: {
-            brand: { 500: '#14F195', 600: '#00C274' },
-            btc: { 500: '#F7931A' },
-            hype: { 500: '#38BDF8' },
-            purple: { 500: '#9945FF' },
-            eth: { 500: '#627EEA', 600: '#4F68D2' },
-            pendle: { 500: '#06B6D4' }
-          }
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'ui-monospace', 'monospace'] },
+          colors: { ink: { 900: '#0A0D13', 800: '#10151F', 700: '#161D2A', 600: '#202A3B' } }
         }
       }
     }
   </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body { background-color: #0B0E14; color: #E2E8F0; font-family: system-ui, -apple-system, sans-serif; }
-    .glass-card { background: rgba(18, 24, 38, 0.85); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .glow-green { box-shadow: 0 0 25px -5px rgba(20, 241, 149, 0.25); }
-    .card-global { background: rgba(20, 241, 149, 0.04); border: 1px solid rgba(20, 241, 149, 0.3); }
-    .card-sol-usdc { background: rgba(0, 194, 116, 0.04); border: 1px solid rgba(0, 194, 116, 0.3); }
-    .card-cbbtc { background: rgba(247, 147, 26, 0.04); border: 1px solid rgba(247, 147, 26, 0.3); }
-    .card-hype { background: rgba(56, 189, 248, 0.04); border: 1px solid rgba(56, 189, 248, 0.3); }
-    .glow-indigo { box-shadow: 0 0 25px -5px rgba(99, 102, 241, 0.3); }
-    .card-eth-usdc { background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.3); }
-    .card-pendle { background: rgba(6, 182, 212, 0.04); border: 1px solid rgba(6, 182, 212, 0.3); }
+    body { background: #0A0D13; color: #E2E8F0; }
+    .card { background: #10151F; border: 1px solid rgba(255,255,255,0.07); border-radius: 1rem; }
+    .kpi-label { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #8B98AD; font-weight: 600; }
+    .muted { color: #8B98AD; }
+    .num { font-family: 'JetBrains Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    .pos { color: #34D399; } .neg { color: #FB7185; } .warn { color: #FBBF24; } .neu { color: #CBD5E1; }
+    .chip { display:inline-flex; align-items:center; gap:.35rem; padding:.15rem .55rem; border-radius:999px; font-size:11px; font-weight:600; border:1px solid; }
+    .chip-ok { color:#34D399; border-color:rgba(52,211,153,.35); background:rgba(52,211,153,.08); }
+    .chip-warn { color:#FBBF24; border-color:rgba(251,191,36,.35); background:rgba(251,191,36,.08); }
+    .chip-crit { color:#FB7185; border-color:rgba(251,113,133,.4); background:rgba(251,113,133,.08); }
+    .chip-info { color:#7DD3FC; border-color:rgba(125,211,252,.35); background:rgba(125,211,252,.08); }
+    .bar { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+    .bar > span { display:block; height:100%; border-radius:999px; }
+    .info { cursor: help; color:#64748B; font-size: 11px; margin-left: 4px; }
+    table.t td, table.t th { padding: .55rem .75rem; white-space: nowrap; }
+    table.t th { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color:#8B98AD; font-weight:600; text-align:right; }
+    table.t td { text-align:right; border-top: 1px solid rgba(255,255,255,0.05); }
+    table.t th:first-child, table.t td:first-child { text-align:left; }
+    .section-title { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: #CBD5E1; }
   </style>
 </head>
-<body class="min-h-screen p-3 md:p-6">
+<body class="min-h-screen font-sans antialiased">
+<div class="max-w-7xl mx-auto px-3 md:px-6 py-5 space-y-5">
 
-  <div class="max-w-7xl mx-auto space-y-6">
-
-    <!-- Top Header Bar -->
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 glass-card p-5 rounded-2xl glow-green">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-brand-500 via-btc-500 to-hype-500 flex items-center justify-center font-bold text-black text-xl shadow-lg">
-          CP
-        </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-            CriptPool <span id="headerSubTitle" class="text-xs px-2.5 py-0.5 rounded-full bg-brand-500/10 text-brand-500 border border-brand-500/30">Meteora Tri-Pool DLMM</span>
-          </h1>
-          <div class="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
-            <span class="text-gray-400">Capital Base: <strong class="text-white">1.000,00 €</strong></span>
-            <span class="text-white font-bold bg-emerald-500/20 px-2.5 py-0.5 rounded-lg border border-emerald-500/40 flex items-center gap-1">
-              Patrimonio Real: <strong class="text-emerald-400 text-sm font-mono" id="headerPatrimonio">1.000,00 €</strong>
-            </span>
-            <span class="text-brand-400 font-bold bg-brand-500/15 px-2.5 py-0.5 rounded-lg border border-brand-500/30 font-mono">
-              Fees Ganadas: <span id="headerTotalFees" class="text-white font-bold">+0,0000 €</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-3">
-        <button onclick="forceRefresh()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-200 hover:text-white transition-all cursor-pointer">
-          <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-brand-400"></i>
-          <span>Actualizar Ahora</span>
-        </button>
-
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="connectionBadge">EN VIVO (CADA 10s)</span>
-        </div>
-
-        <div class="text-right text-xs text-gray-400 font-mono">
-          <div id="headerPricesFeed">SOL: <span class="text-white font-bold" id="solSpotPrice">$91.85</span> | JUP: <span class="text-white font-bold" id="btcSpotPrice">$0.2450</span></div>
-          <div class="text-[11px] text-emerald-400" id="lastUpdated">Sincronizado en vivo</div>
-          <div class="text-[10px] text-gray-400 font-mono" id="serverLastUpdate">Servidor: conectado</div>
-        </div>
-      </div>
-    </header>
-
-        <!-- MAIN CONTENT: SOLANA DLMM + HYPERLIQUID DELTA-NEUTRAL -->
-    <div id="tabContentSolana" class="space-y-6">
-
-<!-- ================================================================================= -->
-    <!-- BLOQUE 1: 🌍 VISTA GENERAL CONSOLIDADA (METEORA DLMM + HYPERLIQUID L1)            -->
-    <!-- ================================================================================= -->
-    <div class="glass-card p-5 md:p-6 rounded-2xl border-2 border-emerald-500/50 bg-gradient-to-r from-emerald-950/60 via-black/85 to-teal-950/50 glow-green space-y-4">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-white/10 pb-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
-            <i data-lucide="globe" class="w-5 h-5 text-emerald-400"></i>
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs font-black uppercase tracking-wider text-emerald-400">1. RESUMEN GENERAL CONSOLIDADO (METEORA + HYPERLIQUID)</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 animate-pulse">DATOS EN TIEMPO REAL</span>
-            </div>
-            <h2 class="text-lg md:text-xl font-black text-white">Balance Global Conciliado: Capital Inicial + Efecto Precio (Pool + Short) + Ingresos (Fees + Funding)</h2>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <div class="text-left md:text-right">
-            <div class="text-[11px] text-gray-400">Capital Inicial Base (19:50h):</div>
-            <div class="text-sm font-mono font-bold text-white">1.000,00 € ($1.080,00 USD)</div>
-          </div>
-          <button id="btnToggleDeltaHedge" onclick="toggleDeltaHedgeMode()" class="px-3 py-1.5 rounded-xl bg-sky-500/20 hover:bg-sky-500/30 border border-sky-500/50 text-xs font-bold text-sky-300 transition-all cursor-pointer">
-            🛡️ Vista: Con Cobertura Delta-Neutral
-          </button>
-        </div>
-      </div>
-
-      <!-- ========================================================= -->
-      <!-- 📊 BANNER DE CLARIDAD: DESGLOSE AUDITADO DE RESULTADOS REALES -->
-      <!-- ========================================================= -->
-      <div class="p-4 rounded-xl bg-black/60 border border-emerald-500/30 space-y-2.5">
-        <div class="flex items-center justify-between border-b border-white/10 pb-2">
-          <span class="text-xs font-black uppercase text-brand-300 flex items-center gap-2">
-            <i data-lucide="calculator" class="w-4 h-4 text-brand-400"></i> ¿CÓMO SE CALCULA TU DINERO EXACTO HOY? (AUDITORÍA TRANSPARENTE)
-          </span>
-          <span class="text-[11px] font-mono text-gray-400">Capital Base: 1.000,00 € ($1.080,00 USD)</span>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs font-mono">
-          <div class="bg-white/5 p-3 rounded-lg border border-white/5">
-            <div class="text-gray-400 text-[10px] uppercase font-bold">1. Tu Inversión Inicial</div>
-            <div class="text-xl font-bold text-white">1.000,00 €</div>
-            <div class="text-gray-400 text-[10px]">$1.080,00 USD fijos</div>
-          </div>
-          <div class="bg-emerald-950/40 p-3 rounded-lg border border-emerald-500/30">
-            <div class="text-emerald-400 text-[10px] uppercase font-bold">2. Comisiones Ganadas (+)</div>
-            <div class="text-xl font-bold text-emerald-400" id="clearFeesTotalEur">+0,00 €</div>
-            <div class="text-emerald-300 text-[10px]" id="clearFeesTotalUsd">+$0.00 USD (Rendimiento pasivo)</div>
-          </div>
-          <div class="bg-amber-950/40 p-3 rounded-lg border border-amber-500/30">
-            <div class="text-amber-400 text-[10px] uppercase font-bold">3. Desfase Precio / Rebalanceo (±)</div>
-            <div class="text-xl font-bold text-amber-300" id="clearPriceNetEur">-0,00 €</div>
-            <div class="text-gray-400 text-[10px]" id="clearPriceNetDetail">Pool (-0,00 €) + Short (+0,00 €)</div>
-          </div>
-          <div class="bg-sky-950/40 p-3 rounded-lg border border-sky-500/40">
-            <div class="text-sky-400 text-[10px] uppercase font-bold">4. Tu Patrimonio Real Hoy (=)</div>
-            <div class="text-xl font-bold text-white" id="clearHedgedTotalEur">1.000,00 €</div>
-            <div class="text-sky-300 text-[10px] font-bold" id="clearHedgedPnlPct">0,00 € (0.00% neto)</div>
-          </div>
-        </div>
-      </div>
-
-            <!-- 4 KPIs Consolidados del Bloque General -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- 1. Patrimonio Neto Consolidado (€ y $) -->
-        <div class="p-4 rounded-xl bg-black/60 border border-emerald-500/50 space-y-1">
-          <div class="text-xs text-emerald-400 font-bold flex items-center justify-between">
-            <span>PATRIMONIO NETO TOTAL:</span>
-            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold" id="heroNetPnlPct">+0.00%</span>
-          </div>
-          <div class="text-3xl font-mono font-black text-white" id="heroPatrimonioEur">1.000,00 €</div>
-          <div class="flex justify-between items-center text-xs font-mono pt-0.5">
-            <span class="text-emerald-400 font-bold" id="heroPatrimonioUsd">$1.080,00</span>
-            <span class="text-gray-300" id="heroNetPnlEur">+0,00 € neto</span>
-          </div>
-          <div class="text-[10px] font-mono text-gray-400" id="heroPatrimonioUsdPnl">+$0.00 USD s/ $1.080</div>
-        </div>
-
-        <!-- 2. Conciliación Efecto Precio: Δ Pool LP vs PnL Short HL -->
-        <div class="p-4 rounded-xl bg-black/50 border border-sky-500/40 space-y-1">
-          <div class="text-xs text-sky-400 font-bold flex items-center justify-between">
-            <span>EFECTO PRECIO (POOL + SHORT):</span>
-            <span class="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded font-bold">Delta Neutral</span>
-          </div>
-          <div class="text-2xl md:text-3xl font-mono font-black text-white" id="genNetPriceHedgeEur">+0,00 €</div>
-          <div class="text-[11px] font-mono text-gray-300 flex justify-between pt-0.5">
-            <span id="genLpPricePnlBreak">💧 Pools LP: +0,00 €</span>
-            <span id="genShortPnlBreak">🛡️ Shorts HL: -0,00 €</span>
-          </div>
-          <div class="text-[10px] font-mono text-gray-400" id="genNetPriceHedgeUsd">Suma Neta: +$0.00 USD (Compensado)</div>
-        </div>
-
-        <!-- 3. Ingresos Pasivos Totales: Comisiones Meteora + Funding Hyperliquid -->
-        <div class="p-4 rounded-xl bg-black/50 border border-brand-500/40 space-y-1">
-          <div class="text-xs text-brand-400 font-bold flex items-center justify-between">
-            <span>INGRESOS NETOS (FEES + FUNDING):</span>
-            <span class="text-[10px] bg-brand-500/20 text-brand-300 px-1.5 py-0.5 rounded font-bold" id="heroFeesVsCapBadge">+0.000%</span>
-          </div>
-          <div class="text-2xl md:text-3xl font-mono font-extrabold text-brand-400" id="heroFeesEurValue">+0,0000 €</div>
-          <div class="text-[11px] font-mono text-gray-300 flex justify-between pt-0.5">
-            <span id="genFeesBreakEur">💧 DLMM: +0,0000 €</span>
-            <span id="genFundingBreakEur">🛡️ Funding: +0,0000 €</span>
-          </div>
-          <div class="text-[10px] font-mono text-gray-400" id="heroFeesUsdValue">+$0.0000 USD cobrados en total</div>
-        </div>
-
-        <!-- 4. Rendimiento Anualizado Consolidado (APR Meteora + APR Funding HL) -->
-        <div class="p-4 rounded-xl bg-black/50 border border-teal-500/40 space-y-1">
-          <div class="text-xs text-teal-400 font-bold flex items-center justify-between">
-            <span>RENDIMIENTO TOTAL (APR):</span>
-            <span class="text-[10px] text-teal-300 font-bold">DLMM + Funding</span>
-          </div>
-          <div class="text-2xl md:text-3xl font-mono font-extrabold text-teal-300" id="heroGlobalApr">0.00% APR</div>
-          <div class="text-[11px] font-mono text-gray-300 flex justify-between pt-0.5">
-            <span id="genAprMeteoraBreak">💧 DLMM: 0.0%</span>
-            <span id="genAprFundingBreak">🛡️ Funding: +0.0%</span>
-          </div>
-          <div class="text-[10px] font-mono text-gray-400" id="heroGlobalApy">Interés Compuesto (APY): 0.00%</div>
-        </div>
-
+  <!-- ===================================================================== -->
+  <!-- CABECERA: identidad, estado del feed y progreso del forward test       -->
+  <!-- ===================================================================== -->
+  <header class="card p-4 md:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-400 via-sky-400 to-amber-400 flex items-center justify-center font-extrabold text-ink-900">CP</div>
+      <div>
+        <h1 class="text-lg md:text-xl font-extrabold text-white tracking-tight">CriptPool · Panel de Seguimiento</h1>
+        <p class="text-xs muted">Liquidez concentrada Meteora DLMM + cobertura en Hyperliquid · Capital base <span id="hdrCapital" class="num text-slate-200">1.000 €</span></p>
       </div>
     </div>
 
-    <!-- ================================================================================= -->
-    <!-- BLOQUE 2: 💧 MÓDULO METEORA DLMM (SOLANA — POOLS DE LIQUIDEZ + AUTO-COMPOUND $5)  -->
-    <!-- ================================================================================= -->
-    <div class="glass-card p-5 md:p-6 rounded-2xl border-2 border-brand-500/40 bg-gradient-to-r from-emerald-950/40 via-black/75 to-brand-950/30 space-y-4">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 border-b border-white/10 pb-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-brand-500/20 border border-brand-500/40 flex items-center justify-center">
-            <i data-lucide="droplets" class="w-5 h-5 text-brand-400"></i>
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs font-black uppercase tracking-wider text-brand-400">2. MÓDULO METEORA DLMM (SOLANA — TUS 3 POOLS DE LIQUIDEZ)</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-500/30 font-bold">AUTO-COMPOUND CADA $2.50 USD O FUERA DE RANGO</span>
-            </div>
-            <h2 class="text-base md:text-lg font-black text-white">Capital en Pools + Variación LP por Precio + Comisiones DLMM Acumuladas</h2>
-          </div>
+    <div class="flex flex-col sm:flex-row gap-4 sm:items-center">
+      <div class="min-w-[220px]">
+        <div class="flex justify-between text-xs mb-1">
+          <span class="muted">Forward test</span>
+          <span class="num text-slate-200" id="hdrTestDay">Día 0,0 / 30</span>
         </div>
-        <div class="text-left md:text-right">
-          <div class="text-[11px] text-gray-400">APR Exclusivo Comisiones Meteora:</div>
-          <div class="text-sm font-mono font-bold text-emerald-300" id="heroFeesApr">0.0% APR Promedio</div>
-        </div>
+        <div class="bar"><span id="hdrTestBar" class="bg-sky-400" style="width:0%"></span></div>
       </div>
-
-      <!-- 4 KPIs Principales de Meteora -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- 1. Valor Total en Meteora (Solo Pools LP + Fees) y Variación por Precio -->
-        <div class="p-4 rounded-xl bg-black/50 border border-emerald-500/40 space-y-1">
-          <div class="text-xs text-emerald-400 font-bold flex items-center justify-between">
-            <span>CAPITAL EN METEORA (LP):</span>
-            <span class="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded" id="metLpPriceDeltaBadge">Δ Precio: +0,00 €</span>
-          </div>
-          <div class="text-2xl md:text-3xl font-mono font-black text-white" id="metTotalValEur">1.000,00 €</div>
-          <div class="text-xs font-mono text-gray-300" id="metTotalValUsd">$1.080,00 USD en los 3 pools</div>
-          <div class="text-[10px] font-mono text-emerald-400" id="metLpPriceDeltaDetail">Subida/Bajada tokens LP: +$0.00 USD</div>
-        </div>
-
-        <!-- 2. Comisiones Totales Meteora DLMM (€ y $) -->
-        <div class="p-4 rounded-xl bg-black/50 border border-brand-500/40 space-y-1">
-          <div class="text-xs text-brand-400 font-bold flex items-center justify-between">
-            <span>COMISIONES METEORA (€):</span>
-            <span class="text-[10px] font-bold text-brand-300 bg-brand-500/20 px-1.5 py-0.5 rounded" id="heroFeesPct">+0.000%</span>
-          </div>
-          <div class="text-2xl md:text-3xl font-mono font-extrabold text-brand-400" id="heroTotalFeesEur">+0,0000 €</div>
-          <div class="text-xs font-mono text-gray-300" id="heroTotalFeesUsd">+$0.0000 USD generados</div>
-          <div class="text-[10px] font-mono text-gray-400">100% tarifas reales de swap DLMM</div>
-        </div>
-
-        <!-- 3. Estado de Auto-Compound ($5.00 USD) -->
-        <div class="p-4 rounded-xl bg-black/50 border border-purple-500/40 space-y-1.5">
-          <div class="text-xs text-purple-300 font-bold flex items-center justify-between">
-            <span>REINVERSIÓN AUTO ($2.50 USD):</span>
-            <span class="text-[10px] font-mono text-emerald-400" id="metCompoundPctBadge">0% → $2.50</span>
-          </div>
-          <div class="text-xl font-mono font-black text-white" id="metUncompoundedStatus">$0.0000 / $2.50 USD</div>
-          <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden">
-            <div id="metCompoundProgressBar" class="bg-gradient-to-r from-brand-500 to-emerald-400 h-full transition-all duration-500" style="width: 2%"></div>
-          </div>
-          <div class="text-[10px] font-mono text-gray-400" id="metCompoundedHistory">Ya reinvertido al Pool: $0.00 USD | Rebalanceos: 0</div>
-        </div>
-
-        <!-- 4. Salud de Rangos Meteora -->
-        <div class="p-4 rounded-xl bg-black/50 border border-teal-500/30 space-y-1">
-          <div class="text-xs text-teal-400 font-bold flex items-center justify-between">
-            <span>ESTADO DE LOS 3 POOLS:</span>
-            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded font-bold" id="metPoolsStatusBadge">3/3 EN RANGO</span>
-          </div>
-          <div class="text-xs font-mono text-gray-200 space-y-1 pt-0.5">
-            <div class="flex justify-between"><span>⚡ SOL-USDC (±3.5%):</span><span class="text-emerald-400 font-bold" id="metSolQuickPrice">$89.48</span></div>
-            <div class="flex justify-between"><span>🪐 JUP-USDC (±3.5%):</span><span class="text-amber-400 font-bold" id="metBtcQuickPrice">$75,952</span></div>
-            <div class="flex justify-between"><span>🚀 HYPE-USDC (±2.5%):</span><span class="text-sky-400 font-bold" id="metHypeQuickPrice">$77.81</span></div>
-          </div>
-        </div>
-
+      <div class="flex items-center gap-2">
+        <span id="feedChip" class="chip chip-info"><span class="w-2 h-2 rounded-full bg-current animate-pulse"></span><span id="feedText">Conectando…</span></span>
+        <button onclick="forceRefresh()" class="text-xs px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200">Actualizar</button>
       </div>
+    </div>
+  </header>
 
-      <!-- Desglose de los 3 Pools de Meteora (Valor LP + Δ Precio Pool + Comisiones) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Pool 1: SOL-USDC -->
-        <div class="p-3.5 rounded-xl bg-emerald-950/30 border border-emerald-500/30 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-emerald-400">⚡ POOL 1: SOL - USDC (50% • 500 €)</span>
-            <span class="text-[10px] text-gray-300 font-mono" id="heroSolShare">50% cap</span>
-          </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs text-gray-400">Comisiones Pool:</span>
-            <div class="text-right">
-              <span class="text-lg font-mono font-bold text-white" id="heroSolFeesUsd">+$0.0000</span>
-              <span class="text-xs font-mono text-emerald-400 ml-1" id="heroSolFeesEur">(+0,0000 €)</span>
-            </div>
-          </div>
-          <div class="flex justify-between text-[11px] font-mono border-t border-white/10 pt-1">
-            <span class="text-gray-400">Efecto Precio en Pool LP:</span>
-            <span class="font-bold text-emerald-300" id="metSolLpDelta">+$0.00 USD (+0,00 €)</span>
-          </div>
-        </div>
-
-        <!-- Pool 2: JUP-USDC -->
-        <div class="p-3.5 rounded-xl bg-amber-950/30 border border-amber-500/30 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-amber-400">🪐 POOL 2: JUP - USDC (25% • 250 €)</span>
-            <span class="text-[10px] text-gray-300 font-mono" id="heroBtcShare">25% cap</span>
-          </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs text-gray-400">Comisiones Pool:</span>
-            <div class="text-right">
-              <span class="text-lg font-mono font-bold text-white" id="heroBtcFeesUsd">+$0.0000</span>
-              <span class="text-xs font-mono text-amber-400 ml-1" id="heroBtcFeesEur">(+0,0000 €)</span>
-            </div>
-          </div>
-          <div class="flex justify-between text-[11px] font-mono border-t border-white/10 pt-1">
-            <span class="text-gray-400">Efecto Precio en Pool LP:</span>
-            <span class="font-bold text-amber-300" id="metBtcLpDelta">+$0.00 USD (+0,00 €)</span>
-          </div>
-        </div>
-
-        <!-- Pool 3: HYPE-USDC -->
-        <div class="p-3.5 rounded-xl bg-sky-950/30 border border-sky-500/30 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="text-xs font-bold text-sky-400">🚀 POOL 3: HYPE - USDC (25% • 250 €)</span>
-            <span class="text-[10px] text-gray-300 font-mono" id="heroHypeShare">25% cap</span>
-          </div>
-          <div class="flex justify-between items-baseline">
-            <span class="text-xs text-gray-400">Comisiones Pool:</span>
-            <div class="text-right">
-              <span class="text-lg font-mono font-bold text-white" id="heroHypeFeesSol">+$0.0000</span>
-              <span class="text-xs font-mono text-sky-400 ml-1" id="heroHypeFeesEur">(+0,0000 €)</span>
-            </div>
-          </div>
-          <div class="flex justify-between text-[11px] font-mono border-t border-white/10 pt-1">
-            <span class="text-gray-400">Efecto Precio en Pool LP:</span>
-            <span class="font-bold text-sky-300" id="metHypeLpDelta">+$0.00 USD (+0,00 €)</span>
-          </div>
-        </div>
+  <!-- ===================================================================== -->
+  <!-- 1. KPIs NORTE: los 4 indicadores que responden "¿va bien la estrategia?" -->
+  <!-- ===================================================================== -->
+  <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    <!-- Patrimonio neto -->
+    <div class="card p-5">
+      <div class="kpi-label">Patrimonio neto<span class="info" title="Valor de los pools (LP + fees no reinvertidas) + PnL de los shorts + funding cobrado.">ⓘ</span></div>
+      <div class="num text-3xl font-bold text-white mt-2" id="kEquity">—</div>
+      <div class="flex items-center gap-2 mt-1 text-sm">
+        <span class="num font-semibold" id="kPnl">—</span>
+        <span class="num text-xs" id="kPnlPct">—</span>
       </div>
+      <div class="text-xs muted mt-3 num" id="kEquityUsd">—</div>
+    </div>
 
-      <!-- Desglose de Comisiones Cobradas por Token Nativo -->
-      <div class="border-t border-white/10 pt-3">
-        <div class="text-[11px] font-bold uppercase tracking-wider text-gray-400 flex items-center justify-between mb-2">
-          <span class="flex items-center gap-1.5 text-white">
-            <i data-lucide="layers" class="w-3.5 h-3.5 text-brand-400"></i>
-            Comisiones Meteora Cobradas por Moneda Específica
-          </span>
-          <span class="text-[10px] text-gray-400 font-mono">Se reinvierten automáticamente en el Pool al sumar $2.50 USD</span>
-        </div>
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-          <div class="bg-black/50 p-2.5 rounded-xl border border-purple-500/30 flex items-center justify-between">
-            <div>
-              <div class="text-[10px] text-purple-400 font-bold">SOL GANADO</div>
-              <div class="text-sm font-bold font-mono text-white" id="feesTokenSol">+0.0000 SOL</div>
-            </div>
-            <div class="text-right text-[11px] font-mono text-gray-400" id="feesTokenSolEur">~0.00 €</div>
-          </div>
-          <div class="bg-black/50 p-2.5 rounded-xl border border-emerald-500/30 flex items-center justify-between">
-            <div>
-              <div class="text-[10px] text-emerald-400 font-bold">USDC GANADO</div>
-              <div class="text-sm font-bold font-mono text-white" id="feesTokenUsdc">+0.000 USDC</div>
-            </div>
-            <div class="text-right text-[11px] font-mono text-gray-400" id="feesTokenUsdcEur">~0.00 €</div>
-          </div>
-          <div class="bg-black/50 p-2.5 rounded-xl border border-amber-500/30 flex items-center justify-between">
-            <div>
-              <div class="text-[10px] text-amber-400 font-bold">JUP GANADO</div>
-              <div class="text-sm font-bold font-mono text-white" id="feesTokenCbbtc">+0.0000000 cbBTC</div>
-            </div>
-            <div class="text-right text-[11px] font-mono text-gray-400" id="feesTokenCbbtcEur">~0.00 €</div>
-          </div>
-          <div class="bg-black/50 p-2.5 rounded-xl border border-sky-500/30 flex items-center justify-between">
-            <div>
-              <div class="text-[10px] text-sky-400 font-bold">HYPE GANADO</div>
-              <div class="text-sm font-bold font-mono text-white" id="feesTokenHype">+0.00000 HYPE</div>
-            </div>
-            <div class="text-right text-[11px] font-mono text-gray-400" id="feesTokenHypeEur">~0.00 €</div>
-          </div>
-        </div>
+    <!-- Rentabilidad neta anualizada vs objetivo -->
+    <div class="card p-5">
+      <div class="kpi-label">Rentabilidad neta anualizada<span class="info" title="PnL neto total (incluye efecto precio, costes, fees y funding) anualizado sobre el tiempo transcurrido. Objetivo de negocio: 85–120% APR.">ⓘ</span></div>
+      <div class="num text-3xl font-bold mt-2" id="kNetApr">—</div>
+      <div class="text-xs muted mt-1">Objetivo <span class="num text-slate-300" id="kTargetLbl">85–120%</span> APR</div>
+      <div class="mt-3 relative">
+        <div class="bar"><span id="kNetAprBar" class="bg-emerald-400" style="width:0%"></span></div>
+        <div id="kTargetZone" class="absolute top-0 h-[6px] border-x-2 border-emerald-300/70 bg-emerald-300/10 rounded"></div>
+      </div>
+      <div class="text-[11px] mt-2" id="kNetAprNote"></div>
+    </div>
+
+    <!-- Ingresos pasivos -->
+    <div class="card p-5">
+      <div class="kpi-label">Ingresos pasivos<span class="info" title="Comisiones de swap generadas en Meteora + funding cobrado por los shorts en Hyperliquid. Es el motor de rentabilidad de la estrategia.">ⓘ</span></div>
+      <div class="num text-3xl font-bold pos mt-2" id="kIncome">—</div>
+      <div class="text-xs mt-1 num muted" id="kIncomeSplit">—</div>
+      <div class="mt-3 flex items-center justify-between text-xs">
+        <span class="muted">APR de ingresos</span>
+        <span class="num font-semibold" id="kIncomeApr">—</span>
+      </div>
+      <div class="flex items-center justify-between text-xs mt-1">
+        <span class="muted">Proyección 30 días</span>
+        <span class="num text-slate-200" id="kIncome30">—</span>
       </div>
     </div>
 
-    <!-- ================================================================================= -->
-    <!-- BLOQUE 3: 🛡️ MÓDULO HYPERLIQUID L1 (CORTOS DE COBERTURA MANUAL + FUNDING RATE)    -->
-    <!-- ================================================================================= -->
-    <div class="glass-card p-5 md:p-6 rounded-2xl border-2 border-sky-500/40 bg-gradient-to-r from-sky-950/50 via-black/75 to-indigo-950/40 space-y-4">
-      <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 border-b border-white/10 pb-3">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/50 flex items-center justify-center">
-            <i data-lucide="shield-check" class="w-5 h-5 text-sky-400"></i>
-          </div>
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <span class="text-xs font-black uppercase tracking-wider text-sky-400">3. MÓDULO HYPERLIQUID L1 (CORTOS DE COBERTURA + FUNDING RATE)</span>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40">MODO MANUAL ACTIVO • LIQUIDACIÓN 100% USDC</span>
-            </div>
-            <h2 class="text-base md:text-lg font-black text-white">Posiciones Short 1x sobre el 50% Cripto del Pool (Si Cripto Sube: Short Resta pero Pool LP Gana lo Mismo)</h2>
-          </div>
-        </div>
-        <div class="text-left md:text-right text-xs font-mono text-gray-300">
-          <div>Colateral Cross-Margin: <span class="text-white font-bold">200,00 € ($216 USDC)</span></div>
-          <div class="text-[10px] text-sky-300" id="hlDynamicRebalInfo">Modo Manual en Hyperliquid (Tamaño Fijo)</div>
-        </div>
+    <!-- Eficacia de cobertura -->
+    <div class="card p-5">
+      <div class="kpi-label">Efecto precio neto<span class="info" title="Variación por precio de los pools (sin fees ni costes) + PnL de los shorts. En una estrategia delta-neutral debería tender a 0.">ⓘ</span></div>
+      <div class="num text-3xl font-bold mt-2" id="kPriceNet">—</div>
+      <div class="text-xs mt-1 num muted" id="kPriceSplit">—</div>
+      <div class="mt-3 flex items-center justify-between text-xs">
+        <span class="muted">Desviación de cobertura<span class="info" title="Suma de |inventario LP − short| por activo, en $ y % sobre la exposición cripto de los pools. Ideal: < 10%.">ⓘ</span></span>
+        <span class="num font-semibold" id="kDelta">—</span>
       </div>
-
-      <!-- 4 KPIs de Hyperliquid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- 1. PnL de los 3 Cortos -->
-        <div class="p-3.5 rounded-xl bg-black/50 border border-sky-500/40 space-y-1">
-          <div class="text-[11px] text-sky-400 font-bold flex justify-between">
-            <span>PNL CORTOS HYPERLIQUID:</span>
-            <span class="font-mono text-[10px] text-sky-300">100% en USDC</span>
-          </div>
-          <div class="text-2xl font-mono font-extrabold text-sky-400" id="hlTotalShortPnlEur">+0,00 €</div>
-          <div class="text-xs font-mono text-gray-300" id="hlTotalShortPnlUsd">+$0.00 USDC en cortos</div>
-          <div class="text-[10px] font-mono text-emerald-400" id="hlLpOffsetSummary">Compensado por Pools LP: +$0.00</div>
-        </div>
-
-        <!-- 2. Funding Rate Acumulado en Hyperliquid -->
-        <div class="p-3.5 rounded-xl bg-black/50 border border-teal-500/40 space-y-1">
-          <div class="text-[11px] text-teal-400 font-bold flex justify-between">
-            <span>FUNDING RATE COBRADO (1h):</span>
-            <span class="font-mono text-[10px] text-teal-300" id="hlWeightedFundingApr">+0.00% APR</span>
-          </div>
-          <div class="text-2xl font-mono font-extrabold text-teal-300" id="hlTotalFundingEur">+0,0000 €</div>
-          <div class="text-xs font-mono text-gray-300" id="hlTotalFundingUsd">+$0.0000 USDC acumulados</div>
-          <div class="text-[10px] font-mono text-gray-400">Pagado cada hora en Hyperliquid L1</div>
-        </div>
-
-        <!-- 3. Resultado Neto en Cuenta Hyperliquid (Shorts + Funding) -->
-        <div class="p-3.5 rounded-xl bg-black/50 border border-indigo-500/40 space-y-1">
-          <div class="text-[11px] text-indigo-300 font-bold flex justify-between">
-            <span>BALANCE NETO HYPERLIQUID:</span>
-            <span class="font-mono text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded" id="hlHedgedRoiBadge">+0.00%</span>
-          </div>
-          <div class="text-2xl font-mono font-black text-white" id="hlNetAccountEur">+0,00 €</div>
-          <div class="text-xs font-mono text-gray-300" id="hlNetAccountUsd">+$0.00 USDC (PnL Short + Funding)</div>
-          <div class="text-[10px] font-mono text-gray-400" id="hlUnhedgedCompare">Patrimonio Consolidado: <span id="hlHedgedPortfolioEur">1.000,00 €</span></div>
-        </div>
-
-        <!-- 4. Exposición Nocional y Apalancamiento -->
-        <div class="p-3.5 rounded-xl bg-black/50 border border-purple-500/40 space-y-1">
-          <div class="text-[11px] text-purple-300 font-bold flex justify-between">
-            <span>EXPOSICIÓN NOCIONAL SHORT:</span>
-            <span class="font-mono text-[10px] text-emerald-400">Delta Neto ≈ 0%</span>
-          </div>
-          <div class="text-base font-mono font-bold text-white" id="hlShortNotionalInfo">Short: $540 USDC (50% Cartera)</div>
-          <div class="text-[11px] font-mono text-gray-300">Margen: $216 USDC (~2.5x Cross)</div>
-          <div class="text-[10px] font-mono text-amber-300">Ajuste Short: Manual por el usuario</div>
-        </div>
-      </div>
-
-      <!-- Detalle de las 3 Posiciones Short en Hyperliquid (con comparativa directa Pool LP moneda a moneda) -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
-        <!-- Short 1: SOL-PERP -->
-        <div class="p-3.5 rounded-xl bg-black/50 border border-white/10 flex flex-col justify-between space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-emerald-400">🔴 SHORT SOL-PERP (Manual)</span>
-            <span class="font-mono text-[11px] text-sky-300" id="hlSolFundingApr">Funding: -0.00% APR</span>
-          </div>
-          <div class="flex justify-between font-mono text-[11px] text-gray-300">
-            <span id="hlSolSize">Tamaño: -2.9652 SOL</span>
-            <span id="hlSolPrices">Entrada $89.48 → Mark $89.48</span>
-          </div>
-          <div class="border-t border-white/10 pt-1.5 space-y-1 font-mono text-[11px]">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">🛡️ PnL Short SOL (HL):</span>
-              <span class="font-bold text-emerald-400" id="hlSolShortPnl">+$0.00 USD (+0,00 €)</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">💧 Δ Precio Pool SOL (LP):</span>
-              <span class="font-bold text-emerald-300" id="hlSolPoolOffset">+$0.00 USD (+0,00 €)</span>
-            </div>
-            <div class="flex justify-between items-center text-[10px] text-teal-300 border-t border-white/5 pt-1">
-              <span>💰 Funding Cobrado SOL:</span>
-              <span class="font-bold font-mono" id="hlSolFundingEarned">+$0.0000 USDC</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Short 2: JUP-PERP -->
-        <div class="p-3.5 rounded-xl bg-black/50 border border-white/10 flex flex-col justify-between space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-amber-400">🔴 SHORT JUP-PERP (Manual)</span>
-            <span class="font-mono text-[11px] text-emerald-300" id="hlBtcFundingApr">Funding: +10.95% APR</span>
-          </div>
-          <div class="flex justify-between font-mono text-[11px] text-gray-300">
-            <span id="hlBtcSize">Tamaño: -0.001755 BTC</span>
-            <span id="hlBtcPrices">Entrada $75,952 → Mark $75,952</span>
-          </div>
-          <div class="border-t border-white/10 pt-1.5 space-y-1 font-mono text-[11px]">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">🛡️ PnL Short JUP (HL):</span>
-              <span class="font-bold text-emerald-400" id="hlBtcShortPnl">+$0.00 USD (+0,00 €)</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">💧 Δ Precio Pool JUP (LP):</span>
-              <span class="font-bold text-amber-300" id="hlBtcPoolOffset">+$0.00 USD (+0,00 €)</span>
-            </div>
-            <div class="flex justify-between items-center text-[10px] text-teal-300 border-t border-white/5 pt-1">
-              <span>💰 Funding Cobrado JUP:</span>
-              <span class="font-bold font-mono" id="hlBtcFundingEarned">+$0.0000 USDC</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Short 3: HYPE-PERP -->
-        <div class="p-3.5 rounded-xl bg-black/50 border border-white/10 flex flex-col justify-between space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-sky-400">🔴 SHORT HYPE-PERP (Manual)</span>
-            <span class="font-mono text-[11px] text-emerald-300" id="hlHypeFundingApr">Funding: +10.95% APR</span>
-          </div>
-          <div class="flex justify-between font-mono text-[11px] text-gray-300">
-            <span id="hlHypeSize">Tamaño: -1.7134 HYPE</span>
-            <span id="hlHypePrices">Entrada $77.81 → Mark $77.81</span>
-          </div>
-          <div class="border-t border-white/10 pt-1.5 space-y-1 font-mono text-[11px]">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">🛡️ PnL Short HYPE (HL):</span>
-              <span class="font-bold text-emerald-400" id="hlHypeShortPnl">+$0.00 USD (+0,00 €)</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">💧 Δ Precio Pool HYPE (LP):</span>
-              <span class="font-bold text-sky-300" id="hlHypePoolOffset">+$0.00 USD (+0,00 €)</span>
-            </div>
-            <div class="flex justify-between items-center text-[10px] text-teal-300 border-t border-white/5 pt-1">
-              <span>💰 Funding Cobrado HYPE:</span>
-              <span class="font-bold font-mono" id="hlHypeFundingEarned">+$0.0000 USDC</span>
-            </div>
-          </div>
-        </div>
+      <div class="flex items-center justify-between text-xs mt-1">
+        <span class="muted">Compensación del short</span>
+        <span class="num text-slate-200" id="kHedgeEff">—</span>
       </div>
     </div>
+  </section>
 
-    <!-- DESGLOSE DE ASIGNACIÓN Y COMPRA DE MONEDAS DEL CAPITAL INICIAL (1.000 €) -->
-    <div class="glass-card p-5 rounded-2xl border border-brand-500/20 space-y-3">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-2">
-        <h2 class="text-sm font-bold text-white flex items-center gap-2">
-          <i data-lucide="coins" class="w-4 h-4 text-brand-400"></i>
-          Distribución y Compra de Monedas para la Simulación Real (1.000,00 €)
-        </h2>
-        <span class="text-xs font-mono text-brand-400 font-semibold">1.000 € = $1.080 USD (1,08 €/$)</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-        
-        <!-- Pool 1 Allocation -->
-        <div class="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/20 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-emerald-400">1. Pool SOL - USDC (50%)</span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">500 € ($540)</span>
-          </div>
-          <p class="text-gray-400 text-[11px]">Compra previa para entrar al pool (50/50):</p>
-          <div class="font-mono text-gray-200 bg-black/40 p-2 rounded-lg space-y-0.5">
-            <div>• 250 € en SOL: <strong class="text-white" id="initSolUsdcSol">~2.947 SOL</strong></div>
-            <div>• 250 € en USDC: <strong class="text-white" id="initSolUsdcUsdc">270.00 USDC</strong></div>
-          </div>
-        </div>
-
-        <!-- Pool 2 Allocation -->
-        <div class="p-3 rounded-xl bg-amber-950/20 border border-amber-500/20 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-amber-400">2. Pool JUP - USDC (25%)</span>
-            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono font-bold">250 € ($270)</span>
-          </div>
-          <p class="text-gray-400 text-[11px]">Compra previa para entrar al pool (50/50):</p>
-          <div class="font-mono text-gray-200 bg-black/40 p-2 rounded-lg space-y-0.5">
-            <div>• 125 € en JUP: <strong class="text-white" id="initCbbtcCoin">~548.3 JUP</strong></div>
-            <div>• 125 € en USDC: <strong class="text-white" id="initCbbtcUsdc">135.00 USDC</strong></div>
-          </div>
-        </div>
-
-        <!-- Pool 3 Allocation -->
-        <div class="p-3 rounded-xl bg-sky-950/20 border border-sky-500/20 space-y-1.5">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-sky-400">3. Pool HYPE - USDC (25%)</span>
-            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono font-bold">250 € ($270)</span>
-          </div>
-          <p class="text-gray-400 text-[11px]">Compra previa para entrar al pool (50/50):</p>
-          <div class="font-mono text-gray-200 bg-black/40 p-2 rounded-lg space-y-0.5">
-            <div>• 125 € en Hyperliquid: <strong class="text-white" id="initHypeCoin">~1.653 HYPE</strong></div>
-            <div>• 125 € en USDC: <strong class="text-white" id="initHypeSol">135.00 USDC</strong></div>
-          </div>
-        </div>
-
-      </div>
+  <!-- ===================================================================== -->
+  <!-- 2. ALERTAS Y SALUD OPERATIVA                                          -->
+  <!-- ===================================================================== -->
+  <section class="card p-4">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="section-title">Alertas y salud operativa</h2>
+      <span id="alertSummary" class="chip chip-ok">Sin alertas</span>
     </div>
-
-    <!-- VALORACIÓN EN VIVO DE CARTERA: CÓMO SE ACTUALIZA SEGÚN PRECIOS DE MERCADO -->
-    <div class="glass-card p-4 rounded-xl border border-brand-500/30 bg-black/40 space-y-2">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1.5 border-b border-white/5 pb-2">
-        <div class="flex items-center gap-2">
-          <i data-lucide="calculator" class="w-4 h-4 text-brand-400"></i>
-          <span class="text-xs font-bold text-white uppercase tracking-wider">¿Cómo se actualiza el valor de tu cartera en tiempo real?</span>
-        </div>
-        <span class="text-[11px] text-brand-400 font-mono font-semibold">Cotizaciones en directo de Solana Meteora</span>
-      </div>
-      <p class="text-xs text-gray-300 leading-relaxed">
-        El valor total de tu cartera <strong>SÍ se actualiza continuamente según la cotización de mercado</strong> de cada moneda. A medida que sube o baja SOL, Bitcoin o HYPE, el saldo en dólares/euros de tus tokens y el Impermanent Loss fluctúan al milisegundo:
-      </p>
-      <div class="bg-black/60 p-3 rounded-lg border border-white/10 font-mono text-[11px] text-brand-300 overflow-x-auto whitespace-nowrap" id="liveValuationFormula">
-        Valor Cartera = (2.997 SOL × $90.10) + (548.27 JUP × $0.2462) + (1.725 HYPE × $78.28) + 540.00 USDC + Fees = 1.000,00 € ($1.080,00)
-      </div>
+    <div id="alertList" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm"></div>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mt-4 pt-4 border-t border-white/5">
+      <div><div class="kpi-label">Pools en rango</div><div class="num text-lg font-semibold mt-1" id="hInRange">—</div></div>
+      <div><div class="kpi-label">Tiempo en rango</div><div class="num text-lg font-semibold mt-1" id="hTimeInRange">—</div></div>
+      <div><div class="kpi-label">Rebalanceos</div><div class="num text-lg font-semibold mt-1" id="hRebal">—</div></div>
+      <div><div class="kpi-label">Costes / Fees<span class="info" title="Friction ratio: costes de rebalanceo y reinversión sobre comisiones generadas. Por debajo del 20% es sano.">ⓘ</span></div><div class="num text-lg font-semibold mt-1" id="hFriction">—</div></div>
+      <div><div class="kpi-label">Apalancamiento HL</div><div class="num text-lg font-semibold mt-1" id="hLev">—</div></div>
+      <div><div class="kpi-label">Margen a liquidación<span class="info" title="Subida uniforme aproximada de los activos cubiertos que llevaría la cuenta de Hyperliquid a margen de mantenimiento (estimación).">ⓘ</span></div><div class="num text-lg font-semibold mt-1" id="hLiq">—</div></div>
     </div>
+  </section>
 
-    <!-- INVENTARIO TOTAL DE TOKENS EN CARTERA (4 Assets) -->
-    <div class="space-y-3">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
-        <i data-lucide="wallet" class="w-4 h-4 text-brand-400"></i>
-        Inventario Total de Monedas en tu Cartera (Suma de todos los pools)
-      </h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- Token SOL -->
-        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-purple-500">
-          <div class="text-[11px] text-gray-400">SOL Total (Pool SOL-USDC)</div>
-          <div class="text-2xl font-bold font-mono text-white" id="tokenSolTotal">2.8532 SOL</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenSolVal">250,00 € ($270.00)</div>
+  <!-- ===================================================================== -->
+  <!-- 3. EVOLUCIÓN: patrimonio, ingresos vs objetivo y puente de PnL         -->
+  <!-- ===================================================================== -->
+  <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="card p-4 lg:col-span-2">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <h2 class="section-title">Evolución del patrimonio</h2>
+        <div class="flex gap-1 text-xs" id="chartTabs">
+          <button data-tab="equity" class="tab px-2.5 py-1 rounded-md bg-white/10 text-white">Patrimonio</button>
+          <button data-tab="income" class="tab px-2.5 py-1 rounded-md text-slate-400 hover:text-white">Ingresos vs objetivo</button>
         </div>
-
-        <!-- Token USDC -->
-        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-emerald-500">
-          <div class="text-[11px] text-gray-400">USDC Total (50% en los 3 Pools)</div>
-          <div class="text-2xl font-bold font-mono text-emerald-400" id="tokenUsdcTotal">540.00 USDC</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenUsdcVal">500,00 € ($540.00)</div>
-        </div>
-
-        <!-- Token cbBTC -->
-        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-amber-500">
-          <div class="text-[11px] text-gray-400">JUP Total (Jupiter Exchange)</div>
-          <div class="text-2xl font-bold font-mono text-amber-400" id="tokenCbbtcTotal">548.27 JUP</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenCbbtcVal">125,00 € ($135.00)</div>
-        </div>
-
-        <!-- Token HYPE -->
-        <div class="glass-card p-4 rounded-xl space-y-1.5 border-l-4 border-l-sky-500">
-          <div class="text-[11px] text-gray-400">HYPE Total (Hyperliquid)</div>
-          <div class="text-2xl font-bold font-mono text-sky-400" id="tokenHypeTotal">1.558 HYPE</div>
-          <div class="text-xs text-gray-400 font-mono" id="tokenHypeVal">120,40 € ($130.03)</div>
-        </div>
-
       </div>
+      <div class="h-72"><canvas id="historyChart"></canvas></div>
+      <p class="text-[11px] muted mt-2" id="historyNote">Snapshots horarios desde el inicio del ciclo actual.</p>
     </div>
-
-    <!-- 1. KPIS DE RENDIMIENTO Y RENTABILIDAD (Diferenciados en 4 Columnas) -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-2">
-          <i data-lucide="trending-up" class="w-4 h-4"></i>
-          1. Rendimiento y Rentabilidad (¿Cuánto dinero está generando cada posición?)
-        </h2>
-        <span class="text-[11px] text-gray-500">Cartera Global frente a los 3 Pools en vivo</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-
-        <!-- Col 1: Cartera Global -->
-        <div class="glass-card card-global p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-brand-500/20 pb-2">
-            <span class="font-bold text-brand-400 text-xs flex items-center gap-1.5">
-              <i data-lucide="layers" class="w-4 h-4"></i> CARTERA GLOBAL TOTAL
-            </span>
-            <span class="px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono text-[10px] font-bold">1.000 € (100%)</span>
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Patrimonio Vivo:</span>
-              <span class="font-mono font-bold text-white text-base" id="globalPortfolioEur">1.000,00 €</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">En Dólares (USD):</span>
-              <span class="font-mono text-gray-300" id="globalPortfolioUsd">$1.080,00</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Comisiones Cobradas:</span>
-              <span class="font-mono font-bold text-brand-400 text-base" id="globalFeesEur">+2,7879 €</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Fees vs Capital Inicial:</span>
-              <span class="font-mono text-brand-400 font-semibold" id="globalFeesVsCapPct">+0.28%</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">ROI Neto Total:</span>
-              <span class="font-mono font-bold text-brand-400 text-sm" id="globalRoiPct">+0.36%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Yield Real (APR / APY):</span>
-              <span class="font-mono font-bold text-emerald-300" id="globalAprApy">84.5% / 132.8%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 2: Pool SOL-USDC (50%) -->
-        <div class="glass-card card-sol-usdc p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-emerald-500/20 pb-2">
-            <span class="font-bold text-emerald-400 text-xs flex items-center gap-1.5">
-              <i data-lucide="zap" class="w-4 h-4"></i> POOL SOL-USDC
-            </span>
-            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">500 € (50%)</span>
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Valor Posición ($):</span>
-              <span class="font-mono font-bold text-white text-sm" id="solUsdcVal">$542.68</span>
-            </div>
-            <div class="bg-black/30 p-2 rounded-lg font-mono text-[11px] text-gray-300 border border-white/5 space-y-0.5">
-              <div class="text-gray-400 text-[10px]">Monedas en este Pool:</div>
-              <div>• <strong class="text-white" id="poolSolTokens">2.9390 SOL</strong></div>
-              <div>• <strong class="text-emerald-400" id="poolSolUsdcTokens">272.50 USDC</strong></div>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Comisiones Cobradas:</span>
-              <div class="text-right">
-                <span class="font-mono font-bold text-emerald-400 text-sm" id="solUsdcFees">+$2.6870</span>
-                <span class="font-mono text-[10px] text-emerald-300 block" id="solUsdcFeesNative">+0.0150 SOL + 1.25 USDC</span>
-              </div>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Fees vs Capital Pool:</span>
-              <span class="font-mono text-emerald-400 font-semibold" id="solUsdcFeesCapPct">+0.50%</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">ROI del Pool:</span>
-              <span class="font-mono font-bold text-emerald-400" id="solUsdcRoiPct">+0.50%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">APR Real de Fees:</span>
-              <span class="font-mono font-bold text-emerald-300" id="solUsdcApr">118.5% APR</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 3: Pool JUP-USDC (25%) -->
-        <div class="glass-card card-cbbtc p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-amber-500/20 pb-2">
-            <span class="font-bold text-amber-400 text-xs flex items-center gap-1.5">
-              <i data-lucide="orbit" class="w-4 h-4"></i> POOL JUP-USDC
-            </span>
-            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono text-[10px] font-bold">250 € (25%)</span>
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Valor Posición ($):</span>
-              <span class="font-mono font-bold text-white text-sm" id="cbbtcVal">$270.10</span>
-            </div>
-            <div class="bg-black/30 p-2 rounded-lg font-mono text-[11px] text-gray-300 border border-white/5 space-y-0.5">
-              <div class="text-gray-400 text-[10px]">Monedas en este Pool:</div>
-              <div>• <strong class="text-amber-400" id="poolBtcTokens">0.001704 cbBTC</strong></div>
-              <div>• <strong class="text-emerald-400" id="poolBtcUsdcTokens">138.99 USDC</strong></div>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Comisiones Cobradas:</span>
-              <div class="text-right">
-                <span class="font-mono font-bold text-amber-400 text-sm" id="cbbtcFees">+$0.0997</span>
-                <span class="font-mono text-[10px] text-amber-300 block" id="cbbtcFeesNative">+0.000001 cbBTC + 0.08 USDC</span>
-              </div>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Fees vs Capital Pool:</span>
-              <span class="font-mono text-amber-400 font-semibold" id="cbbtcFeesCapPct">+0.04%</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">ROI del Pool:</span>
-              <span class="font-mono font-bold text-amber-400" id="cbbtcRoiPct">+0.04%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">APR Real Jupiter:</span>
-              <span class="font-mono font-bold text-amber-300" id="cbbtcApr">38.6% APR</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 4: Pool HYPE-USDC (25%) -->
-        <div class="glass-card card-hype p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center border-b border-sky-500/20 pb-2">
-            <span class="font-bold text-sky-400 text-xs flex items-center gap-1.5">
-              <i data-lucide="rocket" class="w-4 h-4"></i> POOL HYPE-USDC
-            </span>
-            <span class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono text-[10px] font-bold">250 € (25%)</span>
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Valor Posición ($):</span>
-              <div class="text-right">
-                <span class="font-mono font-bold text-white text-sm" id="hypeValSol">$270.64</span>
-                <span class="text-xs text-sky-400 font-mono block" id="hypeValUsd">(250,59 €)</span>
-              </div>
-            </div>
-            <div class="bg-black/30 p-2 rounded-lg font-mono text-[11px] text-gray-300 border border-white/5 space-y-0.5">
-              <div class="text-gray-400 text-[10px]">Monedas en este Pool:</div>
-              <div>• <strong class="text-sky-400" id="poolHypeTokens">1.653 HYPE</strong></div>
-              <div>• <strong class="text-emerald-400" id="poolHypeSolTokens">135.00 USDC</strong></div>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Comisiones Cobradas:</span>
-              <div class="text-right">
-                <span class="font-mono font-bold text-sky-400 text-sm" id="hypeFees">+$0.6400</span>
-                <span class="font-mono text-[10px] text-sky-300 block" id="hypeFeesNative">+0.0039 HYPE + 0.320 USDC</span>
-              </div>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Fees vs Capital Pool:</span>
-              <span class="font-mono text-sky-300 font-semibold" id="hypeFeesUsd">+0.237%</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">ROI del Pool:</span>
-              <span class="font-mono font-bold text-sky-400" id="hypeRoiPct">+0.237%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">APR Real Alpha:</span>
-              <span class="font-mono font-bold text-sky-300" id="hypeApr">177.20% APR</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
+    <div class="card p-4">
+      <h2 class="section-title mb-2">Puente de PnL<span class="info" title="Descomposición exacta del resultado neto desde el capital inicial.">ⓘ</span></h2>
+      <div class="h-72"><canvas id="bridgeChart"></canvas></div>
+      <p class="text-[11px] muted mt-2">Fees + Funding + Precio pools + Shorts − Costes = PnL neto</p>
     </div>
+  </section>
 
-    <!-- 2. KPIS DE RIESGO Y OPERATIVA (Diferenciados en 4 Columnas) -->
-    <div class="space-y-3">
-      <div class="flex items-center justify-between">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
-          <i data-lucide="alert-triangle" class="w-4 h-4"></i>
-          2. Riesgo y Operativa (¿Cuándo me va a echar el mercado?)
-        </h2>
-        <span class="text-[11px] text-gray-500">Distancias a Rangos Límite, IL Temporal y Ratio de Actividad</span>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-
-        <!-- Col 1: Riesgo Global -->
-        <div class="glass-card card-global p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-brand-400 text-xs border-b border-brand-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="shield" class="w-4 h-4"></i> RIESGO CARTERA GLOBAL
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Impermanent Loss (IL):</span>
-              <span class="font-mono text-gray-300" id="globalIlEur">0,00 €</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Alpha Neto (vs HODL):</span>
-              <span class="font-mono font-bold text-brand-400" id="globalNetAlphaEur">+0,00 €</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Semáforo Cobertura:</span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" id="globalCoverBadge">
-                🟢 Fees cubren IL
-              </span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Ratio Actividad In-Range:</span>
-              <span class="font-mono font-bold text-white text-sm" id="globalActivityRatio">100.0%</span>
-            </div>
-            <div class="text-[11px] text-gray-400">
-              Tiempo en rango capturando comisiones 24/7.
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 2: Riesgo SOL-USDC -->
-        <div class="glass-card card-sol-usdc p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-emerald-400 text-xs border-b border-emerald-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="compass" class="w-4 h-4"></i> RIESGO SOL-USDC
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia a P-min:</span>
-              <span class="font-mono font-bold text-emerald-400" id="solDistLower">0.00%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia a P-max:</span>
-              <span class="font-mono font-bold text-emerald-400" id="solDistUpper">0.00%</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Alerta Rebalanceo:</span>
-              <span class="font-mono text-gray-300" id="solDistRebal">Seguro (>3%)</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">IL vs Fees:</span>
-              <span class="font-mono text-emerald-400" id="solNetAlpha">+$0.00</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Ratio In-Range:</span>
-              <span class="font-mono font-bold text-white" id="solActivityRatio">100.0%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 3: Riesgo JUP-USDC -->
-        <div class="glass-card card-cbbtc p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-amber-400 text-xs border-b border-amber-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="compass" class="w-4 h-4"></i> RIESGO JUP-USDC
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia a P-min:</span>
-              <span class="font-mono font-bold text-amber-400" id="btcDistLower">0.00%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia a P-max:</span>
-              <span class="font-mono font-bold text-amber-400" id="btcDistUpper">0.00%</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Alerta Rebalanceo:</span>
-              <span class="font-mono text-gray-300" id="btcDistRebal">Seguro (>2%)</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">IL vs Fees:</span>
-              <span class="font-mono text-amber-400" id="btcNetAlpha">+$0.00</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Ratio In-Range:</span>
-              <span class="font-mono font-bold text-white" id="btcActivityRatio">100.0%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 4: Riesgo HYPE-USDC -->
-        <div class="glass-card card-hype p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-sky-400 text-xs border-b border-sky-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="compass" class="w-4 h-4"></i> RIESGO HYPE-USDC
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia a P-min:</span>
-              <span class="font-mono font-bold text-sky-400" id="hypeDistLower">2.50%</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Distancia a P-max:</span>
-              <span class="font-mono font-bold text-sky-400" id="hypeDistUpper">2.50%</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Alerta Rebalanceo:</span>
-              <span class="font-mono text-gray-300" id="hypeDistRebal">Seguro (2.55%)</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">IL vs Fees:</span>
-              <span class="font-mono text-sky-400" id="hypeNetAlpha">+$0.64</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Ratio In-Range:</span>
-              <span class="font-mono font-bold text-white" id="hypeActivityRatio">100.0%</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
+  <!-- ===================================================================== -->
+  <!-- 4. POOLS METEORA DLMM                                                 -->
+  <!-- ===================================================================== -->
+  <section>
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="section-title">Pools Meteora DLMM</h2>
+      <span class="text-xs muted">Auto-compound: <span class="num text-slate-200" id="compoundTxt">—</span></span>
     </div>
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="poolsGrid"></div>
+  </section>
 
-    <!-- 3. KPIS DE COSTES Y EFICIENCIA (Diferenciados en 4 Columnas) -->
-    <div class="space-y-3">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
-        <h2 class="text-sm font-bold uppercase tracking-wider text-purple-400 flex items-center gap-2">
-          <i data-lucide="cpu" class="w-4 h-4"></i>
-          3. Costes y Eficiencia del Bot (Fricción de Red y Rebalanceos)
-        </h2>
-        <div class="flex items-center gap-2">
-          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1 font-mono">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            MONITOR ACTIVO (0 Fricción actual)
-          </span>
-          <span class="text-[11px] text-gray-500 hidden md:inline">Gasto de Gas y Ratio de Fricción Operativa</span>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-
-        <!-- Col 1: Costes Global -->
-        <div class="glass-card card-global p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-brand-400 text-xs border-b border-brand-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="gauge" class="w-4 h-4"></i> COSTES CARTERA GLOBAL
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Rebalanceos Totales:</span>
-              <span class="font-mono font-bold text-white text-sm" id="globalRebalances">0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Gasto Red Total (Gas):</span>
-              <span class="font-mono text-gray-300" id="globalGasCostEur">0,00 €</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Friction Ratio Global:</span>
-              <span class="font-mono font-bold text-brand-400 text-sm" id="globalFrictionRatio">0.00%</span>
-            </div>
-            <div class="text-[11px] text-gray-400">
-              % de las comisiones absorbidas por gasto de red.
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 2: Costes SOL-USDC -->
-        <div class="glass-card card-sol-usdc p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-emerald-400 text-xs border-b border-emerald-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="wrench" class="w-4 h-4"></i> COSTES SOL-USDC
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Rebalanceos:</span>
-              <span class="font-mono font-bold text-white" id="solRebalances">0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Gasto Gas ($):</span>
-              <span class="font-mono text-gray-300" id="solGasCost">$0.00</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Friction Ratio:</span>
-              <span class="font-mono font-bold text-emerald-400" id="solFrictionRatio">0.00%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 3: Costes JUP-USDC -->
-        <div class="glass-card card-cbbtc p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-amber-400 text-xs border-b border-amber-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="wrench" class="w-4 h-4"></i> COSTES JUP-USDC
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Rebalanceos:</span>
-              <span class="font-mono font-bold text-white" id="btcRebalances">0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Gasto Gas ($):</span>
-              <span class="font-mono text-gray-300" id="btcGasCost">$0.00</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Friction Ratio:</span>
-              <span class="font-mono font-bold text-amber-400" id="btcFrictionRatio">0.00%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Col 4: Costes HYPE-USDC -->
-        <div class="glass-card card-hype p-5 rounded-2xl space-y-3">
-          <div class="font-bold text-sky-400 text-xs border-b border-sky-500/20 pb-2 flex items-center gap-1.5">
-            <i data-lucide="wrench" class="w-4 h-4"></i> COSTES HYPE-USDC
-          </div>
-
-          <div class="space-y-2 text-xs">
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Rebalanceos:</span>
-              <span class="font-mono font-bold text-white" id="hypeRebalances">0</span>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-gray-400">Gasto Gas ($):</span>
-              <span class="font-mono text-gray-300" id="hypeGasCost">$0.000</span>
-            </div>
-            <div class="flex justify-between items-center border-t border-white/5 pt-1.5">
-              <span class="text-gray-400">Friction Ratio:</span>
-              <span class="font-mono font-bold text-sky-400" id="hypeFrictionRatio">0.00%</span>
-            </div>
-          </div>
-        </div>
-
-      </div>
+  <!-- ===================================================================== -->
+  <!-- 5. COBERTURA HYPERLIQUID: exposición, delta neto y margen              -->
+  <!-- ===================================================================== -->
+  <section class="card p-4">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+      <h2 class="section-title">Cobertura Hyperliquid · Exposición por activo</h2>
+      <span class="text-xs muted">Ratio de cobertura objetivo: <span class="text-slate-200">100% del inventario cripto del pool</span></span>
     </div>
-
-    <!-- VISUALIZADORES DE RANGO INTERACTIVO (3 Pools) -->
-    <div class="space-y-3">
-      <h2 class="text-sm font-bold uppercase tracking-wider text-gray-300 flex items-center gap-2">
-        <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
-        Visualizadores de Rango Activo Meteora DLMM
-      </h2>
-
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-
-        <!-- Rango SOL-USDC -->
-        <div class="glass-card p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center text-xs">
-            <span class="font-bold text-emerald-400">⚡ Pool SOL-USDC (±3.5% Anti-Mechas • bin_step=10)</span>
-            <span class="font-mono text-white text-xs font-bold" id="solRangePrice">$94.63</span>
-          </div>
-          <div class="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/10">
-            <div id="solRangeProgress" class="h-full bg-gradient-to-r from-emerald-500 to-brand-500" style="width: 50%;"></div>
-          </div>
-          <div class="flex justify-between text-[11px] font-mono text-gray-400">
-            <span>P-min: <strong class="text-white" id="solRangeLower">$91.32</strong></span>
-            <span>P-max: <strong class="text-white" id="solRangeUpper">$97.94</strong></span>
-          </div>
-        </div>
-
-        <!-- Rango JUP-USDC -->
-        <div class="glass-card p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center text-xs">
-            <span class="font-bold text-amber-400">🪐 Pool JUP-USDC (±3.5% Óptimo • bin_step=50)</span>
-            <span class="font-mono text-white text-xs font-bold" id="btcRangePrice">$80,100</span>
-          </div>
-          <div class="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/10">
-            <div id="btcRangeProgress" class="h-full bg-gradient-to-r from-amber-500 to-yellow-400" style="width: 50%;"></div>
-          </div>
-          <div class="flex justify-between text-[11px] font-mono text-gray-400">
-            <span>P-min: <strong class="text-white" id="btcRangeLower">$78,098</strong></span>
-            <span>P-max: <strong class="text-white" id="btcRangeUpper">$82,103</strong></span>
-          </div>
-        </div>
-
-        <!-- Rango HYPE-USDC -->
-        <div class="glass-card p-5 rounded-2xl space-y-3">
-          <div class="flex justify-between items-center text-xs">
-            <span class="font-bold text-sky-400">🚀 Pool HYPE-USDC (±2.5% Óptimo • bin_step=20)</span>
-            <span class="font-mono text-white text-xs font-bold" id="hypeRangePrice">$81.64</span>
-          </div>
-          <div class="relative w-full h-3 bg-gray-800 rounded-full overflow-hidden border border-white/10">
-            <div id="hypeRangeProgress" class="h-full bg-gradient-to-r from-sky-500 to-blue-400" style="width: 50%;"></div>
-          </div>
-          <div class="flex justify-between text-[11px] font-mono text-gray-400">
-            <span>P-min: <strong class="text-white" id="hypeRangeLower">$79.60</strong></span>
-            <span>P-max: <strong class="text-white" id="hypeRangeUpper">$83.68</strong></span>
-          </div>
-        </div>
-
-      </div>
+    <div class="overflow-x-auto">
+      <table class="t w-full text-sm">
+        <thead>
+          <tr>
+            <th>Activo</th>
+            <th>Inventario LP</th>
+            <th>Short</th>
+            <th>Ratio cobertura</th>
+            <th>Delta neto</th>
+            <th>Δ precio pool</th>
+            <th>PnL short</th>
+            <th>Neto precio</th>
+            <th>Funding APR</th>
+            <th>Funding cobrado</th>
+          </tr>
+        </thead>
+        <tbody id="hedgeBody" class="num"></tbody>
+        <tfoot id="hedgeFoot" class="num font-semibold"></tfoot>
+      </table>
     </div>
-
-    <!-- GRÁFICO HISTÓRICO EN TIEMPO REAL -->
-    <div class="glass-card p-5 rounded-2xl space-y-4">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
-        <div>
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <i data-lucide="line-chart" class="w-4 h-4 text-brand-400"></i>
-            Evolución Patrimonial en Vivo (Simulación Real 1.000 €)
-          </h2>
-          <p class="text-xs text-gray-400">Seguimiento en directo del capital + comisiones acumuladas</p>
-        </div>
-        <div class="text-xs font-mono text-gray-400 bg-black/30 px-3 py-1 rounded-lg border border-white/5">
-          Ticker: <span class="text-brand-400 font-bold" id="tickerSeconds">0s</span>
-        </div>
-      </div>
-      <div class="h-64 w-full">
-        <canvas id="equityChart"></canvas>
-      </div>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mt-4 pt-4 border-t border-white/5 text-sm">
+      <div><div class="kpi-label">Colateral</div><div class="num mt-1" id="mCollat">—</div></div>
+      <div><div class="kpi-label">Equity cuenta HL</div><div class="num mt-1" id="mEquity">—</div></div>
+      <div><div class="kpi-label">Nocional short</div><div class="num mt-1" id="mNotional">—</div></div>
+      <div><div class="kpi-label">Funding APR ponderado</div><div class="num mt-1" id="mFundApr">—</div></div>
+      <div><div class="kpi-label">ROI s/ capital total<span class="info" title="PnL neto sobre capital de pools + colateral de Hyperliquid (capital realmente desplegado).">ⓘ</span></div><div class="num mt-1" id="mRoiTotal">—</div></div>
     </div>
+  </section>
 
-        </div>
+  <footer class="text-center text-[11px] muted pb-6 space-y-1">
+    <div>Fuente: Cloud Firestore <span class="num">meteora_bot/current_state</span> (worker Cloud Run) · precios Meteora DLMM y Hyperliquid L1.</div>
+    <div>Los valores anualizados con menos de 7 días de muestra tienen alta varianza y deben leerse como tendencia, no como resultado.</div>
+  </footer>
+</div>
 
-
-    <!-- Footer -->
-    <footer class="text-center text-xs text-gray-500 py-4 border-t border-white/5 space-y-1">
-      <p>CriptPool Institutional Engine • Conectado a Meteora DLMM DatAPI en Solana Mainnet</p>
-      <p>Desplegado en Google Cloud Run & Firebase Hosting • Sincronización en tiempo real c/10s</p>
-    </footer>
-
-  </div>
-
-  <!-- Lucide Icons initialization -->
-  <script>lucide.createIcons();</script>
-
-  <!-- Firebase App Logic -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-  <script src="app.js?v=26.0"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="app.js?v=30.0"></script>
 </body>
 </html>

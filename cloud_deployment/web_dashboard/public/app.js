@@ -95,14 +95,20 @@ function buildModel(d) {
     const shortTok = num(sp.size_tokens, num(p.short_tokens));
     const mark = num(sp.mark_px, price);
     const shortEntry = num(sp.entry_px, num(p.short_entry_price, entry));
-    const shortPnl = Number.isFinite(Number(sp.pnl_usd)) ? Number(sp.pnl_usd) : (shortEntry - mark) * shortTok;
+    const shortTxCosts = num(p.short_tx_costs);
+    // PnL puro del short (sin restar comisiones de trading, que van a la barra de Costes)
+    const shortUnrealized = num(sp.unrealized_pnl_usd, (shortEntry - mark) * shortTok);
+    const shortRealized = num(sp.realized_pnl_usd, num(p.realized_short_pnl));
+    const shortPnlPure = shortRealized + shortUnrealized;
+    const shortPnl = Number.isFinite(Number(sp.pnl_usd)) ? Number(sp.pnl_usd) : (shortPnlPure - shortTxCosts);
     const lpTok = num(p.token_x);
     const lpExpo = lpTok * price;
     const shortExpo = shortTok * mark;
 
     const days = Math.max(num(p.total_time_sec) / 86400, 1e-6);
     return {
-      cfg, raw: p, price, entry, lo, hi, tLo, tHi, init, posVal, fees, comp, costs, pricePure,
+      cfg, raw: p, price, entry, lo, hi, tLo, tHi, init, posVal, fees, comp,
+      costs: costs + shortTxCosts, lpCosts: costs, shortTxCosts, pricePure,
       totalVal: num(p.total_val), netProfit: num(p.total_val) - init,
       roi: init > 0 ? ((num(p.total_val) - init) / init) * 100 : 0,
       feeApr: num(p.real_fee_apr), feeAprRaw: init > 0 ? (fees / init) * (365.25 / days) * 100 : 0,
@@ -110,11 +116,12 @@ function buildModel(d) {
       distLo: num(p.dist_p_lower_pct), distHi: num(p.dist_p_upper_pct),
       distRebal: Math.min(num(p.dist_rebal_lower_pct, 99), num(p.dist_rebal_upper_pct, 99)),
       activity: num(p.activity_ratio_pct, 100), rebals: num(p.total_rebalances),
-      friction: fees > 0 ? (costs / fees) * 100 : 0,
+      shortSyncs: num(p.short_adjustments, num(sp.rebalance_syncs)),
+      friction: fees > 0 ? ((costs + shortTxCosts) / fees) * 100 : 0,
       il: num(p.il_amount), ilPct: num(p.il_pct), netVsHodl: num(p.net_vs_hodl),
       tokX: lpTok, tokY: num(p.token_y), symX: cfg.base, symY: p.token_y_symbol || "USDC",
       halfRange: num(p.half_range_pct) * 100, vol24: num(mli[cfg.volKey]),
-      shortTok, mark, shortEntry, shortPnl, lpExpo, shortExpo, netDelta: lpExpo - shortExpo,
+      shortTok, mark, shortEntry, shortPnl, shortPnlPure, lpExpo, shortExpo, netDelta: lpExpo - shortExpo,
       hedgeRatio: lpTok > 0 ? shortTok / lpTok : null,
       fundingApr: num(sp.funding_apr_pct), funding: num(sp.funding_earned_usd)
     };
@@ -126,6 +133,7 @@ function buildModel(d) {
   const fees = sum((p) => p.fees);
   const funding = Number.isFinite(Number(hl.total_funding_usd)) ? Number(hl.total_funding_usd) : sum((p) => p.funding);
   const shortPnl = Number.isFinite(Number(hl.total_short_pnl_usd)) ? Number(hl.total_short_pnl_usd) : sum((p) => p.shortPnl);
+  const shortPnlPure = sum((p) => p.shortPnlPure);
   const costs = sum((p) => p.costs);
   const pricePure = sum((p) => p.pricePure);
   const unhedged = num(pc.total_portfolio_usd, sum((p) => p.totalVal));
@@ -143,8 +151,8 @@ function buildModel(d) {
   const uncompounded = Math.max(fees - compounded, 0);
 
   return {
-    fx, initUsd, initEur, days, pools, fees, funding, shortPnl, costs, pricePure, unhedged, hedged, pnl, income,
-    priceNet: pricePure + shortPnl,
+    fx, initUsd, initEur, days, pools, fees, funding, shortPnl, shortPnlPure, costs, pricePure, unhedged, hedged, pnl, income,
+    priceNet: pricePure + shortPnlPure,
     netApr: (pnl / initUsd) * (365.25 / days) * 100,
     incomeApr: (income / initUsd) * (365.25 / days) * 100,
     feeApr: num(pc.real_fee_apr), fundingAprPortfolio: num(hl.funding_portfolio_apr), weightedFundingApr: num(hl.weighted_funding_apr),
@@ -152,7 +160,7 @@ function buildModel(d) {
     netDelta: sum((p) => p.netDelta), absDelta: sum((p) => Math.abs(p.netDelta)), grossCrypto: sum((p) => p.lpExpo),
     notional, collat, hlEquity, lev: hlEquity > 0 ? notional / hlEquity : null, liqMove,
     compounded, uncompounded, compoundThreshold: num(hl.auto_compound_threshold_usd, 2.5),
-    rebals: sum((p) => p.rebals), friction: fees > 0 ? (costs / fees) * 100 : 0,
+    rebals: sum((p) => p.rebals), shortSyncs: sum((p) => p.shortSyncs), friction: fees > 0 ? (costs / fees) * 100 : 0,
     activity: pools.length ? sum((p) => p.activity) / pools.length : 100,
     inRange: pools.filter((p) => p.inRange).length,
     lastUpdated: parseUtc(d.last_updated),
@@ -236,12 +244,12 @@ function render() {
 
   // KPI 4: Efecto precio neto / cobertura
   setTxt("kPriceNet", sEur(M.priceNet / fx)); setCls("kPriceNet", "num text-3xl font-bold mt-2 " + cls(M.priceNet));
-  setTxt("kPriceSplit", `Pools ${sEur(M.pricePure / fx)} · Shorts ${sEur(M.shortPnl / fx)}`);
+  setTxt("kPriceSplit", `Pools ${sEur(M.pricePure / fx)} · Shorts ${sEur(M.shortPnlPure / fx)}`);
   // Desviación bruta: suma de |delta| por activo (los activos no se compensan entre sí)
   const deltaPct = M.grossCrypto > 0 ? (M.absDelta / M.grossCrypto) * 100 : 0;
   setTxt("kDelta", `${usd(M.absDelta, 0)} (${pct(deltaPct, 0)})`);
   setCls("kDelta", "num font-semibold " + (Math.abs(deltaPct) > 25 ? "neg" : Math.abs(deltaPct) > 10 ? "warn" : "pos"));
-  const eff = Math.abs(M.pricePure) > 0.01 ? (-M.shortPnl / M.pricePure) * 100 : null;
+  const eff = Math.abs(M.pricePure) > 0.01 ? (-M.shortPnlPure / M.pricePure) * 100 : null;
   setTxt("kHedgeEff", eff === null ? "—" : pct(eff, 0));
 
   // Alertas y salud
@@ -258,7 +266,7 @@ function render() {
 
   setTxt("hInRange", `${M.inRange}/${M.pools.length}`); setCls("hInRange", "num text-lg font-semibold mt-1 " + (M.inRange === M.pools.length ? "pos" : "neg"));
   setTxt("hTimeInRange", pct(M.activity, 1));
-  setTxt("hRebal", `${M.rebals} · ${eur(M.costs / fx)}`);
+  setTxt("hRebal", `${M.rebals} reb · ${M.shortSyncs} sync · ${eur(M.costs / fx)}`);
   setTxt("hFriction", pct(M.friction, 1)); setCls("hFriction", "num text-lg font-semibold mt-1 " + (M.friction > 50 ? "neg" : M.friction > 20 ? "warn" : "pos"));
   setTxt("hLev", M.lev === null ? "—" : nf(2).format(M.lev) + "x"); setCls("hLev", "num text-lg font-semibold mt-1 " + (M.lev > 3.5 ? "warn" : "neu"));
   setTxt("hLiq", M.liqMove === null ? "—" : "+" + pct(M.liqMove, 1)); setCls("hLiq", "num text-lg font-semibold mt-1 " + (M.liqMove < 20 ? "neg" : M.liqMove < 30 ? "warn" : "pos"));
@@ -338,7 +346,7 @@ function renderPools(M) {
         ${row("Distancia a Pmin / Pmax", `${pct(p.distLo)} / ${pct(p.distHi)}`)}
         ${row("Pérdida impermanente", `${sUsd(p.il)} (${sPct(p.ilPct)})`, cls(p.il))}
         ${row("Neto vs HODL 50/50", sUsd(p.netVsHodl), cls(p.netVsHodl))}
-        ${row("Rebalanceos · costes", `${p.rebals} · ${usd(p.costs, 3)}`)}
+        ${row("Rebalanceos · sync short", `${p.rebals} · ${p.shortSyncs} (${usd(p.costs, 3)})`)}
         ${row("Costes / fees", pct(p.friction, 1), p.friction > 50 ? "neg" : p.friction > 20 ? "warn" : "pos")}
         ${row("Inventario", `${tok(p.tokX)} ${p.symX} + ${nf(2).format(p.tokY)} ${p.symY}`)}
         ${row("Volumen 24h pool", p.vol24 ? usd(p.vol24, 0) : "—")}
@@ -362,8 +370,8 @@ function renderHedge(M) {
       <td>${ratioCell(p.hedgeRatio)}</td>
       <td class="${Math.abs(p.netDelta) > 0.25 * p.lpExpo ? "neg" : Math.abs(p.netDelta) > 0.1 * p.lpExpo ? "warn" : "pos"}">${sUsd(p.netDelta, 0)}</td>
       <td class="${cls(p.pricePure)}">${sUsd(p.pricePure)}</td>
-      <td class="${cls(p.shortPnl)}">${sUsd(p.shortPnl)}</td>
-      <td class="${cls(p.pricePure + p.shortPnl)} font-semibold">${sUsd(p.pricePure + p.shortPnl)}</td>
+      <td class="${cls(p.shortPnlPure)}">${sUsd(p.shortPnlPure)}</td>
+      <td class="${cls(p.pricePure + p.shortPnlPure)} font-semibold">${sUsd(p.pricePure + p.shortPnlPure)}</td>
       <td class="${cls(p.fundingApr)}">${sPct(p.fundingApr)}</td>
       <td class="${cls(p.funding)}">${sUsd(p.funding, 3)}</td>
     </tr>`).join(""));
@@ -375,7 +383,7 @@ function renderHedge(M) {
       <td>${M.grossCrypto > 0 ? pct((M.notional / M.grossCrypto) * 100, 0) : "—"}</td>
       <td class="${cls(M.netDelta)}">${sUsd(M.netDelta, 0)}</td>
       <td class="${cls(M.pricePure)}">${sUsd(M.pricePure)}</td>
-      <td class="${cls(M.shortPnl)}">${sUsd(M.shortPnl)}</td>
+      <td class="${cls(M.shortPnlPure)}">${sUsd(M.shortPnlPure)}</td>
       <td class="${cls(M.priceNet)}">${sUsd(M.priceNet)}</td>
       <td>${sPct(M.weightedFundingApr)}</td>
       <td class="${cls(M.funding)}">${sUsd(M.funding, 3)}</td>
@@ -402,7 +410,7 @@ function renderBridge(M) {
     ["Fees DLMM", M.fees / fx],
     ["Funding", M.funding / fx],
     ["Precio pools", M.pricePure / fx],
-    ["Shorts", M.shortPnl / fx],
+    ["Shorts", M.shortPnlPure / fx],
     ["Costes", -M.costs / fx]
   ];
   const labels = [], data = [], colors = [];

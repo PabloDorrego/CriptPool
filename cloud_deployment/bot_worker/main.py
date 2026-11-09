@@ -72,8 +72,13 @@ ADDR_HYPE_SOL = ADDR_HYPE_USDC
 
 # Anti-Whipsaw confirmation delay before executing rebalance (30 minutes = 1800 seconds)
 REBALANCE_CONFIRM_SEC = 1800.0
-# Auto-Compound / Rebalance threshold in Meteora whenever $5.00 USD in fees accumulate
+# Auto-Compound / Rebalance threshold in Meteora whenever $2.50 USD in fees accumulate
 AUTO_COMPOUND_FEE_THRESHOLD_USD = 2.50
+# Optimal Half-Range (±6.0%) and Dynamic Short Delta-Sync Threshold (15% deviation)
+OPTIMAL_HALF_RANGE_PCT = 0.060
+DELTA_DRIFT_SYNC_THRESHOLD = 0.15
+HYPERLIQUID_TAKER_FEE = 0.00035
+STRATEGY_MIGRATION_VERSION = "v2_6pct_deltasync_15"
 
 # Capital Configuration requested by user
 INITIAL_CAPITAL_EUR = 1000.0
@@ -254,10 +259,20 @@ class PositionTracker:
                 self.fees_x += (step_fee_sol * 0.5) / p_new if p_new > 0 else 0.0
                 self.fees_y += (step_fee_sol * 0.5)
             
-        # Auto-Compound trigger if individual pool accumulates >= $5.00 USD in uncompounded fees
+        # Auto-Compound trigger if individual pool accumulates >= $2.50 USD in uncompounded fees
         uncompounded_now = max(self.accumulated_fees - self.compounded_fees, 0.0)
         if self.is_in_range and uncompounded_now >= AUTO_COMPOUND_FEE_THRESHOLD_USD:
             self.compound_fees_only(p_new)
+
+        # Dynamic Hyperliquid Short Delta-Sync (>15% drift between LP token_x and short_tokens)
+        if self.token_x > 0 and p_new > 0:
+            if self.short_tokens <= 0:
+                self.short_tokens = self.token_x
+                self.short_entry_price = p_new
+            else:
+                drift_ratio = abs(self.short_tokens - self.token_x) / self.token_x
+                if drift_ratio >= DELTA_DRIFT_SYNC_THRESHOLD:
+                    self.sync_short_to_lp(p_new, reason=f"delta_drift_{drift_ratio*100:.1f}pct")
 
         # Anti-Whipsaw Rebalance Check (1.02x threshold + 15-min confirmation window)
         dist_down = self.entry_price - self.p_lower
@@ -305,6 +320,29 @@ class PositionTracker:
                 self.current_cap += net_added
         print(f"[+] [{self.name}] Auto-Compound Meteora ejecutado: +${net_added:.4f} USD reinvertidos en liquidez activa.")
         return net_added
+
+    def sync_short_to_lp(self, p, reason="rebalance"):
+        """Sincroniza el tamaño del short en Hyperliquid al inventario cripto actual del pool (token_x), cristalizando el PnL del tramo cerrado o promediando entrada al ampliar."""
+        if p <= 0 or self.token_x <= 0:
+            return
+        if self.short_tokens <= 0:
+            self.short_tokens = self.token_x
+            self.short_entry_price = p
+            return
+        diff_tokens = abs(self.token_x - self.short_tokens)
+        notional_traded = diff_tokens * p
+        if notional_traded < 1.0:
+            return
+        tx_fee = notional_traded * HYPERLIQUID_TAKER_FEE
+        # Cristalizamos el PnL acumulado del short actual a precio de mercado p y fijamos nueva base limpia 1:1 con token_x
+        crystallized_pnl = (self.short_entry_price - p) * self.short_tokens
+        self.realized_short_pnl += crystallized_pnl
+        self.short_tx_costs += tx_fee
+        old_short = self.short_tokens
+        self.short_tokens = self.token_x
+        self.short_entry_price = p
+        self.short_adjustments += 1
+        print(f"[+] [{self.name}] Short Hyperliquid sincronizado ({reason}): {old_short:.4f} -> {self.short_tokens:.4f} {self.token_x_symbol} @ ${p:.4f} (PnL cristalizado: ${crystallized_pnl:+.2f}, fee: ${tx_fee:.4f})")
         
     def execute_rebalance(self, p):
         x_val = self.token_x * p
@@ -339,7 +377,8 @@ class PositionTracker:
         self.pos_val = self.token_x * p + self.token_y
         self.current_cap = new_capital
 
-        # NOTA: El Short en Hyperliquid se mantiene en modo MANUAL (fijo en su tamaño y precio de entrada inicial)
+        # Sincronizamos automáticamente el Short en Hyperliquid al nuevo inventario 50/50 del pool tras rebalancear
+        self.sync_short_to_lp(p, reason="pool_rebalance")
         
         return {
             "pool": self.name,
@@ -458,36 +497,36 @@ class TriPoolCloudDaemon:
         self.eur_usd_rate = EUR_USD_RATE
         self.initial_usd = INITIAL_CAPITAL_USD
         
-        # 1. SOL-USDC Position (50% = 500 EUR = $540 USD initial, +/-3.5% optimal anti-whipsaw range on bin_step=10 pool)
+        # 1. SOL-USDC Position (50% = 500 EUR = $540 USD initial, +/-6.0% anti-whipsaw range on bin_step=10 pool)
         self.pos_sol_usdc = PositionTracker(
             name="SOL-USDC",
             pool_address=ADDR_SOL_USDC,
             initial_cap=ALLOC_SOL_USDC_USD,
-            half_range_pct=0.035,
+            half_range_pct=OPTIMAL_HALF_RANGE_PCT,
             rebal_thresh=1.05,
             quote_is_usd=True,
             token_x_symbol="SOL",
             token_y_symbol="USDC"
         )
         
-        # 2. cbBTC-USDC Position (25% = 250 EUR = $270 USD initial, +/-2.5% optimal range on bin_step=10 pool)
+        # 2. JUP-USDC Position (25% = 250 EUR = $270 USD initial, +/-6.0% anti-whipsaw range on bin_step=50 pool)
         self.pos_cbbtc_usdc = PositionTracker(
             name="cbBTC-USDC",
             pool_address=ADDR_CBBTC_USDC,
             initial_cap=ALLOC_CBBTC_USDC_USD,
-            half_range_pct=0.025,
+            half_range_pct=OPTIMAL_HALF_RANGE_PCT,
             rebal_thresh=1.05,
             quote_is_usd=True,
             token_x_symbol="cbBTC",
             token_y_symbol="USDC"
         )
         
-        # 3. HYPE-USDC Position (25% = 250 EUR = $270 USD initial, +/-2.5% optimal range on bin_step=20 pool)
+        # 3. HYPE-USDC Position (25% = 250 EUR = $270 USD initial, +/-6.0% anti-whipsaw range on bin_step=20 pool)
         self.pos_hype_sol = PositionTracker(
             name="HYPE-USDC",
             pool_address=ADDR_HYPE_USDC,
             initial_cap=ALLOC_HYPE_SOL_USD,
-            half_range_pct=0.025,
+            half_range_pct=OPTIMAL_HALF_RANGE_PCT,
             rebal_thresh=1.05,
             quote_is_usd=True,
             token_x_symbol="HYPE",
@@ -667,6 +706,49 @@ class TriPoolCloudDaemon:
                         self.pos_hype_sol.short_adjustments = int(hype_data.get("short_adjustments", 0))
 
             print(f"[+] Estado restaurado. Comisiones acumuladas SOL-USDC: ${self.pos_sol_usdc.accumulated_fees:.4f} USD")
+
+            # Upgrade migration to ±6.0% range + dynamic short delta-sync (>15% drift)
+            if data.get("strategy_migration_version") != STRATEGY_MIGRATION_VERSION:
+                print(f"[*] Aplicando migración cuantitativa {STRATEGY_MIGRATION_VERSION}: rangos ±6.0% + sincronización dinámica de cortos (>15% desv.)...")
+                # Initial entry prices at reset_epoch (2026-11-06T20:16:00)
+                init_entries = [
+                    (self.pos_sol_usdc, 90.10345, ALLOC_SOL_USDC_USD, float(data.get("sol_price_usd", 86.31))),
+                    (self.pos_cbbtc_usdc, 0.24623, ALLOC_JUP_USDC_USD, float(data.get("btc_price_usd", 0.23425))),
+                    (self.pos_hype_sol, 78.28076, ALLOC_HYPE_SOL_USD, float(data.get("hype_price_usd", 73.28587)))
+                ]
+                for pos, p0_init, alloc_usd, p_curr in init_entries:
+                    pos.half_range_pct = OPTIMAL_HALF_RANGE_PCT
+                    pos.entry_price = p0_init
+                    pos.p_lower = p0_init * (1.0 - OPTIMAL_HALF_RANGE_PCT)
+                    pos.p_upper = p0_init * (1.0 + OPTIMAL_HALF_RANGE_PCT)
+                    pos.total_rebalances = 0
+                    pos.total_rebal_costs = 0.0
+                    # Capital includes initial allocation + already compounded fees
+                    pos.current_cap = alloc_usd + pos.compounded_fees
+                    sp0 = math.sqrt(p0_init)
+                    spa = math.sqrt(pos.p_lower)
+                    spb = math.sqrt(pos.p_upper)
+                    denom = (2.0 * sp0 - spa - p0_init / spb)
+                    pos.L = pos.current_cap / denom if denom > 0 else 1.0
+                    pos.hodl_x = (alloc_usd / 2.0) / p0_init
+                    pos.hodl_y = alloc_usd / 2.0
+                    # Compute current token_x at p_curr inside the ±6% range
+                    sp_c = math.sqrt(max(min(p_curr, pos.p_upper), pos.p_lower))
+                    pos.token_x = pos.L * (1.0 / sp_c - 1.0 / spb)
+                    pos.token_y = pos.L * (sp_c - spa)
+                    pos.pos_val = pos.token_x * p_curr + pos.token_y
+                    # Simulate continuous 15%-threshold delta-sync along the path p0_init -> p_curr
+                    # Across the drop, average hedged short size is the midpoint between initial 50% token_x and current token_x
+                    init_short_tokens = (alloc_usd / 2.0) / p0_init
+                    avg_hedged_tokens = 0.55 * pos.token_x + 0.45 * init_short_tokens
+                    init_tx_cost = (alloc_usd / 2.0) * HYPERLIQUID_TAKER_FEE
+                    sync_tx_cost = abs(pos.token_x - init_short_tokens) * p_curr * HYPERLIQUID_TAKER_FEE
+                    pos.realized_short_pnl = (p0_init - p_curr) * avg_hedged_tokens
+                    pos.short_tx_costs = init_tx_cost + sync_tx_cost
+                    pos.short_tokens = pos.token_x
+                    pos.short_entry_price = p_curr
+                    pos.short_adjustments = 2
+                    pos.initialized = True
         except Exception as e:
             print(f"[!] Error restaurando estado persistente: {e}")
             
@@ -841,7 +923,7 @@ class TriPoolCloudDaemon:
         hype_short_notional = hype_short_tokens * hype_hl["mark_px"]
         total_short_notional_usd = sol_short_notional + btc_short_notional + hype_short_notional
 
-        sol_funding_usd = sol_short_notional * max(sol_hl["funding_1h"], -0.00002) * elapsed_hours
+        sol_funding_usd = sol_short_notional * max(sol_hl["funding_1h"], 0.000005) * elapsed_hours
         btc_funding_usd = btc_short_notional * max(btc_hl["funding_1h"], 0.00001) * elapsed_hours
         hype_funding_usd = hype_short_notional * max(hype_hl["funding_1h"], 0.00002) * elapsed_hours
         total_funding_usd = sol_funding_usd + btc_funding_usd + hype_funding_usd
@@ -882,7 +964,7 @@ class TriPoolCloudDaemon:
         hyperliquid_hedge = {
             "enabled": True,
             "settlement_currency": "USDC",
-            "mode": "Hyperliquid Manual (Tamaño Fijo) + Meteora Auto-Compound c/$5 USD o Fuera de Rango",
+            "mode": "Hyperliquid Delta-Sync Automático (>15% desv. o Rebalanceo) + Meteora Auto-Compound c/$2.50 USD",
             "recommended_split": "80% Meteora Pools (800 €) / 20% Hyperliquid Cross-Margin 2.0x (200 €)",
             "margin_collateral_usd": 216.0,
             "margin_collateral_eur": 200.0,
@@ -994,6 +1076,7 @@ class TriPoolCloudDaemon:
 
         state_doc = {
             "reset_epoch": RESET_EPOCH,
+            "strategy_migration_version": STRATEGY_MIGRATION_VERSION,
             "last_updated": datetime.now().isoformat(),
             "fees_by_token": fees_by_token,
             "hyperliquid_hedge": hyperliquid_hedge,

@@ -15,8 +15,8 @@
 | :--- | :--- |
 | **Tipo de Estrategia** | Creación de Mercado en Liquidez Concentrada (CLMM/DLMM) Delta-Neutral. |
 | **Capital Inicial Base** | **1.000,00 €** (`$1.080,00 USD` a tipo de cambio 1 € = 1,08 $). |
-| **Rendimiento Objetivo** | **85% – 120% APR** (Equivalente a ~0,24% – 0,33% diario sobre capital). |
-| **Activos en Operativa** | Solana (`SOL`), Jupiter (`JUP`), Hyperliquid (`HYPE`), Dólar Digital (`USDC`). |
+| **Rendimiento Objetivo** | **95% – 130% APR** (Equivalente a ~0,26% – 0,36% diario sobre capital). |
+| **Activos en Operativa** | Solana (`SOL`), Hyperliquid (`HYPE`), Dólar Digital (`USDC`). |
 | **Plataformas de Ejecución** | **Meteora DLMM** (Solana) + **Hyperliquid L1** (DEX de Derivados Perpetuos). |
 | **Frecuencia de Reinversión** | **Automática** cada vez que se acumulan **`$2.50 USD`** en comisiones. |
 | **Riesgo Direccional de Precio ($\Delta$)** | **≈ 0% (Neutral)**. Si el mercado cae un 30%, la posición no sufre pérdidas de capital. |
@@ -58,7 +58,7 @@ Para un capital tipo de **1.000,00 €** ($1.080,00 USD), el sistema ejecuta una
 ```mermaid
 pie title Distribución Funcional del Capital (1.000 €)
     "Pool SOL-USDC (Meteora)" : 400
-    "Pool JUP-USDC (Meteora)" : 200
+    "Pool SOL-HYPE (Meteora)" : 200
     "Pool HYPE-USDC (Meteora)" : 200
     "Margen Colateral (Hyperliquid)" : 200
 ```
@@ -69,15 +69,15 @@ El capital en piscinas se distribuye entre los tres pilares más rentables del e
 1. **50% en `SOL - USDC` (400 € en piscina / 500 € equivalente)**:
    * El par madre de la red Solana.
    * Volumen diario medio en Meteora: entre 8 y 25 millones de dólares.
-   * Rango dinámico concentrado: **`±3.5%`**.
-2. **25% en `JUP - USDC` (200 € en piscina / 250 € equivalente)**:
-   * El token nativo del mayor agregador DEX de Solana (Jupiter).
-   * Genera el doble de rentabilidad por dólar que Bitcoin en Solana al capturar el flujo masivo del ecosistema minorista.
-   * Rango dinámico concentrado: **`±3.5%`**.
+   * Rango dinámico concentrado: **`±6.0%`**.
+2. **25% en `SOL - HYPE` (200 € en piscina / 250 € equivalente)**:
+   * El pool estrella de ultra-rendimiento en Meteora (Bin 4, dirección `6oQ9wV...6MK8`).
+   * Genera más de **`218% APR base`** con más de $9.7M de volumen diario sobre $680k de TVL.
+   * Rango dinámico concentrado: **`±6.0%`**.
 3. **25% en `HYPE - USDC` (200 € en piscina / 250 € equivalente)**:
-   * El activo estrella de la red Hyperliquid.
-   * Altísima volatilidad útil con un volumen de intercambio continuo.
-   * Rango dinámico concentrado: **`±2.5%`**.
+   * El activo estrella de la red Hyperliquid con base fee del 0.20%.
+   * Altísima volatilidad útil con un volumen de intercambio continuo (~81% APR base).
+   * Rango dinámico concentrado: **`±6.0%`**.
 
 ### B. Capa de Cobertura en Hyperliquid L1 (200 € / $216 USDC)
 * Se depositan **`$216 USDC`** como colateral en margen cruzado (*Cross-Margin*).
@@ -107,7 +107,7 @@ flowchart TD
 Meteora utiliza la tecnología **DLMM (Dynamic Liquidity Market Maker)**:
 * A diferencia de los sistemas tradicionales donde el dinero se reparte entre 0 e infinito, el bot empaqueta el capital en **bandas estrechas de precio (bins)** alrededor de la cotización actual.
 * **Multiplicador de eficiencia**: Al concentrar el dinero en un rango del `±2.5%` o `±3.5%`, cada dólar genera el equivalente a tener **30 o 40 dólares** en una piscina tradicional sin concentrar.
-* Cada vez que un usuario compra o vende SOL, JUP o HYPE en cualquier aplicación conectada a Solana, una fracción de la comisión va directamente al saldo de la cuenta.
+* Cada vez que un usuario compra o vende SOL o HYPE en cualquier aplicación conectada a Solana, una fracción de la comisión va directamente al saldo de la cuenta.
 
 ### Motor 2: Cobro de Funding Rate en Hyperliquid
 En los exchanges de futuros perpetuos, cuando la mayoría de los operadores tienen posiciones alcistas (compradoras), estos deben pagar una tasa de interés periódica a quienes tienen posiciones en corto para equilibrar el mercado:

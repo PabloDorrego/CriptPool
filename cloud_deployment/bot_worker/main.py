@@ -64,11 +64,12 @@ PORT = int(os.environ.get("PORT", "8080"))
 POLL_INTERVAL = int(os.environ.get("POLL_INTERVAL_SEC", "60")) # 60 seconds Free-Tier tick
 
 # Tri-Pool Addresses on Solana Meteora DLMM (Optimal pools + optimal concentrated ranges)
-ADDR_SOL_USDC = "BGm1tav58oGcsQJehL9WXBFXF7D27vZsKefj4xJKD5Y"   # bin_step=10, 0.10% base fee ($3.07M TVL, ±3.5% anti-whipsaw range -> ~80% APR)
-ADDR_JUP_USDC = "HfgjZDmexhFVD28Vkb1NbQwWeXP3uDcVTLPjSGHmRHhL"   # bin_step=50, 0.10% base fee ($260k TVL, ±3.5% range -> ~85% APR Jupiter DEX)
-ADDR_CBBTC_USDC = ADDR_JUP_USDC
-ADDR_HYPE_USDC = "ANCx141SujgVdbKz9NTEH8F38qWsnyyXsVju64aU3qLB"  # bin_step=20, 0.20% base fee ($1.15M TVL, ±2.5% range -> ~177% APR + 50% USDC shield)
-ADDR_HYPE_SOL = ADDR_HYPE_USDC
+ADDR_SOL_USDC = "BGm1tav58oGcsQJehL9WXBFXF7D27vZsKefj4xJKD5Y"   # bin_step=10, 0.10% base fee ($2.87M TVL, ±6.0% range -> ~78% APR)
+ADDR_SOL_HYPE = "6oQ9wVex4mKZti2GsGCfD8FWTMMC9PLQkztRU5cd6MK8"   # bin_step=4, 0.04% base fee ($680k TVL, $9.7M vol -> ~218% APR)
+ADDR_JUP_USDC = ADDR_SOL_HYPE   # Legacy alias for seamless migration
+ADDR_CBBTC_USDC = ADDR_SOL_HYPE # Legacy alias for seamless migration
+ADDR_HYPE_USDC = "ANCx141SujgVdbKz9NTEH8F38qWsnyyXsVju64aU3qLB"  # bin_step=20, 0.20% base fee ($1.06M TVL, ±6.0% range -> ~81% APR)
+ADDR_HYPE_SOL = ADDR_HYPE_USDC  # Legacy alias
 
 # Anti-Whipsaw confirmation delay before executing rebalance (30 minutes = 1800 seconds)
 REBALANCE_CONFIRM_SEC = 1800.0
@@ -78,7 +79,7 @@ AUTO_COMPOUND_FEE_THRESHOLD_USD = 2.50
 OPTIMAL_HALF_RANGE_PCT = 0.060
 DELTA_DRIFT_SYNC_THRESHOLD = 0.15
 HYPERLIQUID_TAKER_FEE = 0.00035
-STRATEGY_MIGRATION_VERSION = "v2_6pct_deltasync_15"
+STRATEGY_MIGRATION_VERSION = "v3_sol_hype_218apr"
 
 # Capital Configuration requested by user
 INITIAL_CAPITAL_EUR = 1000.0
@@ -87,13 +88,15 @@ INITIAL_CAPITAL_USD = INITIAL_CAPITAL_EUR * EUR_USD_RATE # 1,080.00 USD
 
 # Allocation: 50% / 25% / 25%
 ALLOC_SOL_USDC_USD = INITIAL_CAPITAL_USD * 0.50   # 540.00 USD (500 EUR)
-ALLOC_JUP_USDC_USD = INITIAL_CAPITAL_USD * 0.25   # 270.00 USD (250 EUR)
-ALLOC_CBBTC_USDC_USD = ALLOC_JUP_USDC_USD
-ALLOC_HYPE_SOL_USD = INITIAL_CAPITAL_USD * 0.25   # 270.00 USD (250 EUR)
+ALLOC_SOL_HYPE_USD = INITIAL_CAPITAL_USD * 0.25   # 270.00 USD (250 EUR)
+ALLOC_JUP_USDC_USD = ALLOC_SOL_HYPE_USD
+ALLOC_CBBTC_USDC_USD = ALLOC_SOL_HYPE_USD
+ALLOC_HYPE_USDC_USD = INITIAL_CAPITAL_USD * 0.25  # 270.00 USD (250 EUR)
+ALLOC_HYPE_SOL_USD = ALLOC_HYPE_USDC_USD
 
 # Historical fee baseline from prior iterations to guarantee no fees are ever lost
 HISTORICAL_PRESERVED_FEE_USD = 0.0 # Strict real fee tracking without artificial baseline
-RESET_EPOCH = "2026-11-06T20:16:00" # Fresh reset requested by user right now (19:50)
+RESET_EPOCH = "2026-11-06T20:16:00"
 
 GLOBAL_DAEMON = None
 TICK_LOCK = threading.Lock()
@@ -119,10 +122,10 @@ class HealthHandler(BaseHTTPRequestHandler):
             "initial_capital_usd": INITIAL_CAPITAL_USD,
             "allocation": {
                 "sol_usdc": "50% (500 EUR / 540 USD)",
-                "cbbtc_usdc": "25% (250 EUR / 270 USD)",
-                "hype_sol": "25% (250 EUR / 270 USD)"
+                "sol_hype": "25% (250 EUR / 270 USD)",
+                "hype_usdc": "25% (250 EUR / 270 USD)"
             },
-            "pools": ["SOL-USDC", "cbBTC-USDC", "HYPE-SOL"],
+            "pools": ["SOL-USDC", "SOL-HYPE", "HYPE-USDC"],
             "timestamp": datetime.now().isoformat()
         }
         self.wfile.write(json.dumps(payload).encode("utf-8"))
@@ -141,6 +144,7 @@ class PositionTracker:
         self.quote_is_usd = quote_is_usd
         self.token_x_symbol = token_x_symbol
         self.token_y_symbol = token_y_symbol
+        self.current_quote_usd = 1.0
         
         self.accumulated_fees = 0.0
         self.compounded_fees = 0.0
@@ -172,32 +176,38 @@ class PositionTracker:
         self.short_tx_costs = 0.0
         self.short_adjustments = 0
         
-    def initialize(self, p0):
+    def initialize(self, p0, quote_usd_price=1.0):
         self.entry_price = p0
         self.current_price = p0
         self.p_lower = p0 * (1.0 - self.half_range_pct)
         self.p_upper = p0 * (1.0 + self.half_range_pct)
+        self.current_quote_usd = 1.0 if self.quote_is_usd else (quote_usd_price if quote_usd_price > 0 else 1.0)
         
         sp = math.sqrt(p0)
         spa = math.sqrt(self.p_lower)
         spb = math.sqrt(self.p_upper)
         denom = (2.0 * sp - spa - p0 / spb)
-        self.L = self.current_cap / denom if denom > 0 else 1.0
+        cap_in_quote = (self.current_cap / self.current_quote_usd) if self.current_quote_usd > 0 else self.current_cap
+        self.L = cap_in_quote / denom if denom > 0 else 1.0
         self.token_x = self.L * (1.0 / sp - 1.0 / spb)
         self.token_y = self.L * (sp - spa)
-        self.pos_val = self.token_x * p0 + self.token_y
+        raw_val = self.token_x * p0 + self.token_y
+        self.pos_val = raw_val * self.current_quote_usd
         
-        self.hodl_x = (self.initial_cap / 2.0) / p0 if p0 > 0 else 0.0
-        self.hodl_y = self.initial_cap / 2.0
+        cap_half = self.initial_cap / 2.0
+        self.hodl_x = (cap_half / self.current_quote_usd) / p0 if (p0 > 0 and self.current_quote_usd > 0) else 0.0
+        self.hodl_y = (cap_half / self.current_quote_usd) if self.current_quote_usd > 0 else cap_half
         if self.short_tokens <= 0.0:
             self.short_tokens = self.token_x
-            self.short_entry_price = p0
+            self.short_entry_price = p0 * self.current_quote_usd if not self.quote_is_usd else p0
         self.initialized = True
         
-    def update_tick(self, pool_data, dt_sec, sol_price_usd=None):
+    def update_tick(self, pool_data, dt_sec, quote_usd_price=1.0, sol_price_usd=None):
         p_new = pool_data["current_price"]
+        q_px = 1.0 if self.quote_is_usd else (quote_usd_price if quote_usd_price > 0 else 1.0)
+        self.current_quote_usd = q_px
         if not self.initialized:
-            self.initialize(p_new)
+            self.initialize(p_new, quote_usd_price=q_px)
             
         self.current_price = p_new
         self.market_apy = float(pool_data.get("apy", 50.0))
@@ -222,8 +232,9 @@ class PositionTracker:
             self.token_x = L * (1.0 / sp - 1.0 / spb)
             self.token_y = L * (sp - spa)
             
-        pos_val = self.token_x * p_new + self.token_y
-        self.pos_val = pos_val
+        raw_val = self.token_x * p_new + self.token_y
+        pos_val_usd = raw_val * q_px
+        self.pos_val = pos_val_usd
         
         # Fee accrual based on live Meteora swap fees and realistic DLMM bin dilution
         if self.is_in_range:
@@ -241,23 +252,16 @@ class PositionTracker:
             half_range = max(self.half_range_pct, 0.001)
             range_dilution = min(effective_pool_half_range / half_range, 2.5)
             
-            sol_ref = sol_price_usd if sol_price_usd and sol_price_usd > 0 else 92.0
-            pos_val_usd = pos_val if self.quote_is_usd else (pos_val * sol_ref)
             user_share = min((pos_val_usd * range_dilution) / tvl, 1.0)
             net_cut = 1.0 - (pool_data.get("protocol_fee_pct", 5.0) / 100.0)
             
             step_fee_usd = (fees_24h / 86400.0) * dt_sec * user_share * net_cut
             if pos_val_usd > 0 and dt_sec > 0:
                 self.instant_fee_apr = ((step_fee_usd / dt_sec) * 86400.0 * 365.25 / pos_val_usd) * 100.0
-            if self.quote_is_usd:
-                self.accumulated_fees += step_fee_usd
-                self.fees_x += (step_fee_usd * 0.5) / p_new if p_new > 0 else 0.0
-                self.fees_y += (step_fee_usd * 0.5)
-            else:
-                step_fee_sol = step_fee_usd / sol_ref
-                self.accumulated_fees += step_fee_sol
-                self.fees_x += (step_fee_sol * 0.5) / p_new if p_new > 0 else 0.0
-                self.fees_y += (step_fee_sol * 0.5)
+            
+            self.accumulated_fees += step_fee_usd
+            self.fees_x += (step_fee_usd * 0.5) / (p_new * q_px) if (p_new > 0 and q_px > 0) else 0.0
+            self.fees_y += (step_fee_usd * 0.5) / q_px if q_px > 0 else 0.0
             
         # Auto-Compound trigger if individual pool accumulates >= $2.50 USD in uncompounded fees
         uncompounded_now = max(self.accumulated_fees - self.compounded_fees, 0.0)
@@ -313,10 +317,12 @@ class PositionTracker:
         if self.p_lower < p < self.p_upper:
             unit_val = (1.0 / sp - 1.0 / spb) * p + (sp - spa)
             if unit_val > 0:
-                self.L += (net_added / unit_val)
+                net_added_quote = (net_added / self.current_quote_usd) if (not self.quote_is_usd and self.current_quote_usd > 0) else net_added
+                self.L += (net_added_quote / unit_val)
                 self.token_x = self.L * (1.0 / sp - 1.0 / spb)
                 self.token_y = self.L * (sp - spa)
-                self.pos_val = self.token_x * p + self.token_y
+                raw_val = self.token_x * p + self.token_y
+                self.pos_val = raw_val * self.current_quote_usd
                 self.current_cap += net_added
         print(f"[+] [{self.name}] Auto-Compound Meteora ejecutado: +${net_added:.4f} USD reinvertidos en liquidez activa.")
         return net_added
@@ -355,7 +361,7 @@ class PositionTracker:
         target_x = effective_pos_val / 2.0
         swap_needed = abs(x_val - target_x)
         
-        cost = swap_needed * 0.0015 + (0.04 if self.quote_is_usd else 0.0004)
+        cost = swap_needed * 0.0015 + 0.04
         new_capital = max(effective_pos_val - cost, 0.0)
         
         self.total_rebal_costs += cost
@@ -368,17 +374,19 @@ class PositionTracker:
         spa = math.sqrt(p_lower)
         spb = math.sqrt(p_upper)
         denom = (2.0 * sp - spa - p / spb)
-        self.L = new_capital / denom if denom > 0 else 1.0
+        new_cap_quote = (new_capital / self.current_quote_usd) if (not self.quote_is_usd and self.current_quote_usd > 0) else new_capital
+        self.L = new_cap_quote / denom if denom > 0 else 1.0
         self.entry_price = p
         self.p_lower = p_lower
         self.p_upper = p_upper
         self.token_x = self.L * (1.0 / sp - 1.0 / spb)
         self.token_y = self.L * (sp - spa)
-        self.pos_val = self.token_x * p + self.token_y
+        raw_val = self.token_x * p + self.token_y
+        self.pos_val = raw_val * self.current_quote_usd
         self.current_cap = new_capital
 
         # Sincronizamos automáticamente el Short en Hyperliquid al nuevo inventario 50/50 del pool tras rebalancear
-        self.sync_short_to_lp(p, reason="pool_rebalance")
+        self.sync_short_to_lp(p * self.current_quote_usd, reason="pool_rebalance")
         
         return {
             "pool": self.name,
@@ -417,7 +425,8 @@ class PositionTracker:
         dist_rebal_upper_pct = max(0.0, ((t_high - self.current_price) / self.current_price) * 100.0) if self.current_price > 0 else 0.0
         
         # Impermanent Loss vs HODL
-        hodl_val = self.hodl_x * self.current_price + self.hodl_y
+        raw_hodl = self.hodl_x * self.current_price + self.hodl_y
+        hodl_val = raw_hodl * self.current_quote_usd if not self.quote_is_usd else raw_hodl
         il_amount = self.pos_val - hodl_val
         il_pct = (il_amount / hodl_val) * 100.0 if hodl_val > 0 else 0.0
         net_vs_hodl = self.accumulated_fees + il_amount
@@ -509,29 +518,31 @@ class TriPoolCloudDaemon:
             token_y_symbol="USDC"
         )
         
-        # 2. JUP-USDC Position (25% = 250 EUR = $270 USD initial, +/-6.0% anti-whipsaw range on bin_step=50 pool)
-        self.pos_cbbtc_usdc = PositionTracker(
-            name="cbBTC-USDC",
-            pool_address=ADDR_CBBTC_USDC,
-            initial_cap=ALLOC_CBBTC_USDC_USD,
+        # 2. SOL-HYPE Position (25% = 250 EUR = $270 USD initial, +/-6.0% anti-whipsaw range on bin_step=4 pool, 218% APR base)
+        self.pos_sol_hype = PositionTracker(
+            name="SOL-HYPE",
+            pool_address=ADDR_SOL_HYPE,
+            initial_cap=ALLOC_SOL_HYPE_USD,
             half_range_pct=OPTIMAL_HALF_RANGE_PCT,
             rebal_thresh=1.05,
-            quote_is_usd=True,
-            token_x_symbol="cbBTC",
-            token_y_symbol="USDC"
+            quote_is_usd=False, # Quote token is HYPE
+            token_x_symbol="SOL",
+            token_y_symbol="HYPE"
         )
+        self.pos_cbbtc_usdc = self.pos_sol_hype # Legacy alias for seamless backwards compatibility
         
-        # 3. HYPE-USDC Position (25% = 250 EUR = $270 USD initial, +/-6.0% anti-whipsaw range on bin_step=20 pool)
+        # 3. HYPE-USDC Position (25% = 250 EUR = $270 USD initial, +/-6.0% anti-whipsaw range on bin_step=20 pool, ~81% APR base)
         self.pos_hype_sol = PositionTracker(
             name="HYPE-USDC",
             pool_address=ADDR_HYPE_USDC,
-            initial_cap=ALLOC_HYPE_SOL_USD,
+            initial_cap=ALLOC_HYPE_USDC_USD,
             half_range_pct=OPTIMAL_HALF_RANGE_PCT,
             rebal_thresh=1.05,
             quote_is_usd=True,
             token_x_symbol="HYPE",
             token_y_symbol="USDC"
         )
+        self.pos_hype_usdc = self.pos_hype_sol
         self.hype_initialized = True
         
         self.last_ts = time.time()
@@ -615,140 +626,101 @@ class TriPoolCloudDaemon:
                     self.pos_sol_usdc.short_tx_costs = float(sol_data.get("short_tx_costs", (self.pos_sol_usdc.initial_cap / 2.0) * 0.00035))
                     self.pos_sol_usdc.short_adjustments = int(sol_data.get("short_adjustments", 0))
                     
-            # 2. Restore JUP-USDC (or seamlessly migrate from cbBTC-USDC preserving 100% of accumulated fees)
-            jup_data = data.get("jup_usdc", {})
-            if not jup_data:
-                # Seamless migration from cbbtc_usdc
-                old_btc = data.get("cbbtc_usdc", {})
-                self.pos_cbbtc_usdc.accumulated_fees = float(old_btc.get("accumulated_fees", 0.3683))
-                self.pos_cbbtc_usdc.compounded_fees = float(old_btc.get("compounded_fees", 0.0))
-                self.pos_cbbtc_usdc.total_time_sec = float(old_btc.get("total_time_sec", 0.0))
-                self.pos_cbbtc_usdc.time_in_range_sec = float(old_btc.get("time_in_range_sec", 0.0))
-                self.pos_cbbtc_usdc.total_rebalances = 0
-                self.pos_cbbtc_usdc.total_rebal_costs = 0.0
-                self.pos_cbbtc_usdc.initial_cap = ALLOC_JUP_USDC_USD
-                self.pos_cbbtc_usdc.current_cap = ALLOC_JUP_USDC_USD
-                self.pos_cbbtc_usdc.initialized = False
-                print(f"[+] Migrado cbBTC-USDC -> JUP-USDC preservando ${self.pos_cbbtc_usdc.accumulated_fees:.4f} USD en fees.")
+            # 2. Restore SOL-HYPE (Ultra-yield pool ~218% APR base replacing JUP)
+            sol_hype_data = data.get("sol_hype", {})
+            if sol_hype_data and "entry_price" in sol_hype_data:
+                self.pos_sol_hype.total_rebalances = int(sol_hype_data.get("total_rebalances", 0))
+                self.pos_sol_hype.total_rebal_costs = float(sol_hype_data.get("total_rebal_costs", 0.0))
+                self.pos_sol_hype.total_time_sec = float(sol_hype_data.get("total_time_sec", 0.0))
+                self.pos_sol_hype.time_in_range_sec = float(sol_hype_data.get("time_in_range_sec", 0.0))
+                self.pos_sol_hype.accumulated_fees = float(sol_hype_data.get("accumulated_fees", 0.0))
+                self.pos_sol_hype.compounded_fees = float(sol_hype_data.get("compounded_fees", 0.0))
+                p0 = float(sol_hype_data["entry_price"])
+                self.pos_sol_hype.entry_price = p0
+                self.pos_sol_hype.p_lower = p0 * (1.0 - self.pos_sol_hype.half_range_pct)
+                self.pos_sol_hype.p_upper = p0 * (1.0 + self.pos_sol_hype.half_range_pct)
+                self.pos_sol_hype.current_cap = float(sol_hype_data.get("current_cap", ALLOC_SOL_HYPE_USD))
+                self.pos_sol_hype.initialized = True
             else:
-                self.pos_cbbtc_usdc.total_rebalances = int(jup_data.get("total_rebalances", 0))
-                self.pos_cbbtc_usdc.total_rebal_costs = float(jup_data.get("total_rebal_costs", 0.0))
-                self.pos_cbbtc_usdc.total_time_sec = float(jup_data.get("total_time_sec", 0.0))
-                self.pos_cbbtc_usdc.time_in_range_sec = float(jup_data.get("time_in_range_sec", 0.0))
-                self.pos_cbbtc_usdc.accumulated_fees = float(jup_data.get("accumulated_fees", 0.0))
-                self.pos_cbbtc_usdc.compounded_fees = float(jup_data.get("compounded_fees", 0.0))
-                
-                if "entry_price" in jup_data and float(jup_data["entry_price"]) > 0:
-                    p0 = float(jup_data["entry_price"])
-                    self.pos_cbbtc_usdc.entry_price = p0
-                    self.pos_cbbtc_usdc.p_lower = p0 * (1.0 - self.pos_cbbtc_usdc.half_range_pct)
-                    self.pos_cbbtc_usdc.p_upper = p0 * (1.0 + self.pos_cbbtc_usdc.half_range_pct)
-                    self.pos_cbbtc_usdc.current_cap = float(jup_data.get("current_cap", ALLOC_JUP_USDC_USD))
-                    self.pos_cbbtc_usdc.initialized = True
-                    sp = math.sqrt(p0)
-                    spa = math.sqrt(self.pos_cbbtc_usdc.p_lower)
-                    spb = math.sqrt(self.pos_cbbtc_usdc.p_upper)
-                    denom = (2.0 * sp - spa - p0 / spb)
-                    self.pos_cbbtc_usdc.L = self.pos_cbbtc_usdc.current_cap / denom if denom > 0 else 1.0
-                    self.pos_cbbtc_usdc.hodl_x = (self.pos_cbbtc_usdc.initial_cap / 2.0) / p0
-                    self.pos_cbbtc_usdc.hodl_y = self.pos_cbbtc_usdc.initial_cap / 2.0
-                    self.pos_cbbtc_usdc.fees_x = (self.pos_cbbtc_usdc.accumulated_fees * 0.5) / p0
-                    self.pos_cbbtc_usdc.fees_y = self.pos_cbbtc_usdc.accumulated_fees * 0.5
-                    self.pos_cbbtc_usdc.short_tokens = float(jup_data.get("short_tokens", self.pos_cbbtc_usdc.hodl_x))
-                    self.pos_cbbtc_usdc.short_entry_price = float(jup_data.get("short_entry_price", p0))
-                    self.pos_cbbtc_usdc.realized_short_pnl = float(jup_data.get("realized_short_pnl", 0.0))
-                    self.pos_cbbtc_usdc.short_tx_costs = float(jup_data.get("short_tx_costs", (self.pos_cbbtc_usdc.initial_cap / 2.0) * 0.00035))
-                    self.pos_cbbtc_usdc.short_adjustments = int(jup_data.get("short_adjustments", 0))
+                self.pos_sol_hype.total_rebalances = 0
+                self.pos_sol_hype.total_rebal_costs = 0.0
+                self.pos_sol_hype.accumulated_fees = 0.0
+                self.pos_sol_hype.compounded_fees = 0.0
+                self.pos_sol_hype.initial_cap = ALLOC_SOL_HYPE_USD
+                self.pos_sol_hype.current_cap = ALLOC_SOL_HYPE_USD
+                self.pos_sol_hype.initialized = False
+                print("[+] Reemplazado JUP -> SOL-HYPE (Bin 4, 218% APR base). Inicializando posición limpia.")
 
             # 3. Restore HYPE-USDC (or migrate seamlessly from HYPE-SOL preserving 100% of fees)
             hype_data = data.get("hype_sol", {})
             if hype_data:
                 self.pos_hype_sol.total_time_sec = float(hype_data.get("total_time_sec", 0.0))
                 self.pos_hype_sol.time_in_range_sec = float(hype_data.get("time_in_range_sec", 0.0))
-                was_usd = bool(hype_data.get("quote_is_usd", False))
-                if not was_usd:
-                    # Seamless migration from HYPE-SOL to HYPE-USDC: convert earned SOL fees to USD
-                    old_fees_sol = float(hype_data.get("accumulated_fees", 0.0))
-                    self.pos_hype_sol.accumulated_fees = old_fees_sol * prev_sol_price
-                    self.pos_hype_sol.compounded_fees = 0.0
-                    self.pos_hype_sol.initial_cap = ALLOC_HYPE_SOL_USD
-                    self.pos_hype_sol.current_cap = ALLOC_HYPE_SOL_USD
-                    self.pos_hype_sol.total_rebalances = 0
-                    self.pos_hype_sol.total_rebal_costs = 0.0
-                    self.pos_hype_sol.initialized = False
-                    print(f"[+] Migrado HYPE-SOL -> HYPE-USDC preservando ${self.pos_hype_sol.accumulated_fees:.4f} USD en fees.")
-                else:
-                    self.pos_hype_sol.total_rebalances = int(hype_data.get("total_rebalances", 0))
-                    self.pos_hype_sol.total_rebal_costs = float(hype_data.get("total_rebal_costs", 0.0))
-                    self.pos_hype_sol.initial_cap = ALLOC_HYPE_SOL_USD
-                    self.pos_hype_sol.current_cap = float(hype_data.get("current_cap", ALLOC_HYPE_SOL_USD))
-                    self.pos_hype_sol.accumulated_fees = float(hype_data.get("accumulated_fees", 0.0))
-                    self.pos_hype_sol.compounded_fees = float(hype_data.get("compounded_fees", 0.0))
-                    p0 = float(hype_data.get("entry_price", 0.0))
-                    if p0 > 5.0: # Valid USD price (~$81.64)
-                        self.pos_hype_sol.entry_price = p0
-                        self.pos_hype_sol.p_lower = p0 * (1.0 - self.pos_hype_sol.half_range_pct)
-                        self.pos_hype_sol.p_upper = p0 * (1.0 + self.pos_hype_sol.half_range_pct)
-                        self.pos_hype_sol.initialized = True
-                        sp = math.sqrt(p0)
-                        spa = math.sqrt(self.pos_hype_sol.p_lower)
-                        spb = math.sqrt(self.pos_hype_sol.p_upper)
-                        denom = (2.0 * sp - spa - p0 / spb)
-                        self.pos_hype_sol.L = self.pos_hype_sol.current_cap / denom if denom > 0 else 1.0
-                        self.pos_hype_sol.hodl_x = (self.pos_hype_sol.initial_cap / 2.0) / p0
-                        self.pos_hype_sol.hodl_y = self.pos_hype_sol.initial_cap / 2.0
-                        self.pos_hype_sol.fees_x = (self.pos_hype_sol.accumulated_fees * 0.5) / p0
-                        self.pos_hype_sol.fees_y = self.pos_hype_sol.accumulated_fees * 0.5
-                        self.pos_hype_sol.short_tokens = float(hype_data.get("short_tokens", self.pos_hype_sol.hodl_x))
-                        self.pos_hype_sol.short_entry_price = float(hype_data.get("short_entry_price", p0))
-                        self.pos_hype_sol.realized_short_pnl = float(hype_data.get("realized_short_pnl", 0.0))
-                        self.pos_hype_sol.short_tx_costs = float(hype_data.get("short_tx_costs", (self.pos_hype_sol.initial_cap / 2.0) * 0.00035))
-                        self.pos_hype_sol.short_adjustments = int(hype_data.get("short_adjustments", 0))
+                self.pos_hype_sol.total_rebalances = int(hype_data.get("total_rebalances", 0))
+                self.pos_hype_sol.total_rebal_costs = float(hype_data.get("total_rebal_costs", 0.0))
+                self.pos_hype_sol.initial_cap = ALLOC_HYPE_USDC_USD
+                self.pos_hype_sol.current_cap = float(hype_data.get("current_cap", ALLOC_HYPE_USDC_USD))
+                self.pos_hype_sol.accumulated_fees = float(hype_data.get("accumulated_fees", 0.0))
+                self.pos_hype_sol.compounded_fees = float(hype_data.get("compounded_fees", 0.0))
+                p0 = float(hype_data.get("entry_price", 0.0))
+                if p0 > 5.0: # Valid USD price (~$75.25)
+                    self.pos_hype_sol.entry_price = p0
+                    self.pos_hype_sol.p_lower = p0 * (1.0 - self.pos_hype_sol.half_range_pct)
+                    self.pos_hype_sol.p_upper = p0 * (1.0 + self.pos_hype_sol.half_range_pct)
+                    self.pos_hype_sol.initialized = True
+                    sp = math.sqrt(p0)
+                    spa = math.sqrt(self.pos_hype_sol.p_lower)
+                    spb = math.sqrt(self.pos_hype_sol.p_upper)
+                    denom = (2.0 * sp - spa - p0 / spb)
+                    self.pos_hype_sol.L = self.pos_hype_sol.current_cap / denom if denom > 0 else 1.0
+                    self.pos_hype_sol.hodl_x = (self.pos_hype_sol.initial_cap / 2.0) / p0
+                    self.pos_hype_sol.hodl_y = self.pos_hype_sol.initial_cap / 2.0
+                    self.pos_hype_sol.fees_x = (self.pos_hype_sol.accumulated_fees * 0.5) / p0
+                    self.pos_hype_sol.fees_y = self.pos_hype_sol.accumulated_fees * 0.5
+                    self.pos_hype_sol.short_tokens = float(hype_data.get("short_tokens", self.pos_hype_sol.hodl_x))
+                    self.pos_hype_sol.short_entry_price = float(hype_data.get("short_entry_price", p0))
+                    self.pos_hype_sol.realized_short_pnl = float(hype_data.get("realized_short_pnl", 0.0))
+                    self.pos_hype_sol.short_tx_costs = float(hype_data.get("short_tx_costs", (self.pos_hype_sol.initial_cap / 2.0) * 0.00035))
+                    self.pos_hype_sol.short_adjustments = int(hype_data.get("short_adjustments", 0))
 
-            print(f"[+] Estado restaurado. Comisiones acumuladas SOL-USDC: ${self.pos_sol_usdc.accumulated_fees:.4f} USD")
+            print(f"[+] Estado restaurado. Comisiones acumuladas SOL-USDC: ${self.pos_sol_usdc.accumulated_fees:.4f} USD | HYPE-USDC: ${self.pos_hype_sol.accumulated_fees:.4f} USD")
 
-            # Upgrade migration to ±6.0% range + dynamic short delta-sync (>15% drift)
+            # Upgrade migration to v3_sol_hype_218apr
             if data.get("strategy_migration_version") != STRATEGY_MIGRATION_VERSION:
-                print(f"[*] Aplicando migración cuantitativa {STRATEGY_MIGRATION_VERSION}: rangos ±6.0% + sincronización dinámica de cortos (>15% desv.)...")
-                # Initial entry prices at reset_epoch (2026-11-06T20:16:00)
-                init_entries = [
-                    (self.pos_sol_usdc, 90.10345, ALLOC_SOL_USDC_USD, float(data.get("sol_price_usd", 86.31))),
-                    (self.pos_cbbtc_usdc, 0.24623, ALLOC_JUP_USDC_USD, float(data.get("btc_price_usd", 0.23425))),
-                    (self.pos_hype_sol, 78.28076, ALLOC_HYPE_SOL_USD, float(data.get("hype_price_usd", 73.28587)))
-                ]
-                for pos, p0_init, alloc_usd, p_curr in init_entries:
-                    pos.half_range_pct = OPTIMAL_HALF_RANGE_PCT
-                    pos.entry_price = p0_init
-                    pos.p_lower = p0_init * (1.0 - OPTIMAL_HALF_RANGE_PCT)
-                    pos.p_upper = p0_init * (1.0 + OPTIMAL_HALF_RANGE_PCT)
-                    pos.total_rebalances = 0
-                    pos.total_rebal_costs = 0.0
-                    # Capital includes initial allocation + already compounded fees
-                    pos.current_cap = alloc_usd + pos.compounded_fees
-                    sp0 = math.sqrt(p0_init)
-                    spa = math.sqrt(pos.p_lower)
-                    spb = math.sqrt(pos.p_upper)
-                    denom = (2.0 * sp0 - spa - p0_init / spb)
-                    pos.L = pos.current_cap / denom if denom > 0 else 1.0
-                    pos.hodl_x = (alloc_usd / 2.0) / p0_init
-                    pos.hodl_y = alloc_usd / 2.0
-                    # Compute current token_x at p_curr inside the ±6% range
-                    sp_c = math.sqrt(max(min(p_curr, pos.p_upper), pos.p_lower))
-                    pos.token_x = pos.L * (1.0 / sp_c - 1.0 / spb)
-                    pos.token_y = pos.L * (sp_c - spa)
-                    pos.pos_val = pos.token_x * p_curr + pos.token_y
-                    # Simulate continuous 15%-threshold delta-sync along the path p0_init -> p_curr
-                    # Across the drop, average hedged short size is the midpoint between initial 50% token_x and current token_x
-                    init_short_tokens = (alloc_usd / 2.0) / p0_init
-                    avg_hedged_tokens = 0.55 * pos.token_x + 0.45 * init_short_tokens
-                    init_tx_cost = (alloc_usd / 2.0) * HYPERLIQUID_TAKER_FEE
-                    sync_tx_cost = abs(pos.token_x - init_short_tokens) * p_curr * HYPERLIQUID_TAKER_FEE
-                    pos.realized_short_pnl = (p0_init - p_curr) * avg_hedged_tokens
-                    pos.short_tx_costs = init_tx_cost + sync_tx_cost
-                    pos.short_tokens = pos.token_x
-                    pos.short_entry_price = p_curr
-                    pos.short_adjustments = 2
-                    pos.initialized = True
+                print(f"[*] Aplicando migración cuantitativa {STRATEGY_MIGRATION_VERSION}: activación pool SOL-HYPE (218% APR)...")
+                sol_curr = float(data.get("sol_price_usd", 86.48))
+                hype_curr = float(data.get("hype_price_usd", 75.25))
+                p0_sol_hype = sol_curr / hype_curr if hype_curr > 0 else 1.1492
+                
+                self.pos_sol_hype.half_range_pct = OPTIMAL_HALF_RANGE_PCT
+                self.pos_sol_hype.entry_price = p0_sol_hype
+                self.pos_sol_hype.p_lower = p0_sol_hype * (1.0 - OPTIMAL_HALF_RANGE_PCT)
+                self.pos_sol_hype.p_upper = p0_sol_hype * (1.0 + OPTIMAL_HALF_RANGE_PCT)
+                self.pos_sol_hype.total_rebalances = 0
+                self.pos_sol_hype.total_rebal_costs = 0.0
+                self.pos_sol_hype.accumulated_fees = 0.0
+                self.pos_sol_hype.compounded_fees = 0.0
+                self.pos_sol_hype.current_cap = ALLOC_SOL_HYPE_USD
+                self.pos_sol_hype.current_quote_usd = hype_curr
+                
+                sp0 = math.sqrt(p0_sol_hype)
+                spa = math.sqrt(self.pos_sol_hype.p_lower)
+                spb = math.sqrt(self.pos_sol_hype.p_upper)
+                denom = (2.0 * sp0 - spa - p0_sol_hype / spb)
+                cap_in_quote = (ALLOC_SOL_HYPE_USD / hype_curr) if hype_curr > 0 else ALLOC_SOL_HYPE_USD
+                self.pos_sol_hype.L = cap_in_quote / denom if denom > 0 else 1.0
+                self.pos_sol_hype.token_x = self.pos_sol_hype.L * (1.0 / sp0 - 1.0 / spb)
+                self.pos_sol_hype.token_y = self.pos_sol_hype.L * (sp0 - spa)
+                self.pos_sol_hype.pos_val = (self.pos_sol_hype.token_x * p0_sol_hype + self.pos_sol_hype.token_y) * hype_curr
+                self.pos_sol_hype.hodl_x = (ALLOC_SOL_HYPE_USD * 0.5) / sol_curr
+                self.pos_sol_hype.hodl_y = (ALLOC_SOL_HYPE_USD * 0.5) / hype_curr
+                self.pos_sol_hype.short_tokens = self.pos_sol_hype.token_x
+                self.pos_sol_hype.short_entry_price = sol_curr
+                self.pos_sol_hype.realized_short_pnl = 0.0
+                self.pos_sol_hype.short_tx_costs = (ALLOC_SOL_HYPE_USD * 0.5) * HYPERLIQUID_TAKER_FEE
+                self.pos_sol_hype.short_adjustments = 0
+                self.pos_sol_hype.initialized = True
+                print(f"[+] SOL-HYPE inicializado con éxito: {self.pos_sol_hype.token_x:.4f} SOL + {self.pos_sol_hype.token_y:.4f} HYPE (${self.pos_sol_hype.pos_val:.2f} USD)")
         except Exception as e:
             print(f"[!] Error restaurando estado persistente: {e}")
             
@@ -759,128 +731,130 @@ class TriPoolCloudDaemon:
         
         # Fetch all 3 pools from Meteora API
         pool_sol_usdc = self.client.get_pool_by_address(ADDR_SOL_USDC)
-        pool_cbbtc_usdc = self.client.get_pool_by_address(ADDR_JUP_USDC)
+        pool_sol_hype = self.client.get_pool_by_address(ADDR_SOL_HYPE)
         pool_hype_sol = self.client.get_pool_by_address(ADDR_HYPE_USDC)
         
-        if not pool_sol_usdc or not pool_cbbtc_usdc or not pool_hype_sol:
+        if not pool_sol_usdc or not pool_sol_hype or not pool_hype_sol:
             print("[!] Aviso: Fallo momentáneo al consultar alguno de los 3 pools en Meteora. Reintentando...")
             return
             
         sol_price_usd = pool_sol_usdc["current_price"]
-        btc_price_usd = pool_cbbtc_usdc["current_price"]
+        sol_hype_price = pool_sol_hype["current_price"] # HYPE per SOL
         hype_price_usd = pool_hype_sol["current_price"]
-        hype_price_sol = hype_price_usd / sol_price_usd if sol_price_usd > 0 else 0.85
+        hype_price_sol = 1.0 / sol_hype_price if sol_hype_price > 0 else (hype_price_usd / sol_price_usd)
+        btc_price_usd = sol_hype_price # Legacy key compatibility
             
-        reb_sol = self.pos_sol_usdc.update_tick(pool_sol_usdc, dt, sol_price_usd)
-        reb_btc = self.pos_cbbtc_usdc.update_tick(pool_cbbtc_usdc, dt, sol_price_usd)
-        reb_hype = self.pos_hype_sol.update_tick(pool_hype_sol, dt, sol_price_usd)
+        reb_sol = self.pos_sol_usdc.update_tick(pool_sol_usdc, dt, quote_usd_price=1.0, sol_price_usd=sol_price_usd)
+        reb_btc = self.pos_sol_hype.update_tick(pool_sol_hype, dt, quote_usd_price=hype_price_usd, sol_price_usd=sol_price_usd)
+        reb_hype = self.pos_hype_sol.update_tick(pool_hype_sol, dt, quote_usd_price=1.0, sol_price_usd=sol_price_usd)
 
         # Portfolio-wide Auto-Compound trigger whenever combined uncompounded fees in Meteora reach >= $5.00 USD
         total_uncompounded_usd = (
             max(self.pos_sol_usdc.accumulated_fees - self.pos_sol_usdc.compounded_fees, 0.0) +
-            max(self.pos_cbbtc_usdc.accumulated_fees - self.pos_cbbtc_usdc.compounded_fees, 0.0) +
+            max(self.pos_sol_hype.accumulated_fees - self.pos_sol_hype.compounded_fees, 0.0) +
             max(self.pos_hype_sol.accumulated_fees - self.pos_hype_sol.compounded_fees, 0.0)
         )
         if total_uncompounded_usd >= AUTO_COMPOUND_FEE_THRESHOLD_USD:
             print(f"[+] [PORTFOLIO] Acumulados ${total_uncompounded_usd:.2f} USD (>= $5.00 USD). Ejecutando Auto-Compound automático en Meteora...")
             self.pos_sol_usdc.compound_fees_only(sol_price_usd)
-            self.pos_cbbtc_usdc.compound_fees_only(btc_price_usd)
+            self.pos_sol_hype.compound_fees_only(sol_hype_price)
             self.pos_hype_sol.compound_fees_only(hype_price_usd)
             total_uncompounded_usd = 0.0
 
         total_compounded_usd = (
             self.pos_sol_usdc.compounded_fees +
-            self.pos_cbbtc_usdc.compounded_fees +
+            self.pos_sol_hype.compounded_fees +
             self.pos_hype_sol.compounded_fees
         )
         
         # Individual dicts
         d_sol = self.pos_sol_usdc.to_dict()
-        d_btc = self.pos_cbbtc_usdc.to_dict()
+        d_sol_hype = self.pos_sol_hype.to_dict()
+        d_btc = d_sol_hype # Legacy alias for backwards compatibility
         d_hype = self.pos_hype_sol.to_dict()
         
-        # HYPE-USDC position is now natively in USD terms
+        # HYPE-USDC and SOL-HYPE positions
+        sol_val_usd = d_sol["total_val"]
+        sol_hype_val_usd = d_sol_hype["total_val"]
         hype_val_usd = d_hype["total_val"]
-        hype_init_usd = d_hype["initial_cap"]
+        
+        sol_hype_fees_usd = d_sol_hype["accumulated_fees"]
         hype_fees_usd = d_hype["accumulated_fees"]
-        hype_il_usd = d_hype["il_amount"]
-        hype_net_vs_hodl_usd = d_hype["net_vs_hodl"]
-        hype_rebal_costs_usd = d_hype["total_rebal_costs"]
         
         # Consolidated Portfolio Metrics (USD)
-        total_portfolio_usd = d_sol["total_val"] + d_btc["total_val"] + hype_val_usd
-        total_initial_usd = d_sol["initial_cap"] + d_btc["initial_cap"] + hype_init_usd # Exactly 1,080.00 USD
+        total_portfolio_usd = sol_val_usd + sol_hype_val_usd + hype_val_usd
+        total_initial_usd = d_sol["initial_cap"] + d_sol_hype["initial_cap"] + d_hype["initial_cap"] # Exactly 1,080.00 USD
         total_portfolio_eur = total_portfolio_usd / self.eur_usd_rate
         total_initial_eur = self.initial_eur
         
-        total_fees_usd = d_sol["accumulated_fees"] + d_btc["accumulated_fees"] + hype_fees_usd
+        total_fees_usd = d_sol["accumulated_fees"] + sol_hype_fees_usd + hype_fees_usd
         total_fees_eur = total_fees_usd / self.eur_usd_rate
         combined_roi_pct = ((total_portfolio_usd - total_initial_usd) / total_initial_usd) * 100.0
         
-        il_amount_usd = d_sol["il_amount"] + d_btc["il_amount"] + hype_il_usd
+        il_amount_usd = d_sol["il_amount"] + d_sol_hype["il_amount"] + d_hype["il_amount"]
         il_amount_eur = il_amount_usd / self.eur_usd_rate
-        net_vs_hodl_usd = d_sol["net_vs_hodl"] + d_btc["net_vs_hodl"] + hype_net_vs_hodl_usd
+        net_vs_hodl_usd = d_sol["net_vs_hodl"] + d_sol_hype["net_vs_hodl"] + d_hype["net_vs_hodl"]
         net_vs_hodl_eur = net_vs_hodl_usd / self.eur_usd_rate
         fees_cover_il = total_fees_usd >= abs(il_amount_usd)
         
         combined_fees_vs_capital_pct = (total_fees_usd / total_initial_usd) * 100.0
         
-        # Consolidated APR / APY: Weighted by capital allocation (50% SOL, 25% cbBTC, 25% HYPE)
-        combined_real_apr = (d_sol["real_fee_apr"] * 0.50) + (d_btc["real_fee_apr"] * 0.25) + (d_hype["real_fee_apr"] * 0.25)
+        # Consolidated APR / APY: Weighted by capital allocation (50% SOL-USDC, 25% SOL-HYPE, 25% HYPE-USDC)
+        combined_real_apr = (d_sol["real_fee_apr"] * 0.50) + (d_sol_hype["real_fee_apr"] * 0.25) + (d_hype["real_fee_apr"] * 0.25)
         combined_real_apy = ((math.pow(1.0 + (combined_real_apr / 100.0) / 365.25, 365.25) - 1.0)) * 100.0
         
-        combined_activity_ratio_pct = (d_sol["activity_ratio_pct"] + d_btc["activity_ratio_pct"] + d_hype["activity_ratio_pct"]) / 3.0
+        combined_activity_ratio_pct = (d_sol["activity_ratio_pct"] + d_sol_hype["activity_ratio_pct"] + d_hype["activity_ratio_pct"]) / 3.0
         
-        total_rebal_costs_usd = d_sol["total_rebal_costs"] + d_btc["total_rebal_costs"] + hype_rebal_costs_usd
+        total_rebal_costs_usd = d_sol["total_rebal_costs"] + d_sol_hype["total_rebal_costs"] + d_hype["total_rebal_costs"]
         total_rebal_costs_eur = total_rebal_costs_usd / self.eur_usd_rate
-        total_rebalances_count = d_sol["total_rebalances"] + d_btc["total_rebalances"] + d_hype["total_rebalances"]
+        total_rebalances_count = d_sol["total_rebalances"] + d_sol_hype["total_rebalances"] + d_hype["total_rebalances"]
         avg_rebalance_cost_eur = (total_rebal_costs_eur / total_rebalances_count) if total_rebalances_count > 0 else 0.0
         friction_ratio_pct = (total_rebal_costs_usd / max(total_fees_usd, 0.0001)) * 100.0 if total_fees_usd > 0 else 0.0
         
-        # Token Balances across all 3 pools (SOL-USDC, cbBTC-USDC, HYPE-USDC)
+        # Token Balances across all 3 pools (SOL-USDC, SOL-HYPE, HYPE-USDC)
         sol_from_sol_usdc = d_sol["token_x"]
         usdc_from_sol_usdc = d_sol["token_y"]
-        cbbtc_from_btc = d_btc["token_x"]
-        usdc_from_btc = d_btc["token_y"]
+        sol_from_sol_hype = d_sol_hype["token_x"]
+        hype_from_sol_hype = d_sol_hype["token_y"]
         hype_from_hype = d_hype["token_x"]
         usdc_from_hype = d_hype["token_y"]
         
-        sol_total = sol_from_sol_usdc
-        usdc_total = usdc_from_sol_usdc + usdc_from_btc + usdc_from_hype
-        cbbtc_total = cbbtc_from_btc
-        hype_total = hype_from_hype
+        sol_total = sol_from_sol_usdc + sol_from_sol_hype
+        hype_total = hype_from_hype + hype_from_sol_hype
+        usdc_total = usdc_from_sol_usdc + usdc_from_hype
+        cbbtc_total = 0.0
         
         # Valuations in USD & EUR
         sol_usd_val = sol_total * sol_price_usd
         sol_eur_val = sol_usd_val / self.eur_usd_rate
         usdc_usd_val = usdc_total
         usdc_eur_val = usdc_usd_val / self.eur_usd_rate
-        cbbtc_usd_val = cbbtc_total * btc_price_usd
-        cbbtc_eur_val = cbbtc_usd_val / self.eur_usd_rate
+        cbbtc_usd_val = 0.0
+        cbbtc_eur_val = 0.0
         hype_usd_val = hype_total * hype_price_usd
         hype_eur_val = hype_usd_val / self.eur_usd_rate
         
         # Fees breakdown by specific cryptocurrency token
-        fees_sol_total = d_sol.get("fees_x", 0.0)
-        fees_usdc_total = d_sol.get("fees_y", 0.0) + d_btc.get("fees_y", 0.0) + d_hype.get("fees_y", 0.0)
-        fees_cbbtc_total = d_btc.get("fees_x", 0.0)
-        fees_hype_total = d_hype.get("fees_x", 0.0)
+        fees_sol_total = d_sol.get("fees_x", 0.0) + d_sol_hype.get("fees_x", 0.0)
+        fees_usdc_total = d_sol.get("fees_y", 0.0) + d_hype.get("fees_y", 0.0)
+        fees_cbbtc_total = 0.0
+        fees_hype_total = d_hype.get("fees_x", 0.0) + d_sol_hype.get("fees_y", 0.0)
         
         fees_by_token = {
             "sol": fees_sol_total,
             "usdc": fees_usdc_total,
-            "cbbtc": fees_cbbtc_total,
-            "jup": fees_cbbtc_total,
+            "cbbtc": 0.0,
+            "jup": 0.0,
             "hype": fees_hype_total,
             "sol_usd": fees_sol_total * sol_price_usd,
             "usdc_usd": fees_usdc_total,
-            "cbbtc_usd": fees_cbbtc_total * btc_price_usd,
-            "jup_usd": fees_cbbtc_total * btc_price_usd,
+            "cbbtc_usd": 0.0,
+            "jup_usd": 0.0,
             "hype_usd": fees_hype_total * hype_price_usd,
             "sol_eur": (fees_sol_total * sol_price_usd) / self.eur_usd_rate,
             "usdc_eur": fees_usdc_total / self.eur_usd_rate,
-            "cbbtc_eur": (fees_cbbtc_total * btc_price_usd) / self.eur_usd_rate,
-            "jup_eur": (fees_cbbtc_total * btc_price_usd) / self.eur_usd_rate,
+            "cbbtc_eur": 0.0,
+            "jup_eur": 0.0,
             "hype_eur": (fees_hype_total * hype_price_usd) / self.eur_usd_rate
         }
         
@@ -893,46 +867,45 @@ class TriPoolCloudDaemon:
         hype_hl = hl_market["HYPE"]
 
         # Dynamic Rebalance-Synced Short Sizes & Entry Prices (paid & settled 100% in USDC)
-        sol_short_tokens = d_sol.get("short_tokens") or (270.0 / max(d_sol.get("entry_price", sol_price_usd), 1.0))
-        btc_short_tokens = d_btc.get("short_tokens") or (135.0 / max(d_btc.get("entry_price", btc_price_usd), 1.0))
-        hype_short_tokens = d_hype.get("short_tokens") or (135.0 / max(d_hype.get("entry_price", hype_price_usd), 1.0))
+        sol_short_tokens = sol_total
+        hype_short_tokens = hype_total
+        btc_short_tokens = 0.0
 
         sol_entry_px = d_sol.get("short_entry_price") or d_sol.get("entry_price") or sol_price_usd
-        btc_entry_px = d_btc.get("short_entry_price") or d_btc.get("entry_price") or btc_price_usd
+        btc_entry_px = btc_price_usd
         hype_entry_px = d_hype.get("short_entry_price") or d_hype.get("entry_price") or hype_price_usd
 
         # Realized USDC PnL (crystallized at each pool rebalance) + Unrealized USDC PnL on active leg
         sol_unrealized_pnl = (sol_entry_px - sol_price_usd) * sol_short_tokens
-        btc_unrealized_pnl = (btc_entry_px - btc_price_usd) * btc_short_tokens
+        btc_unrealized_pnl = 0.0
         hype_unrealized_pnl = (hype_entry_px - hype_price_usd) * hype_short_tokens
 
-        sol_short_pnl_usd = d_sol.get("realized_short_pnl", 0.0) + sol_unrealized_pnl - d_sol.get("short_tx_costs", 0.0)
-        btc_short_pnl_usd = d_btc.get("realized_short_pnl", 0.0) + btc_unrealized_pnl - d_btc.get("short_tx_costs", 0.0)
+        sol_short_pnl_usd = d_sol.get("realized_short_pnl", 0.0) + d_sol_hype.get("realized_short_pnl", 0.0) + sol_unrealized_pnl - (d_sol.get("short_tx_costs", 0.0) + d_sol_hype.get("short_tx_costs", 0.0))
+        btc_short_pnl_usd = 0.0
         hype_short_pnl_usd = d_hype.get("realized_short_pnl", 0.0) + hype_unrealized_pnl - d_hype.get("short_tx_costs", 0.0)
 
         total_short_pnl_usd = sol_short_pnl_usd + btc_short_pnl_usd + hype_short_pnl_usd
         total_short_pnl_eur = total_short_pnl_usd / self.eur_usd_rate
-        total_realized_short_pnl_usd = d_sol.get("realized_short_pnl", 0.0) + d_btc.get("realized_short_pnl", 0.0) + d_hype.get("realized_short_pnl", 0.0)
-        total_short_adjustments = d_sol.get("short_adjustments", 0) + d_btc.get("short_adjustments", 0) + d_hype.get("short_adjustments", 0)
-        total_short_tx_costs_usd = d_sol.get("short_tx_costs", 0.0) + d_btc.get("short_tx_costs", 0.0) + d_hype.get("short_tx_costs", 0.0)
+        total_realized_short_pnl_usd = d_sol.get("realized_short_pnl", 0.0) + d_sol_hype.get("realized_short_pnl", 0.0) + d_hype.get("realized_short_pnl", 0.0)
+        total_short_adjustments = d_sol.get("short_adjustments", 0) + d_sol_hype.get("short_adjustments", 0) + d_hype.get("short_adjustments", 0)
+        total_short_tx_costs_usd = d_sol.get("short_tx_costs", 0.0) + d_sol_hype.get("short_tx_costs", 0.0) + d_hype.get("short_tx_costs", 0.0)
 
         # Live Funding Rate Yield on Hyperliquid Short Notional (paid hourly in USDC from reset moment)
         elapsed_hours = max(d_sol.get("total_time_sec", 0.0) / 3600.0, 0.0)
         sol_short_notional = sol_short_tokens * sol_hl["mark_px"]
-        btc_short_notional = btc_short_tokens * btc_hl["mark_px"]
+        btc_short_notional = 0.0
         hype_short_notional = hype_short_tokens * hype_hl["mark_px"]
         total_short_notional_usd = sol_short_notional + btc_short_notional + hype_short_notional
 
         sol_funding_usd = sol_short_notional * max(sol_hl["funding_1h"], 0.000005) * elapsed_hours
-        btc_funding_usd = btc_short_notional * max(btc_hl["funding_1h"], 0.00001) * elapsed_hours
+        btc_funding_usd = 0.0
         hype_funding_usd = hype_short_notional * max(hype_hl["funding_1h"], 0.00002) * elapsed_hours
         total_funding_usd = sol_funding_usd + btc_funding_usd + hype_funding_usd
         total_funding_eur = total_funding_usd / self.eur_usd_rate
 
         weighted_funding_apr = (
-            (sol_hl["funding_apr"] * 0.50) +
-            (btc_hl["funding_apr"] * 0.25) +
-            (hype_hl["funding_apr"] * 0.25)
+            (sol_hl["funding_apr"] * 0.60) +
+            (hype_hl["funding_apr"] * 0.40)
         )
 
         unhedged_portfolio_usd = total_portfolio_usd
@@ -943,21 +916,22 @@ class TriPoolCloudDaemon:
 
         # Pure LP Price PnL (excluding fees) vs Short PnL reconciliation
         sol_lp_price_pnl_usd = d_sol["pos_val"] - d_sol.get("initial_cap", ALLOC_SOL_USDC_USD)
-        btc_lp_price_pnl_usd = d_btc["pos_val"] - d_btc.get("initial_cap", ALLOC_CBBTC_USDC_USD)
-        hype_lp_price_pnl_usd = d_hype["pos_val"] - d_hype.get("initial_cap", ALLOC_HYPE_SOL_USD)
+        sol_hype_lp_price_pnl_usd = d_sol_hype["pos_val"] - d_sol_hype.get("initial_cap", ALLOC_SOL_HYPE_USD)
+        hype_lp_price_pnl_usd = d_hype["pos_val"] - d_hype.get("initial_cap", ALLOC_HYPE_USDC_USD)
         d_sol["lp_price_pnl_usd"] = sol_lp_price_pnl_usd
-        d_btc["lp_price_pnl_usd"] = btc_lp_price_pnl_usd
+        d_sol_hype["lp_price_pnl_usd"] = sol_hype_lp_price_pnl_usd
+        d_btc["lp_price_pnl_usd"] = sol_hype_lp_price_pnl_usd
         d_hype["lp_price_pnl_usd"] = hype_lp_price_pnl_usd
 
-        total_lp_price_pnl_usd = sol_lp_price_pnl_usd + btc_lp_price_pnl_usd + hype_lp_price_pnl_usd
+        total_lp_price_pnl_usd = sol_lp_price_pnl_usd + sol_hype_lp_price_pnl_usd + hype_lp_price_pnl_usd
         total_lp_price_pnl_eur = total_lp_price_pnl_usd / self.eur_usd_rate
         net_price_hedge_pnl_usd = total_lp_price_pnl_usd + total_short_pnl_usd
         net_price_hedge_pnl_eur = net_price_hedge_pnl_usd / self.eur_usd_rate
 
         total_passive_yield_usd = total_fees_usd + total_funding_usd
         total_passive_yield_eur = total_passive_yield_usd / self.eur_usd_rate
-        # Funding APR applies to the 50% shorted notional ($540 / $1080 = 0.50 of total portfolio)
-        funding_portfolio_apr = weighted_funding_apr * 0.50
+        # Funding APR applies to the shorted notional (~62.5% of total portfolio)
+        funding_portfolio_apr = weighted_funding_apr * (total_short_notional_usd / max(total_portfolio_usd, 1.0))
         total_combined_apr = combined_real_apr + funding_portfolio_apr
         total_combined_apy = ((math.pow(1.0 + (total_combined_apr / 100.0) / 365.25, 365.25) - 1.0)) * 100.0
 
@@ -1000,64 +974,26 @@ class TriPoolCloudDaemon:
                     "side": "SHORT",
                     "settlement": "USDC",
                     "size_tokens": sol_short_tokens,
-                    "lp_tokens": d_sol["token_x"],
+                    "lp_tokens": sol_total,
                     "entry_px": sol_entry_px,
                     "mark_px": sol_hl["mark_px"],
                     "notional_usd": sol_short_notional,
-                    "realized_pnl_usd": d_sol.get("realized_short_pnl", 0.0),
+                    "realized_pnl_usd": d_sol.get("realized_short_pnl", 0.0) + d_sol_hype.get("realized_short_pnl", 0.0),
                     "unrealized_pnl_usd": sol_unrealized_pnl,
                     "pnl_usd": sol_short_pnl_usd,
                     "lp_price_pnl_usd": sol_lp_price_pnl_usd,
                     "net_pair_pnl_usd": sol_lp_price_pnl_usd + sol_short_pnl_usd,
-                    "rebalance_syncs": d_sol.get("short_adjustments", 0),
+                    "rebalance_syncs": d_sol.get("short_adjustments", 0) + d_sol_hype.get("short_adjustments", 0),
                     "funding_1h_pct": sol_hl["funding_1h"] * 100.0,
                     "funding_apr_pct": sol_hl["funding_apr"],
                     "funding_earned_usd": sol_funding_usd
-                },
-                "JUP": {
-                    "symbol": "JUP-PERP",
-                    "side": "SHORT",
-                    "settlement": "USDC",
-                    "size_tokens": btc_short_tokens,
-                    "lp_tokens": d_btc["token_x"],
-                    "entry_px": btc_entry_px,
-                    "mark_px": btc_hl["mark_px"],
-                    "notional_usd": btc_short_notional,
-                    "realized_pnl_usd": d_btc.get("realized_short_pnl", 0.0),
-                    "unrealized_pnl_usd": btc_unrealized_pnl,
-                    "pnl_usd": btc_short_pnl_usd,
-                    "lp_price_pnl_usd": btc_lp_price_pnl_usd,
-                    "net_pair_pnl_usd": btc_lp_price_pnl_usd + btc_short_pnl_usd,
-                    "rebalance_syncs": d_btc.get("short_adjustments", 0),
-                    "funding_1h_pct": btc_hl["funding_1h"] * 100.0,
-                    "funding_apr_pct": btc_hl["funding_apr"],
-                    "funding_earned_usd": btc_funding_usd
-                },
-                "BTC": {
-                    "symbol": "JUP-PERP",
-                    "side": "SHORT",
-                    "settlement": "USDC",
-                    "size_tokens": btc_short_tokens,
-                    "lp_tokens": d_btc["token_x"],
-                    "entry_px": btc_entry_px,
-                    "mark_px": btc_hl["mark_px"],
-                    "notional_usd": btc_short_notional,
-                    "realized_pnl_usd": d_btc.get("realized_short_pnl", 0.0),
-                    "unrealized_pnl_usd": btc_unrealized_pnl,
-                    "pnl_usd": btc_short_pnl_usd,
-                    "lp_price_pnl_usd": btc_lp_price_pnl_usd,
-                    "net_pair_pnl_usd": btc_lp_price_pnl_usd + btc_short_pnl_usd,
-                    "rebalance_syncs": d_btc.get("short_adjustments", 0),
-                    "funding_1h_pct": btc_hl["funding_1h"] * 100.0,
-                    "funding_apr_pct": btc_hl["funding_apr"],
-                    "funding_earned_usd": btc_funding_usd
                 },
                 "HYPE": {
                     "symbol": "HYPE-PERP",
                     "side": "SHORT",
                     "settlement": "USDC",
                     "size_tokens": hype_short_tokens,
-                    "lp_tokens": d_hype["token_x"],
+                    "lp_tokens": hype_total,
                     "entry_px": hype_entry_px,
                     "mark_px": hype_hl["mark_px"],
                     "notional_usd": hype_short_notional,
@@ -1070,6 +1006,44 @@ class TriPoolCloudDaemon:
                     "funding_1h_pct": hype_hl["funding_1h"] * 100.0,
                     "funding_apr_pct": hype_hl["funding_apr"],
                     "funding_earned_usd": hype_funding_usd
+                },
+                "JUP": {
+                    "symbol": "SOL-PERP",
+                    "side": "SHORT",
+                    "settlement": "USDC",
+                    "size_tokens": 0.0,
+                    "lp_tokens": 0.0,
+                    "entry_px": 0.0,
+                    "mark_px": 0.0,
+                    "notional_usd": 0.0,
+                    "realized_pnl_usd": 0.0,
+                    "unrealized_pnl_usd": 0.0,
+                    "pnl_usd": 0.0,
+                    "lp_price_pnl_usd": 0.0,
+                    "net_pair_pnl_usd": 0.0,
+                    "rebalance_syncs": 0,
+                    "funding_1h_pct": 0.0,
+                    "funding_apr_pct": 0.0,
+                    "funding_earned_usd": 0.0
+                },
+                "BTC": {
+                    "symbol": "SOL-PERP",
+                    "side": "SHORT",
+                    "settlement": "USDC",
+                    "size_tokens": 0.0,
+                    "lp_tokens": 0.0,
+                    "entry_px": 0.0,
+                    "mark_px": 0.0,
+                    "notional_usd": 0.0,
+                    "realized_pnl_usd": 0.0,
+                    "unrealized_pnl_usd": 0.0,
+                    "pnl_usd": 0.0,
+                    "lp_price_pnl_usd": 0.0,
+                    "net_pair_pnl_usd": 0.0,
+                    "rebalance_syncs": 0,
+                    "funding_1h_pct": 0.0,
+                    "funding_apr_pct": 0.0,
+                    "funding_earned_usd": 0.0
                 }
             }
         }
@@ -1081,6 +1055,7 @@ class TriPoolCloudDaemon:
             "fees_by_token": fees_by_token,
             "hyperliquid_hedge": hyperliquid_hedge,
             "sol_price_usd": sol_price_usd,
+            "sol_hype_price": sol_hype_price,
             "btc_price_usd": btc_price_usd,
             "hype_price_usd": hype_price_usd,
             "hype_price_sol": hype_price_sol,
@@ -1091,14 +1066,19 @@ class TriPoolCloudDaemon:
             "market_link_info": {
                 "source": "Solana Meteora DLMM + Hyperliquid L1 Perps API (Live Real-Time)",
                 "sol_usdc_pool": ADDR_SOL_USDC,
-                "cbbtc_usdc_pool": ADDR_CBBTC_USDC,
+                "sol_hype_pool": ADDR_SOL_HYPE,
+                "cbbtc_usdc_pool": ADDR_SOL_HYPE,
                 "hype_sol_pool": ADDR_HYPE_USDC,
+                "hype_usdc_pool": ADDR_HYPE_USDC,
                 "spot_sol_usd": sol_price_usd,
+                "spot_sol_hype": sol_hype_price,
                 "spot_btc_usd": btc_price_usd,
                 "spot_hype_usd": hype_price_usd,
                 "sol_usdc_24h_vol": pool_sol_usdc.get("volume_24h", 0.0),
-                "cbbtc_usdc_24h_vol": pool_cbbtc_usdc.get("volume_24h", 0.0),
-                "hype_sol_24h_vol": pool_hype_sol.get("volume_24h", 0.0)
+                "sol_hype_24h_vol": pool_sol_hype.get("volume_24h", 0.0),
+                "cbbtc_usdc_24h_vol": pool_sol_hype.get("volume_24h", 0.0),
+                "hype_sol_24h_vol": pool_hype_sol.get("volume_24h", 0.0),
+                "hype_usdc_24h_vol": pool_hype_sol.get("volume_24h", 0.0)
             },
             "portfolio_combined": {
                 "total_portfolio_usd": total_portfolio_usd,
@@ -1142,44 +1122,47 @@ class TriPoolCloudDaemon:
                 "sol_total": sol_total,
                 "usdc_total": usdc_total,
                 "cbbtc_total": cbbtc_total,
-                "jup_total": cbbtc_total,
+                "jup_total": 0.0,
                 "hype_total": hype_total,
                 "sol_usd_val": sol_usd_val,
                 "sol_eur_val": sol_eur_val,
                 "usdc_usd_val": usdc_usd_val,
                 "usdc_eur_val": usdc_eur_val,
                 "cbbtc_usd_val": cbbtc_usd_val,
-                "jup_usd_val": cbbtc_usd_val,
+                "jup_usd_val": 0.0,
                 "cbbtc_eur_val": cbbtc_eur_val,
-                "jup_eur_val": cbbtc_eur_val,
+                "jup_eur_val": 0.0,
                 "hype_usd_val": hype_usd_val,
                 "hype_eur_val": hype_eur_val
             },
             "initial_investment_steps": {
                 "initial_eur": 1000.0,
                 "initial_usd": 1080.0,
-                "distribution": "50% SOL-USDC (500 €) / 25% JUP-USDC (250 €) / 25% HYPE-USDC (250 €)",
+                "distribution": "50% SOL-USDC (500 €) / 25% SOL-HYPE (250 €) / 25% HYPE-USDC (250 €)",
                 "step1_sol_usdc": f"250 EUR en SOL (~{ALLOC_SOL_USDC_USD*0.5/sol_price_usd:.3f} SOL) + 250 EUR en USDC (${ALLOC_SOL_USDC_USD*0.5:.2f} USDC)",
-                "step2_cbbtc_usdc": f"125 EUR en JUP (~{ALLOC_JUP_USDC_USD*0.5/btc_price_usd:.2f} JUP) + 125 EUR en USDC (${ALLOC_JUP_USDC_USD*0.5:.2f} USDC)",
-                "step3_hype_sol": f"125 EUR en HYPE (~{ALLOC_HYPE_SOL_USD*0.5/hype_price_usd:.3f} HYPE) + 125 EUR en USDC (${ALLOC_HYPE_SOL_USD*0.5:.2f} USDC)"
+                "step2_sol_hype": f"125 EUR en SOL (~{ALLOC_SOL_HYPE_USD*0.5/sol_price_usd:.3f} SOL) + 125 EUR en HYPE (~{ALLOC_SOL_HYPE_USD*0.5/hype_price_usd:.3f} HYPE)",
+                "step3_hype_usdc": f"125 EUR en HYPE (~{ALLOC_HYPE_USDC_USD*0.5/hype_price_usd:.3f} HYPE) + 125 EUR en USDC (${ALLOC_HYPE_USDC_USD*0.5:.2f} USDC)"
             },
             "sol_usdc": d_sol,
+            "sol_hype": d_sol_hype,
             "cbbtc_usdc": d_btc,
             "jup_usdc": d_btc,
-            "hype_sol": d_hype
+            "hype_sol": d_hype,
+            "hype_usdc": d_hype
         }
         
         # Keep 40 most recent telemetry ticks for live charting
         time_label = datetime.now().strftime("%H:%M:%S")
-        sol_eur_v = (d_sol["total_val"] if d_sol["quote_is_usd"] else (d_sol["total_val"] * sol_price_usd)) / self.eur_usd_rate
-        btc_eur_v = (d_btc["total_val"] if d_btc["quote_is_usd"] else (d_btc["total_val"] * btc_price_usd)) / self.eur_usd_rate
-        hype_eur_v = (d_hype["total_val"] if d_hype["quote_is_usd"] else (hype_fees_usd + (d_hype["pos_val"] * sol_price_usd))) / self.eur_usd_rate
+        sol_eur_v = d_sol["total_val"] / self.eur_usd_rate
+        sol_hype_eur_v = d_sol_hype["total_val"] / self.eur_usd_rate
+        hype_eur_v = d_hype["total_val"] / self.eur_usd_rate
         
         self.recent_history.append({
             "time": time_label,
             "portfolio_eur": round(total_portfolio_eur, 2),
             "sol_eur": round(sol_eur_v, 2),
-            "btc_eur": round(btc_eur_v, 2),
+            "sol_hype_eur": round(sol_hype_eur_v, 2),
+            "btc_eur": round(sol_hype_eur_v, 2),
             "hype_eur": round(hype_eur_v, 2),
             "fees_eur": round(total_fees_eur, 4)
         })
@@ -1206,11 +1189,13 @@ class TriPoolCloudDaemon:
                     "total_fees_eur": total_fees_eur,
                     "total_fees_usd": total_fees_usd,
                     "sol_price_usd": sol_price_usd,
+                    "sol_hype_price": sol_hype_price,
                     "btc_price_usd": btc_price_usd,
                     "hype_price_usd": hype_price_usd,
                     "roi_pct": combined_roi_pct,
                     "sol_usdc_fees": d_sol["accumulated_fees"],
-                    "cbbtc_fees": d_btc["accumulated_fees"],
+                    "sol_hype_fees": d_sol_hype["accumulated_fees"],
+                    "cbbtc_fees": d_sol_hype["accumulated_fees"],
                     "hype_fees": hype_fees_usd
                 }
                 self.db.collection("meteora_bot").document("history").collection("snapshots").add(snapshot)
@@ -1219,15 +1204,15 @@ class TriPoolCloudDaemon:
             except Exception as e:
                 print(f"[!] Error guardando snapshot horario: {e}")
                 
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Tick Tri-Pool | Cartera: {total_portfolio_eur:.2f} € | Fees: {total_fees_eur:.4f} € (+{combined_roi_pct:.3f}%) | SOL-USDC: ${d_sol['accumulated_fees']:.3f} | cbBTC: ${d_btc['accumulated_fees']:.4f} | HYPE: ${hype_fees_usd:.4f}")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Tick Tri-Pool | Cartera: {total_portfolio_eur:.2f} € | Fees: {total_fees_eur:.4f} € (+{combined_roi_pct:.3f}%) | SOL-USDC: ${d_sol['accumulated_fees']:.3f} | SOL-HYPE: ${d_sol_hype['accumulated_fees']:.4f} | HYPE-USDC: ${hype_fees_usd:.4f}")
 
     def run(self):
         print("=" * 70)
-        print("  INICIANDO METEORA TRI-POOL WORKER DAEMON (SOL-USDC / cbBTC / HYPE)")
+        print("  INICIANDO METEORA TRI-POOL WORKER DAEMON (SOL-USDC / SOL-HYPE / HYPE-USDC)")
         print(f"  Capital Inicial: {self.initial_eur:.2f} EUR (${self.initial_usd:.2f} USD)")
-        print("  - 50% (500 € / $540 USD) -> Pool SOL-USDC (Rango ±7.5%)")
-        print("  - 25% (250 € / $270 USD) -> Pool cbBTC-USDC (Rango ±6.0%)")
-        print("  - 25% (250 € / $270 USD) -> Pool HYPE-SOL (Rango ±8.0%)")
+        print("  - 50% (500 € / $540 USD) -> Pool SOL-USDC (Rango ±6.0%, ~78% APR base)")
+        print("  - 25% (250 € / $270 USD) -> Pool SOL-HYPE (Rango ±6.0%, 218% APR base)")
+        print("  - 25% (250 € / $270 USD) -> Pool HYPE-USDC (Rango ±6.0%, ~81% APR base)")
         print(f"  Frecuencia de Polling: {POLL_INTERVAL} segundos")
         print("=" * 70)
         

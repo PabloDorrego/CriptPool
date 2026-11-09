@@ -20,14 +20,14 @@ const CFG = {
   testDays: 30,
   rebalThresh: 1.05,          // Igual que PositionTracker.rebal_thresh en el worker
   rebalConfirmSec: 1800,      // Igual que REBALANCE_CONFIRM_SEC en el worker
-  maxLev: { SOL: 20, JUP: 10, HYPE: 10 } // Para estimar margen de mantenimiento (1 / (2·maxLev))
+  maxLev: { SOL: 20, HYPE: 10, JUP: 10 } // Para estimar margen de mantenimiento (1 / (2·maxLev))
 };
 
-// Mapeo de los 3 pools. El pool JUP-USDC se guarda en Firestore con claves heredadas (cbbtc_usdc / jup_usdc).
+// Mapeo de los 3 pools. El pool SOL-HYPE reemplaza a JUP-USDC manteniendo compatibilidad de claves heredadas.
 const POOLS = [
-  { keys: ["sol_usdc"], label: "SOL-USDC", base: "SOL", perp: "SOL", volKey: "sol_usdc_24h_vol", color: "#34D399", role: "Motor principal" },
-  { keys: ["jup_usdc", "cbbtc_usdc"], label: "JUP-USDC", base: "JUP", perp: "JUP", volKey: "cbbtc_usdc_24h_vol", color: "#FBBF24", role: "Ecosistema Jupiter" },
-  { keys: ["hype_sol"], label: "HYPE-USDC", base: "HYPE", perp: "HYPE", volKey: "hype_sol_24h_vol", color: "#38BDF8", role: "Acelerador alpha" }
+  { keys: ["sol_usdc"], label: "SOL-USDC", base: "SOL", perp: "SOL", volKey: "sol_usdc_24h_vol", color: "#34D399", role: "Motor principal (Bin 10)" },
+  { keys: ["sol_hype", "jup_usdc", "cbbtc_usdc"], label: "SOL-HYPE", base: "SOL", perp: "SOL", volKey: "sol_hype_24h_vol", color: "#FBBF24", role: "Ultra-Yield 218% APR (Bin 4)" },
+  { keys: ["hype_usdc", "hype_sol"], label: "HYPE-USDC", base: "HYPE", perp: "HYPE", volKey: "hype_sol_24h_vol", color: "#38BDF8", role: "Acelerador HYPE (Bin 20)" }
 ];
 
 let state = null;          // Último documento current_state
@@ -445,7 +445,7 @@ function historySeries(M) {
   if (!start) return [];
   const nowH = M.days * 24;
   const shortDefs = M.pools.map((p) => ({ perp: p.cfg.perp, size: p.shortTok, entry: p.shortEntry }));
-  const priceOf = (s, perp) => perp === "SOL" ? num(s.sol_price_usd) : perp === "JUP" ? num(s.btc_price_usd) : num(s.hype_price_usd);
+  const priceOf = (s, perp) => perp === "SOL" ? num(s.sol_price_usd) : (perp === "HYPE" ? num(s.hype_price_usd) : num(s.btc_price_usd, num(s.sol_price_usd)));
 
   const pts = snapshots.map((s) => {
     const t = parseUtc(s.timestamp);

@@ -145,7 +145,7 @@ python cloud_deployment/bot_worker/main.py
 ### 2. Despliegue en la Nube (GCP & Firebase)
 ```powershell
 # Cloud Run
-gcloud run deploy meteora-dual-worker --source "cloud_deployment/bot_worker" --region europe-west1 --platform managed --allow-unauthenticated --min-instances 1 --max-instances 1 --project criptpool-meteora
+gcloud run deploy meteora-bot-worker --source "cloud_deployment/bot_worker" --region europe-west1 --platform managed --allow-unauthenticated --min-instances 0 --max-instances 1 --project criptpool-meteora
 
 # Firebase Hosting
 cd cloud_deployment/web_dashboard

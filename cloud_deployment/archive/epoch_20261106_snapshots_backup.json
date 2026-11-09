@@ -1,0 +1,4296 @@
+[
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/0Hi4T4Odykp6MwMsqw75",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 961.3932162142252
+      },
+      "hype_price_usd": {
+        "doubleValue": 74.46668301509538
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.3497444113675927
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1038.3046735113633
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.155218410896788
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.23192304550863072
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7808102652126923
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.3992904098924
+      },
+      "hype_fees": {
+        "doubleValue": 1.0246637343165028
+      },
+      "roi_pct": {
+        "doubleValue": -3.8606783785774756
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T00:00:38.682099"
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.9955726026822107
+      }
+    },
+    "createTime": "2026-11-09T00:00:38.747991Z",
+    "updateTime": "2026-11-09T00:00:38.747991Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/0m3MelTGBFkFzQgpCYty",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-02T20:05:15.578589"
+      },
+      "hype_fees": {
+        "doubleValue": 0.15421884768991723
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1083.9672079882375
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.62367104764988
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.7158104879547538
+      },
+      "roi_pct": {
+        "doubleValue": 0.24677294078904455
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.9330753269911343
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1003.6733407298495
+      },
+      "btc_price_usd": {
+        "doubleValue": 76960.00115886485
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 2.6865283510536955
+      },
+      "sol_price_usd": {
+        "doubleValue": 91.85697535382668
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.09232812824752151
+      }
+    },
+    "createTime": "2026-11-02T20:05:16.612414Z",
+    "updateTime": "2026-11-02T20:05:16.612414Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/0u8jNUPHdSm3iJyFv08Y",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 74.91437730911561
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.3587459354043922
+      },
+      "roi_pct": {
+        "doubleValue": -3.442495136882363
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1042.8210525216705
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T01:00:44.579458"
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.1973445056294327
+      },
+      "hype_fees": {
+        "doubleValue": 1.0426960805492602
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.0345782459531785
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 965.5750486311763
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2365964109821041
+      },
+      "sol_price_usd": {
+        "doubleValue": 87.52924510195669
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7959024896757806
+      }
+    },
+    "createTime": "2026-11-09T01:00:44.626678Z",
+    "updateTime": "2026-11-09T01:00:44.626678Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/1c5aFNnfe1mrNTieAo8Y",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 1.1832435878191554
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T09:00:39.019619"
+      },
+      "hype_price_usd": {
+        "doubleValue": 73.87391634519425
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 959.8849733754516
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.4390630687539156
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.37159392637278
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2342480740398546
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.83215171927087
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.9390147839095315
+      },
+      "roi_pct": {
+        "doubleValue": -4.011502662454834
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1036.6757712454878
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.561321440482603
+      }
+    },
+    "createTime": "2026-11-09T09:00:39.069304Z",
+    "updateTime": "2026-11-09T09:00:39.069304Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/1vLv9gRInix0txdlM1D6",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 0.9340227928569734
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T13:00:02.629529"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 992.5843422247309
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.34793409254239
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6945204976093587
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.47524318744347
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.930475077189885
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1071.9910896027095
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.7874769233239676
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.30193178672355303
+      },
+      "roi_pct": {
+        "doubleValue": -0.7415657775268975
+      }
+    },
+    "createTime": "2026-11-08T13:00:02.669296Z",
+    "updateTime": "2026-11-08T13:00:02.669296Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/1xw3kCOasyG4dFrhd9Ny",
+    "fields": {
+      "combined_roi_pct": {
+        "doubleValue": 2.27706246918118e-05
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.0002459227467
+      },
+      "sol_price": {
+        "doubleValue": 92.00403472060684
+      },
+      "jitosol_sol_val_usd": {
+        "doubleValue": 540.0000013786973
+      },
+      "il_amount_eur": {
+        "doubleValue": 2.2567439114976007e-12
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.00024592274430745083
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1000.0002277062468
+      },
+      "timestamp": {
+        "stringValue": "2026-11-02T18:29:22.126260"
+      },
+      "sol_usdc_val": {
+        "doubleValue": 540.0002445440495
+      },
+      "epoch": {
+        "doubleValue": 1793644162.1262722
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.00022770624472912113
+      },
+      "real_fee_apr": {
+        "doubleValue": 71.85862588663713
+      }
+    },
+    "createTime": "2026-11-02T18:29:22.995464Z",
+    "updateTime": "2026-11-02T18:29:22.995464Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/27HqajZehgjkFfYbJwRC",
+    "fields": {
+      "sol_price_usd": {
+        "doubleValue": 85.45457594458061
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.9203459750585035
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.520370026209095
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.22847870053818015
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.3336759501936064
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 951.2341927999514
+      },
+      "hype_price_usd": {
+        "doubleValue": 72.55738622440647
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.42680530125972277
+      },
+      "hype_fees": {
+        "doubleValue": 1.1732187498908686
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T08:06:07.890737"
+      },
+      "roi_pct": {
+        "doubleValue": -4.876580720004847
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1027.3329282239476
+      }
+    },
+    "createTime": "2026-11-09T08:06:07.937010Z",
+    "updateTime": "2026-11-09T08:06:07.937010Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/31WPAvvOCZeqecqg7dVY",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-06T11:00:06.370815"
+      },
+      "roi_pct": {
+        "doubleValue": 0.3813386003742557
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.12451354485655
+      },
+      "hype_fees": {
+        "doubleValue": 0.8033690071034145
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1084.118456884042
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.9166031204354403
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1003.8133860037425
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.7746325189217038
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7961822401688582
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.01343856606337
+      },
+      "btc_price_usd": {
+        "doubleValue": 76103.7939189714
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.31705187316316763
+      }
+    },
+    "createTime": "2026-11-06T11:00:06.434568Z",
+    "updateTime": "2026-11-06T11:00:06.434568Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/33c802Ddfm7PM8uaBxnE",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": -0.9000319206456374
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.7410239130796645
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 990.9996807935436
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.25966727836868936
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.612059178777467
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.02920597477261
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6253475871966724
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.23896829000219963
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T02:00:03.358409"
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.65763522064894
+      },
+      "hype_fees": {
+        "doubleValue": 0.8560090475143026
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1070.2796552570271
+      }
+    },
+    "createTime": "2026-11-08T02:00:03.996969Z",
+    "updateTime": "2026-11-08T02:00:03.996969Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/3S0IdEQ3jaI1TAYY9u6b",
+    "fields": {
+      "total_fees_eur": {
+        "doubleValue": 2.169101305157889
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1070.0486558529815
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.6256580395360811
+      },
+      "btc_price_usd": {
+        "doubleValue": 78185.53273183413
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.3426294095705202
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.0369913622191644
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.93896498745274
+      },
+      "roi_pct": {
+        "doubleValue": -0.9214207543535665
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 990.7857924564643
+      },
+      "hype_fees": {
+        "doubleValue": 0.6799800078152745
+      },
+      "hype_price_usd": {
+        "doubleValue": 80.50134733389227
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T15:00:20.147838"
+      }
+    },
+    "createTime": "2026-11-05T15:00:20.695540Z",
+    "updateTime": "2026-11-05T15:00:20.695540Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/3XNRqNIwdleff7NjCkjT",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1083.75546735362
+      },
+      "roi_pct": {
+        "doubleValue": 0.3477284586685098
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.96857639207239
+      },
+      "hype_fees": {
+        "doubleValue": 0.3933569393353398
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T03:00:04.965435"
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.9691402925752135
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1003.4772845866851
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.17823022953604412
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.3975531237038296
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.37403276110274
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.8973521227548272
+      },
+      "btc_price_usd": {
+        "doubleValue": 76103.7939189714
+      }
+    },
+    "createTime": "2026-11-06T03:00:05.039675Z",
+    "updateTime": "2026-11-06T03:00:05.039675Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/4FRzID2zY9YQKszHMMtN",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": -4.745394128380533
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.093937497663316
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1028.7497434134903
+      },
+      "hype_fees": {
+        "doubleValue": 0.9955231493319426
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T22:00:02.877148"
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.9388310163549218
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.3367342335857877
+      },
+      "hype_price_usd": {
+        "doubleValue": 74.02166417788465
+      },
+      "sol_price_usd": {
+        "doubleValue": 85.54003052052519
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7616801147455856
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.22621093590572536
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 952.5460587161946
+      }
+    },
+    "createTime": "2026-11-08T22:00:02.918578Z",
+    "updateTime": "2026-11-08T22:00:02.918578Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/4p3CAgVqVgcgF0ZhvVoK",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 7.953374052418444
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T06:00:12.989460"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1041.3114440791885
+      },
+      "hype_price_usd": {
+        "doubleValue": 84.56519621152825
+      },
+      "total_fees_eur": {
+        "doubleValue": 34.6557047175712
+      },
+      "cbbtc_fees": {
+        "doubleValue": 4.914116689959486
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1124.6163596055237
+      },
+      "total_fees_usd": {
+        "doubleValue": 37.42816109497689
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.7057883297356
+      },
+      "roi_pct": {
+        "doubleValue": 3.765484691781859
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 24.56067035259896
+      },
+      "btc_price_usd": {
+        "doubleValue": 77671.15725079998
+      }
+    },
+    "createTime": "2026-11-04T06:00:13.539186Z",
+    "updateTime": "2026-11-04T06:00:13.539186Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/4yZpUq4GEJhDRNS22lxO",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 1000.0000447072935
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.26779192367997
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.000048283877
+      },
+      "btc_price_usd": {
+        "doubleValue": 80083.72380608335
+      },
+      "roi_pct": {
+        "doubleValue": 4.470729356432491e-06
+      },
+      "total_fees_eur": {
+        "doubleValue": 4.470729505581262e-05
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.8985786434764795e-05
+      },
+      "sol_price_usd": {
+        "doubleValue": 94.62616214225643
+      },
+      "cbbtc_fees": {
+        "doubleValue": 1.5071896941453158e-05
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T21:55:11.357533"
+      },
+      "total_fees_usd": {
+        "doubleValue": 4.828387866027763e-05
+      },
+      "hype_fees": {
+        "doubleValue": 1.4226195284059674e-05
+      }
+    },
+    "createTime": "2026-11-04T21:55:11.394793Z",
+    "updateTime": "2026-11-04T21:55:11.394793Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/5uXNhfDLjlo3F2Ohy6FF",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 1037.193560424061
+      },
+      "total_fees_eur": {
+        "doubleValue": 26.026951885120845
+      },
+      "total_fees_usd": {
+        "doubleValue": 28.109108035930515
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T21:00:06.392977"
+      },
+      "hype_fees": {
+        "doubleValue": 5.572611871550667
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.48763977153315
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 18.86915079728904
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1120.1690452579858
+      },
+      "btc_price_usd": {
+        "doubleValue": 77826.62388887264
+      },
+      "roi_pct": {
+        "doubleValue": 3.1353986831617844
+      },
+      "cbbtc_fees": {
+        "doubleValue": 3.667345367090807
+      },
+      "hype_price_usd": {
+        "doubleValue": 85.61984714487721
+      }
+    },
+    "createTime": "2026-11-03T21:00:06.582677Z",
+    "updateTime": "2026-11-03T21:00:06.582677Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6Ons3I03SQzSI1GxJLma",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 984.7635549786498
+      },
+      "hype_price_usd": {
+        "doubleValue": 74.76484761388784
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.8364477795289207
+      },
+      "hype_fees": {
+        "doubleValue": 1.363857818140558
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1063.5446393769419
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T19:00:01.492133"
+      },
+      "total_fees_usd": {
+        "doubleValue": 3.0633636018912345
+      },
+      "roi_pct": {
+        "doubleValue": -1.5236445021350131
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.575696793993975
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.3992904098924
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.1238089897567016
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.25625074723016217
+      }
+    },
+    "createTime": "2026-11-09T19:00:01.528816Z",
+    "updateTime": "2026-11-09T19:00:01.528816Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6P2nIQQK0paKfVzEMXzO",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 0.14035996256851935
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.07593937592861462
+      },
+      "btc_price_usd": {
+        "doubleValue": 75800.13826181825
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T22:00:05.316068"
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.14179938949828713
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.92351505101239
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.65763522064894
+      },
+      "roi_pct": {
+        "doubleValue": 0.0959178681457868
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1081.0359129759745
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.33157289629205655
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1000.9591786814578
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.3580987279954211
+      }
+    },
+    "createTime": "2026-11-05T22:00:05.383077Z",
+    "updateTime": "2026-11-05T22:00:05.383077Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6RgGKv6DYEXOfaeJtUtL",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-08T04:00:29.396049"
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2413639471094716
+      },
+      "hype_fees": {
+        "doubleValue": 0.8725016960695183
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6376033672030621
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.11823518074739
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.50262996072749
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 991.9871129037634
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.267537971007834
+      },
+      "roi_pct": {
+        "doubleValue": -0.8012887096236487
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.645965772481865
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.7776430342804144
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1071.3460819360646
+      }
+    },
+    "createTime": "2026-11-08T04:00:29.440214Z",
+    "updateTime": "2026-11-08T04:00:29.440214Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6glPcEaaseLQyzgUKkEf",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1075.9455181792325
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.18067294408616308
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.0991668320051038
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T10:00:05.382481"
+      },
+      "roi_pct": {
+        "doubleValue": -0.3754149834043961
+      },
+      "hype_fees": {
+        "doubleValue": 0.5720431365613778
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.1871001785655122
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.43438409791797117
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.92351505101239
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 996.245850165956
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.43732409709017
+      }
+    },
+    "createTime": "2026-11-07T10:00:06.116601Z",
+    "updateTime": "2026-11-07T10:00:06.116601Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6kfvmbaD6h6ITpu6RKWo",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 0.5760189320016552
+      },
+      "hype_price_usd": {
+        "doubleValue": 82.35855105789686
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T12:00:15.240192"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1083.1765891490206
+      },
+      "sol_price_usd": {
+        "doubleValue": 96.44033235731038
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.5439987210805355
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.874967790502746
+      },
+      "btc_price_usd": {
+        "doubleValue": 80243.97133741928
+      },
+      "roi_pct": {
+        "doubleValue": -0.18428740897985907
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.9949854435849366
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.8472087440601264
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1002.9412862490931
+      }
+    },
+    "createTime": "2026-11-05T12:00:15.828039Z",
+    "updateTime": "2026-11-05T12:00:15.828039Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6nAlZxrnQVksrfIA2zeJ",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 8.946772697970975
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1049.772337860964
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T09:00:02.444762"
+      },
+      "hype_price_usd": {
+        "doubleValue": 86.68682024055619
+      },
+      "total_fees_eur": {
+        "doubleValue": 37.972729538352596
+      },
+      "roi_pct": {
+        "doubleValue": 4.481625136092168
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.15175639331602
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 26.630312422454207
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1133.754124889841
+      },
+      "btc_price_usd": {
+        "doubleValue": 78388.88484714627
+      },
+      "cbbtc_fees": {
+        "doubleValue": 5.433462780995629
+      },
+      "total_fees_usd": {
+        "doubleValue": 41.01054790142081
+      }
+    },
+    "createTime": "2026-11-04T09:00:03.240832Z",
+    "updateTime": "2026-11-04T09:00:03.240832Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6noiexMq3xR3aTmSwHoH",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1052.7784287837123
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.0404614371235852
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.65874756539256
+      },
+      "roi_pct": {
+        "doubleValue": -2.5205158533599685
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.828309271998547
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T14:00:35.551828"
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.6188048814801363
+      },
+      "hype_fees": {
+        "doubleValue": 1.2867537741135389
+      },
+      "hype_price_usd": {
+        "doubleValue": 73.43243992888229
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.5010940607614233
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 974.7948414664003
+      }
+    },
+    "createTime": "2026-11-09T14:00:36.951496Z",
+    "updateTime": "2026-11-09T14:00:36.951496Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6puG8dr2JOMkosGsepvR",
+    "fields": {
+      "sol_price_usd": {
+        "doubleValue": 89.56471843063089
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7085296230316116
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.23896829000219963
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.50262996072749
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 992.7204419890402
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T15:00:33.158324"
+      },
+      "hype_fees": {
+        "doubleValue": 0.9480939885476835
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.3101890983745642
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.9668127099538593
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1072.1380773481635
+      },
+      "roi_pct": {
+        "doubleValue": -0.7279558010959717
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.8211228795869066
+      }
+    },
+    "createTime": "2026-11-08T15:00:34.121490Z",
+    "updateTime": "2026-11-08T15:00:34.121490Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/6tyEtPpCYDKGdEtpoX8h",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1118.1866185756421
+      },
+      "roi_pct": {
+        "doubleValue": 2.900512970117215
+      },
+      "hype_fees": {
+        "doubleValue": 4.362481789025522
+      },
+      "hype_price_usd": {
+        "doubleValue": 87.34787767691658
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T16:00:15.192482"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1035.3579801626315
+      },
+      "btc_price_usd": {
+        "doubleValue": 77640.10121031587
+      },
+      "total_fees_eur": {
+        "doubleValue": 21.740758987605673
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 16.107066530393666
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.67476469114384
+      },
+      "cbbtc_fees": {
+        "doubleValue": 3.0104713871949413
+      },
+      "total_fees_usd": {
+        "doubleValue": 23.48001970661413
+      }
+    },
+    "createTime": "2026-11-03T16:00:15.844835Z",
+    "updateTime": "2026-11-03T16:00:15.844835Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/72tIQSFcIRXPAa2oOeB0",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 81.30958730767503
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1079.3635218976942
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.301021017381926
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.6162212513378327
+      },
+      "hype_fees": {
+        "doubleValue": 0.6617259003753956
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.130575016094376
+      },
+      "roi_pct": {
+        "doubleValue": -0.05893315762090491
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T14:39:28.297516"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 999.4106684237909
+      },
+      "btc_price_usd": {
+        "doubleValue": 78970.9158068279
+      },
+      "sol_price_usd": {
+        "doubleValue": 94.43719331842628
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.023073865668698
+      }
+    },
+    "createTime": "2026-11-05T14:39:28.339753Z",
+    "updateTime": "2026-11-05T14:39:28.339753Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/7LwWL6qVb0wKvctrMUPv",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 0.3236583024537278
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.115591632032375
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T05:00:26.151692"
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.0329552148447918
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.32655391472862105
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1084.8894196884082
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.85275274875755
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1004.5272404522298
+      },
+      "btc_price_usd": {
+        "doubleValue": 80484.94406358953
+      },
+      "roi_pct": {
+        "doubleValue": 0.07480514456102648
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.46537941485002615
+      },
+      "sol_price_usd": {
+        "doubleValue": 96.05553350576814
+      }
+    },
+    "createTime": "2026-11-05T05:00:26.996241Z",
+    "updateTime": "2026-11-05T05:00:26.996241Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/7QPeUOHUkU24hpyUPgJI",
+    "fields": {
+      "sol_price_usd": {
+        "doubleValue": 96.63330946235736
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7027947512856969
+      },
+      "btc_price_usd": {
+        "doubleValue": 80484.94406358953
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.6271970659328623
+      },
+      "roi_pct": {
+        "doubleValue": 0.08501667822433036
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1006.1575090769131
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.5066639499378354
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.85300380515402
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T09:00:23.240948"
+      },
+      "hype_fees": {
+        "doubleValue": 0.47176036600420335
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1086.6501098030662
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.452641948642962
+      }
+    },
+    "createTime": "2026-11-05T09:00:23.482779Z",
+    "updateTime": "2026-11-05T09:00:23.482779Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/7YMSDZ1UKrqoC2jNxKvk",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 0.12906498324921298
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.030012424357484423
+      },
+      "btc_price_usd": {
+        "doubleValue": 76332.33368821381
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.04937784845825391
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.01343856606337
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.11950461411964164
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1002.4767993202813
+      },
+      "hype_fees": {
+        "doubleValue": 0.04967471043347464
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T20:00:08.429496"
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.12451354485655
+      },
+      "roi_pct": {
+        "doubleValue": 0.24767993202814337
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1082.674943265904
+      }
+    },
+    "createTime": "2026-11-05T20:00:08.466908Z",
+    "updateTime": "2026-11-05T20:00:08.466908Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/7lx30gGiF3As16ua8s3l",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-07T19:00:05.956807"
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.4845179097517098
+      },
+      "hype_fees": {
+        "doubleValue": 0.787939965707731
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 994.5798401896421
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.6032793425318468
+      },
+      "roi_pct": {
+        "doubleValue": -0.542015981035783
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1074.1462274048135
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2347294502543221
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.65428314906147
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5806099265697937
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2425707668450189
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.81295049109026
+      }
+    },
+    "createTime": "2026-11-07T19:00:06.002210Z",
+    "updateTime": "2026-11-07T19:00:06.002210Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/7x15f41cAIzXqPqHcuNz",
+    "fields": {
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.92351505101239
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.48028734707559545
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.31135485159411
+      },
+      "roi_pct": {
+        "doubleValue": -0.5031514647016088
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.2142174551797313
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1074.5659641812226
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T12:00:56.181926"
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.12451354485655
+      },
+      "hype_fees": {
+        "doubleValue": 0.6364039339643304
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.19466357055418415
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 994.9684853529839
+      }
+    },
+    "createTime": "2026-11-07T12:00:57.177535Z",
+    "updateTime": "2026-11-07T12:00:57.177535Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/8AxKHpZ08mpnD5cM4Idz",
+    "fields": {
+      "btc_price_usd": {
+        "doubleValue": 0.24378362067924397
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.01343856606337
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.1329650476982029
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.3680332557272976
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.061634289608629426
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 999.0715074800192
+      },
+      "roi_pct": {
+        "doubleValue": -0.09284925199806451
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.3407715330808311
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.59419874528432
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1078.997228078421
+      },
+      "hype_fees": {
+        "doubleValue": 0.1734339184204653
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T23:00:13.939458"
+      }
+    },
+    "createTime": "2026-11-06T23:00:13.978197Z",
+    "updateTime": "2026-11-06T23:00:13.978197Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/8M8LyfgPYueAckkBdAOR",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-05T06:00:05.734172"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1082.6003847235836
+      },
+      "hype_fees": {
+        "doubleValue": 0.3601249619122727
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.36188603819562903
+      },
+      "roi_pct": {
+        "doubleValue": -0.06069605610096646
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.43482711552525
+      },
+      "sol_price_usd": {
+        "doubleValue": 95.7679422793354
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5259172982025901
+      },
+      "btc_price_usd": {
+        "doubleValue": 80404.53952406546
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.1554891651023071
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1002.4077636329478
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.2479282983104918
+      }
+    },
+    "createTime": "2026-11-05T06:00:05.775779Z",
+    "updateTime": "2026-11-05T06:00:05.775779Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/8N89ExLTvShtKKyeBu1q",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 989.6594003587835
+      },
+      "hype_fees": {
+        "doubleValue": 0.8646554195745486
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.34793409254239
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T03:00:44.564229"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1068.8321523874863
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.7598225528547426
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.26363895908552776
+      },
+      "roi_pct": {
+        "doubleValue": -1.0340599641216386
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.23896829000219963
+      },
+      "sol_price_usd": {
+        "doubleValue": 88.85141429476883
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.6294653267173542
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6315281741946662
+      }
+    },
+    "createTime": "2026-11-08T03:00:44.609278Z",
+    "updateTime": "2026-11-08T03:00:44.609278Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/8fxiCVJGhHmQ8tqwxpZt",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 1.4486632406781297
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.3413548524797496
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1081.3887090667117
+      },
+      "roi_pct": {
+        "doubleValue": 0.12858417284367835
+      },
+      "hype_fees": {
+        "doubleValue": 0.597259889450029
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.81295049109026
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2526335348590303
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T07:00:12.224281"
+      },
+      "btc_price_usd": {
+        "doubleValue": 75648.7650828874
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.65428314906147
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5987698163690706
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1001.2858417284367
+      }
+    },
+    "createTime": "2026-11-06T07:00:12.281495Z",
+    "updateTime": "2026-11-06T07:00:12.281495Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/9w8gxQteNh4uQ8BJaxGn",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 77.34793409254239
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 992.3143499240721
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2425707668450189
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.2073534159281
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6622703125827598
+      },
+      "roi_pct": {
+        "doubleValue": -0.7685650075927908
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.8450112136927204
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1071.6994979179979
+      },
+      "hype_fees": {
+        "doubleValue": 0.9001714735861445
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.7083437163821484
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2825694275238159
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T08:00:37.658369"
+      }
+    },
+    "createTime": "2026-11-08T08:00:38.328366Z",
+    "updateTime": "2026-11-08T08:00:38.328366Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/A0nR5qkM3FL13WjIaxtJ",
+    "fields": {
+      "cbbtc_fees": {
+        "doubleValue": 0.27522158834013577
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.811747164448124
+      },
+      "roi_pct": {
+        "doubleValue": -0.912894431665155
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.6775436707853
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1070.1407401380163
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.11823518074739
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6498453175156189
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.19354699854533
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 990.8710556833483
+      },
+      "hype_fees": {
+        "doubleValue": 0.8866802585923694
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T06:00:50.035160"
+      }
+    },
+    "createTime": "2026-11-08T06:00:50.099140Z",
+    "updateTime": "2026-11-08T06:00:50.099140Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/AAH0NY9YvEhqKKDqq0Ey",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 1.2117366897745483
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.21698577956903914
+      },
+      "hype_fees": {
+        "doubleValue": 0.49516888233924045
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.121978416457915
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.49958202786626865
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.38585733011337
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T05:00:07.063794"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1000.7176277158868
+      },
+      "btc_price_usd": {
+        "doubleValue": 75724.41384797028
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.96857639207239
+      },
+      "roi_pct": {
+        "doubleValue": 0.07176277158868692
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.7750379331578
+      }
+    },
+    "createTime": "2026-11-06T05:00:07.115748Z",
+    "updateTime": "2026-11-06T05:00:07.115748Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Ah1kGVDweRXj7yhZh8Zy",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 998.7179125975613
+      },
+      "hype_fees": {
+        "doubleValue": 0.08287560335144016
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T21:00:14.654871"
+      },
+      "roi_pct": {
+        "doubleValue": -0.12820874024387027
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.029633761135357074
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.28076257194627
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.1623332582676273
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1078.6153456053662
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.24500253878264008
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.06281055444224025
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.83368136964276
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.17531991892903748
+      }
+    },
+    "createTime": "2026-11-06T21:00:14.703885Z",
+    "updateTime": "2026-11-06T21:00:14.703885Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/B4Rv4pVzgSnwC77kDRZL",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 83.76915096863638
+      },
+      "roi_pct": {
+        "doubleValue": 0.08929828905129285
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.4031843995649429
+      },
+      "sol_price_usd": {
+        "doubleValue": 96.34398836894144
+      },
+      "btc_price_usd": {
+        "doubleValue": 80565.42900765307
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2868833094082014
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1085.8703296537246
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.9749850146511416
+      },
+      "hype_fees": {
+        "doubleValue": 0.2849173056779974
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1005.4354904201153
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T04:00:12.340965"
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.9027639024547607
+      }
+    },
+    "createTime": "2026-11-05T04:00:12.564318Z",
+    "updateTime": "2026-11-05T04:00:12.564318Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/BMb1Ly5zYL1hs7WihZic",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": -4.055144257724258
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.6542033779517062
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.7044392267981076
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.1515390729609156
+      },
+      "sol_price_usd": {
+        "doubleValue": 88.76265164312571
+      },
+      "btc_price_usd": {
+        "doubleValue": 75648.7650828874
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.4575957203256538
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 959.4485574227574
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.81295049109026
+      },
+      "hype_fees": {
+        "doubleValue": 0.7982250781926832
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T18:09:02.426881"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1036.204442016578
+      }
+    },
+    "createTime": "2026-11-05T18:09:02.719249Z",
+    "updateTime": "2026-11-05T18:09:02.719249Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/BScwsdq5wjCM3qICm69C",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 961.04616450261
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.7008418156538083
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.81295049109026
+      },
+      "btc_price_usd": {
+        "doubleValue": 75800.13826181825
+      },
+      "roi_pct": {
+        "doubleValue": -3.8953835497389906
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.145513889855842
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.02920597477261
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.6380789507150095
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T18:00:04.145662"
+      },
+      "hype_fees": {
+        "doubleValue": 0.7917232452053594
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1037.929857662819
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.44266569510649
+      }
+    },
+    "createTime": "2026-11-05T18:00:05.222898Z",
+    "updateTime": "2026-11-05T18:00:05.222898Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Bgk57IK8kl0b6X3BZKYX",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 1.5681874306821786
+      },
+      "roi_pct": {
+        "doubleValue": -0.710712876148831
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.4520253987797949
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.56471843063089
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5690727396330402
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 992.8928712385116
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T17:33:33.565432"
+      },
+      "hype_fees": {
+        "doubleValue": 0.7698455160358995
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.50262996072749
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1072.3243009375926
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.229269175013239
+      }
+    },
+    "createTime": "2026-11-07T17:33:34.117800Z",
+    "updateTime": "2026-11-07T17:33:34.117800Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/BxJyOtehH0CwoCQCwMKu",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1033.0792343167745
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.4822320451106066
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.6808106087194554
+      },
+      "roi_pct": {
+        "doubleValue": -4.344515341039394
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.46660183226259505
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.9804314978947645
+      },
+      "sol_price_usd": {
+        "doubleValue": 85.88270422503602
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2330826607361738
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 956.554846589606
+      },
+      "hype_fees": {
+        "doubleValue": 1.2337772785620957
+      },
+      "hype_price_usd": {
+        "doubleValue": 72.9936018108467
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T11:00:05.561455"
+      }
+    },
+    "createTime": "2026-11-09T11:00:05.611074Z",
+    "updateTime": "2026-11-09T11:00:05.611074Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/CjvbckeY2yhVx93YWbuz",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": -1.5209842753621725
+      },
+      "hype_price_usd": {
+        "doubleValue": 75.81785670375773
+      },
+      "hype_fees": {
+        "doubleValue": 1.2967583251646877
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.5138478606159397
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T15:00:02.537044"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 984.7901572463782
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1063.5733698260885
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.0553439561602214
+      },
+      "sol_price_usd": {
+        "doubleValue": 87.18000166647366
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.8659501419408486
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2413639471094716
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.653657538834119
+      }
+    },
+    "createTime": "2026-11-09T15:00:02.924911Z",
+    "updateTime": "2026-11-09T15:00:02.924911Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/D8CEae6v5CGiR5IYfzmS",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-09T02:00:59.757335"
+      },
+      "hype_fees": {
+        "doubleValue": 1.0624202070679074
+      },
+      "hype_price_usd": {
+        "doubleValue": 74.76484761388784
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1042.498174539727
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.36806980635478553
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.242360178562767
+      },
+      "roi_pct": {
+        "doubleValue": -3.4723912463215774
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 965.2760875367842
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.0762594245951544
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.811870165140074
+      },
+      "sol_price_usd": {
+        "doubleValue": 87.7043911214057
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2354193144100539
+      }
+    },
+    "createTime": "2026-11-09T02:01:00.319043Z",
+    "updateTime": "2026-11-09T02:01:00.319043Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/DJZlJMwG7tQJGz6os0yf",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-03T19:00:02.592829"
+      },
+      "hype_fees": {
+        "doubleValue": 5.081719548248348
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1034.4192835143592
+      },
+      "hype_price_usd": {
+        "doubleValue": 85.61971037207869
+      },
+      "btc_price_usd": {
+        "doubleValue": 77516.00117323149
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1117.1728261955082
+      },
+      "total_fees_eur": {
+        "doubleValue": 24.328600184441942
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.30088865308068
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 17.775082521855037
+      },
+      "cbbtc_fees": {
+        "doubleValue": 3.4180861290939135
+      },
+      "roi_pct": {
+        "doubleValue": 2.9117952387373554
+      },
+      "total_fees_usd": {
+        "doubleValue": 26.2748881991973
+      }
+    },
+    "createTime": "2026-11-03T19:00:02.819397Z",
+    "updateTime": "2026-11-03T19:00:02.819397Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/DXZzxKh3sG8s66qQpWIU",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1060.975761405352
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.3992904098924
+      },
+      "sol_hype_fees": {
+        "doubleValue": 2.9605547542519106e-06
+      },
+      "hype_fees": {
+        "doubleValue": 1.3857634481653265
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 982.3849642642147
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.5305730244538123
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.343123170790567
+      },
+      "sol_hype_price": {
+        "doubleValue": 1.1497816875526
+      },
+      "hype_price_usd": {
+        "doubleValue": 75.21433447586129
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.1448066157337315
+      },
+      "btc_price_usd": {
+        "doubleValue": 1.1497816875526
+      },
+      "cbbtc_fees": {
+        "doubleValue": 2.9605547542519106e-06
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T20:09:26.607488"
+      },
+      "roi_pct": {
+        "doubleValue": -1.761503573578525
+      }
+    },
+    "createTime": "2026-11-09T20:09:27.551032Z",
+    "updateTime": "2026-11-09T20:09:27.551032Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/EFVHW3eZmSn52izsJZDG",
+    "fields": {
+      "btc_price_usd": {
+        "doubleValue": 77857.75453842818
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.63730976723696
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 19.314293072350836
+      },
+      "total_fees_usd": {
+        "doubleValue": 28.853707486490322
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1121.9643859877815
+      },
+      "total_fees_eur": {
+        "doubleValue": 26.71639582082437
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T21:49:27.388363"
+      },
+      "hype_price_usd": {
+        "doubleValue": 85.92843495951767
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1038.8559129516495
+      },
+      "roi_pct": {
+        "doubleValue": 3.258671691169141
+      },
+      "hype_fees": {
+        "doubleValue": 5.77580664028408
+      },
+      "cbbtc_fees": {
+        "doubleValue": 3.7636077738554037
+      }
+    },
+    "createTime": "2026-11-03T21:49:27.742898Z",
+    "updateTime": "2026-11-03T21:49:27.742898Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/EHYnDeoOgGdKsFibtrun",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 1005.6747098890729
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.7441390011941795
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T18:46:00.944463"
+      },
+      "roi_pct": {
+        "doubleValue": 0.5674709889072986
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.24622755147655337
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.540869445550166
+      },
+      "hype_fees": {
+        "doubleValue": 1.2067770356234508
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.28374901209068
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.1486301043579765
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.28076257194627
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1086.1286866801988
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.3887318612127524
+      }
+    },
+    "createTime": "2026-11-06T18:46:01.192789Z",
+    "updateTime": "2026-11-06T18:46:01.192789Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/EXyizoKue1enOjMTJfhi",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 1.6112095697526048
+      },
+      "hype_fees": {
+        "doubleValue": 0.7919612791402322
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T19:22:05.383624"
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2425707668450189
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.4918607127338932
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5832581651640452
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.56471843063089
+      },
+      "roi_pct": {
+        "doubleValue": -0.6011264200274716
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 993.9887357997252
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.65763522064894
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.23599012544832734
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1073.5078346637033
+      }
+    },
+    "createTime": "2026-11-07T19:22:05.430776Z",
+    "updateTime": "2026-11-07T19:22:05.430776Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/EcezvHpUHEwEY3jHbqn0",
+    "fields": {
+      "cbbtc_fees": {
+        "doubleValue": 0.26968703064331306
+      },
+      "roi_pct": {
+        "doubleValue": 0.018712249336300814
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.34793409254239
+      },
+      "hype_fees": {
+        "doubleValue": 0.6492289235624533
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.202092292832
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T08:00:29.722874"
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.56471843063089
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6480886572902381
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.4509301958296337
+      },
+      "btc_price_usd": {
+        "doubleValue": 75573.1918909964
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1000.187122493363
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.5670046114960046
+      }
+    },
+    "createTime": "2026-11-06T08:00:29.784684Z",
+    "updateTime": "2026-11-06T08:00:29.784684Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Epd0iU8RrO2cFKwO1L7d",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": 0.5512656871421432
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.28076257194627
+      },
+      "hype_fees": {
+        "doubleValue": 1.2193832175910633
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1005.5126568714213
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T19:00:01.903965"
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.393109825709902
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.5652790798976572
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.24622755147655337
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.1580083629885047
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.19355545663409
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.77050140628947
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1085.9536694211351
+      }
+    },
+    "createTime": "2026-11-06T19:00:01.938255Z",
+    "updateTime": "2026-11-06T19:00:01.938255Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Ewfv9knC5XJAFzQjteBV",
+    "fields": {
+      "btc_price_usd": {
+        "doubleValue": 77920.05319929964
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.89134829499996
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 25.253142698635145
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1126.900349828171
+      },
+      "total_fees_eur": {
+        "doubleValue": 35.765465485830305
+      },
+      "hype_fees": {
+        "doubleValue": 8.287488904102714
+      },
+      "total_fees_usd": {
+        "doubleValue": 38.626702724696734
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T07:00:18.989854"
+      },
+      "roi_pct": {
+        "doubleValue": 3.9236713907655685
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1043.4262498408991
+      },
+      "cbbtc_fees": {
+        "doubleValue": 5.086071121958876
+      },
+      "hype_price_usd": {
+        "doubleValue": 84.56533129979817
+      }
+    },
+    "createTime": "2026-11-04T07:00:20.234110Z",
+    "updateTime": "2026-11-04T07:00:20.234110Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/F1g3BaIb6v5exIQEKJJj",
+    "fields": {
+      "cbbtc_fees": {
+        "doubleValue": 1.8542446649466402
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.7575492214601
+      },
+      "btc_price_usd": {
+        "doubleValue": 76775.55546611089
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1016.5318152979428
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 11.582443098491131
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.00403472060684
+      },
+      "roi_pct": {
+        "doubleValue": 1.490308971420522
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T08:00:11.292614"
+      },
+      "hype_fees": {
+        "doubleValue": 2.843203921877072
+      },
+      "total_fees_eur": {
+        "doubleValue": 15.073973782698928
+      },
+      "total_fees_usd": {
+        "doubleValue": 16.279891685314844
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1097.8543605217783
+      }
+    },
+    "createTime": "2026-11-03T08:00:11.435921Z",
+    "updateTime": "2026-11-03T08:00:11.435921Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/F2vzkWvQ8oF7CTEUSdDg",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 77.96857639207239
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1040.1448118631258
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.7112996128885654
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.29656076934404
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.1618227829549945
+      },
+      "btc_price_usd": {
+        "doubleValue": 76027.7661528186
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.682270009481693
+      },
+      "roi_pct": {
+        "doubleValue": -3.69029519785872
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.4835833421126785
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T18:24:12.612716"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 963.0970480214128
+      },
+      "hype_fees": {
+        "doubleValue": 0.8091476136381333
+      }
+    },
+    "createTime": "2026-11-05T18:24:12.658216Z",
+    "updateTime": "2026-11-05T18:24:12.658216Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/FAE3hFHZVFgesAehaRgb",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 79.06670769689457
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 999.7548768942239
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.19355545663409
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.36366436756072335
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2425707668450189
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1079.735267045762
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.9913346899549716
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T07:00:43.982654"
+      },
+      "roi_pct": {
+        "doubleValue": -0.024512310577599103
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.15514675197584432
+      },
+      "hype_fees": {
+        "doubleValue": 0.472523570418404
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.9179024906990477
+      }
+    },
+    "createTime": "2026-11-07T07:00:45.017205Z",
+    "updateTime": "2026-11-07T07:00:45.017205Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/FEmXMIDdFu80PNBaRc1N",
+    "fields": {
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 994.8124201238246
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.92351505101239
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T14:12:04.460067"
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5262722484175214
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.440842107799745
+      },
+      "hype_fees": {
+        "doubleValue": 0.7033485052854574
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.3341130627775417
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.96857639207239
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1074.3974137337307
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2112213540967664
+      },
+      "roi_pct": {
+        "doubleValue": -0.5187579876175302
+      }
+    },
+    "createTime": "2026-11-07T14:12:04.515857Z",
+    "updateTime": "2026-11-07T14:12:04.515857Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/FTF8WxTJPk0uJNBcGCUv",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 0.5237221544018724
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1087.0695380980821
+      },
+      "sol_price_usd": {
+        "doubleValue": 95.7679422793354
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.20906014691896382
+      },
+      "btc_price_usd": {
+        "doubleValue": 80484.94406358953
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.4849279207424744
+      },
+      "hype_price_usd": {
+        "doubleValue": 84.4410645001512
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1006.5458686093352
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.1598865849381892
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T01:00:00.740978"
+      },
+      "hype_fees": {
+        "doubleValue": 0.1547754225447194
+      },
+      "roi_pct": {
+        "doubleValue": 0.3518699135480765
+      }
+    },
+    "createTime": "2026-11-05T01:00:01.665361Z",
+    "updateTime": "2026-11-05T01:00:01.665361Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/FnzqkOAdvystr7c1DBO0",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 0.9133643738094712
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1070.5507934186596
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2900525771331964
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T10:00:46.756681"
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.19354699854533
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 991.250734646907
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.7392870156409361
+      },
+      "roi_pct": {
+        "doubleValue": -0.8749265353092941
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.878429976892211
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6750130259495435
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.2073534159281
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      }
+    },
+    "createTime": "2026-11-08T10:00:46.790829Z",
+    "updateTime": "2026-11-08T10:00:46.790829Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/FxjeHqgpfTfwiUUZK0Dd",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-04T10:00:18.167869"
+      },
+      "hype_price_usd": {
+        "doubleValue": 86.58287922016866
+      },
+      "hype_fees": {
+        "doubleValue": 9.267658107435434
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1134.2734651601756
+      },
+      "roi_pct": {
+        "doubleValue": 4.561272402956946
+      },
+      "total_fees_usd": {
+        "doubleValue": 42.19748486856119
+      },
+      "cbbtc_fees": {
+        "doubleValue": 5.6064296808025595
+      },
+      "total_fees_eur": {
+        "doubleValue": 39.07174524866777
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.04006365174882
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 27.3233970803232
+      },
+      "btc_price_usd": {
+        "doubleValue": 78326.21134587574
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1050.2532084816442
+      }
+    },
+    "createTime": "2026-11-04T10:00:18.541377Z",
+    "updateTime": "2026-11-04T10:00:18.541377Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/GZu8p1IveHS5jlNG660b",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-02T20:50:48.274099"
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1003.0804227455263
+      },
+      "roi_pct": {
+        "doubleValue": 0.26791103942043787
+      },
+      "hype_fees": {
+        "doubleValue": 0.33769011745016686
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.52326944378093
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.20571429017924658
+      },
+      "total_fees_eur": {
+        "doubleValue": 3.634535267747937
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1083.3268565651686
+      },
+      "total_fees_usd": {
+        "doubleValue": 3.925298089167772
+      },
+      "btc_price_usd": {
+        "doubleValue": 76867.72298985047
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 3.3818936815383585
+      },
+      "sol_price_usd": {
+        "doubleValue": 91.56356142418625
+      }
+    },
+    "createTime": "2026-11-02T20:50:49.115753Z",
+    "updateTime": "2026-11-02T20:50:49.115753Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/H9mi07YgxosHcGA2AEql",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": -0.9474761654710333
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.7236273142311067
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 990.5252383452896
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.8615174993695953
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.28621961349086045
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1069.7672574129128
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.11823518074739
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.668607505359068
+      },
+      "hype_fees": {
+        "doubleValue": 0.9066903805196669
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.03946806242048
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T09:00:04.991838"
+      }
+    },
+    "createTime": "2026-11-08T09:00:05.048386Z",
+    "updateTime": "2026-11-08T09:00:05.048386Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/HStBwjxf1iSDWhUgPgHD",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1054.2862462062517
+      },
+      "hype_price_usd": {
+        "doubleValue": 73.87391634519425
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.65874756539256
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.0259280227168635
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T13:00:29.149251"
+      },
+      "hype_fees": {
+        "doubleValue": 1.2844916517168186
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.7992839559766987
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 976.1909687094923
+      },
+      "roi_pct": {
+        "doubleValue": -2.3809031290507696
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.48886428154301687
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.5919295888673135
+      }
+    },
+    "createTime": "2026-11-09T13:00:29.199339Z",
+    "updateTime": "2026-11-09T13:00:29.199339Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/HknTvdF9M3G1xPKNg2Pq",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 996.820680440643
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.7856803163057131
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.92351505101239
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.3109917647890979
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.8485347416101702
+      },
+      "hype_fees": {
+        "doubleValue": 0.4020818778567425
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1076.5663348758944
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T05:00:24.083042"
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.13546109896432978
+      },
+      "roi_pct": {
+        "doubleValue": -0.3179319559357012
+      },
+      "hype_price_usd": {
+        "doubleValue": 79.22484111228835
+      }
+    },
+    "createTime": "2026-11-07T05:00:24.621222Z",
+    "updateTime": "2026-11-07T05:00:24.621222Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/ITI8U09mbdMoT1S0x45X",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 966.8884004156674
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.10345200462945
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.062678048216741
+      },
+      "btc_price_usd": {
+        "doubleValue": 75951.81433848011
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.4112748902702927
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.647250004496076
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.232661935435456
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.75138714277492
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T16:00:05.246759"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1044.2394724489209
+      },
+      "hype_fees": {
+        "doubleValue": 0.701346837557476
+      },
+      "roi_pct": {
+        "doubleValue": -3.311159958433252
+      }
+    },
+    "createTime": "2026-11-05T16:00:05.897639Z",
+    "updateTime": "2026-11-05T16:00:05.897639Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Ibf3TiJ3vC7OhAHFnZNc",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-04T11:00:04.488747"
+      },
+      "hype_fees": {
+        "doubleValue": 9.6487516965017
+      },
+      "roi_pct": {
+        "doubleValue": 4.755685924183812
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 28.00515245799672
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.45025966766607
+      },
+      "hype_price_usd": {
+        "doubleValue": 86.79102468375402
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1053.38108886349
+      },
+      "btc_price_usd": {
+        "doubleValue": 78482.98914064442
+      },
+      "total_fees_eur": {
+        "doubleValue": 40.21460316535457
+      },
+      "total_fees_usd": {
+        "doubleValue": 43.43177141858293
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1137.6515759725694
+      },
+      "cbbtc_fees": {
+        "doubleValue": 5.777867264084514
+      }
+    },
+    "createTime": "2026-11-04T11:00:05.173443Z",
+    "updateTime": "2026-11-04T11:00:05.173443Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Ie101HGUFQRp2mPoR0tb",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 76.73223220467297
+      },
+      "timestamp": {
+        "stringValue": "2026-11-08T20:00:43.342497"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1069.801172114807
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7458844947423046
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.47524318744347
+      },
+      "hype_fees": {
+        "doubleValue": 0.9844560969190962
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.23896829000219963
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.0595901739275755
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.3292495822661749
+      },
+      "roi_pct": {
+        "doubleValue": -0.9443359152956428
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.907027938821829
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 990.5566408470435
+      }
+    },
+    "createTime": "2026-11-08T20:00:43.411417Z",
+    "updateTime": "2026-11-08T20:00:43.411417Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Izx0lrYbtnvvhmn14ZBd",
+    "fields": {
+      "total_fees_eur": {
+        "doubleValue": 1.5715670780058393
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T20:00:00.651618"
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.6972924442463064
+      },
+      "btc_price_usd": {
+        "doubleValue": 80004.11441062177
+      },
+      "sol_price_usd": {
+        "doubleValue": 94.5316305117447
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.8614943373380805
+      },
+      "hype_fees": {
+        "doubleValue": 0.7321297786023021
+      },
+      "roi_pct": {
+        "doubleValue": -0.9243193442964627
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 999.1951446591771
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.10366832830592378
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.68471384102641
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1079.1307562319114
+      }
+    },
+    "createTime": "2026-11-04T20:00:00.689878Z",
+    "updateTime": "2026-11-04T20:00:00.689878Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/JMVBa6gSBLoY8O8IHTWd",
+    "fields": {
+      "total_fees_eur": {
+        "doubleValue": 1.5604671040677849
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 991.4446385784029
+      },
+      "hype_fees": {
+        "doubleValue": 0.8290250459422143
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T23:00:10.515658"
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.6853044723932078
+      },
+      "roi_pct": {
+        "doubleValue": -0.8555361421597102
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1070.7602096646751
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2488326592515719
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.2073534159281
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6074467671994216
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.34793409254239
+      }
+    },
+    "createTime": "2026-11-07T23:00:10.685085Z",
+    "updateTime": "2026-11-07T23:00:10.685085Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/JbUKb6s3S2P9jTSfsLeF",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": 0.03159558032570607
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.2233191048573
+      },
+      "timestamp": {
+        "stringValue": "2026-11-02T19:26:35.402909"
+      },
+      "hype_fees": {
+        "doubleValue": 6.770302357906266e-05
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1000.315955803257
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.074648475484156
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.9209708106334775
+      },
+      "cbbtc_fees": {
+        "doubleValue": 4.0026943122560835e-05
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.3412322675176
+      },
+      "btc_price_usd": {
+        "doubleValue": 76867.72298985047
+      },
+      "sol_price_usd": {
+        "doubleValue": 91.41720611048648
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 2.0745407455174543
+      }
+    },
+    "createTime": "2026-11-02T19:26:35.765868Z",
+    "updateTime": "2026-11-02T19:26:35.765868Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/JodwZBGHDqqwXlG3jX8J",
+    "fields": {
+      "total_fees_eur": {
+        "doubleValue": 1.389010207116881
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1081.2182061916164
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.4227853286705319
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.5001310236862315
+      },
+      "roi_pct": {
+        "doubleValue": -0.16313140251106772
+      },
+      "sol_price_usd": {
+        "doubleValue": 95.67227000932608
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6450181979353575
+      },
+      "btc_price_usd": {
+        "doubleValue": 80324.2153087567
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1001.127968695941
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T08:00:26.541205"
+      },
+      "hype_fees": {
+        "doubleValue": 0.4323274970803421
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.01906729443847
+      }
+    },
+    "createTime": "2026-11-05T08:00:26.980373Z",
+    "updateTime": "2026-11-05T08:00:26.980373Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/K2snTVtUSP06W77ywylK",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 1.2834446936277386
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1054.7058102651768
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.48773660765333354
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T12:53:53.135009"
+      },
+      "hype_price_usd": {
+        "doubleValue": 73.87391634519425
+      },
+      "roi_pct": {
+        "doubleValue": -2.3420546050762265
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.0245809813307762
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.74540631295794
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.588668780196156
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 976.5794539492376
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.7957622826118484
+      }
+    },
+    "createTime": "2026-11-09T12:53:53.584685Z",
+    "updateTime": "2026-11-09T12:53:53.584685Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/K5H3qJuOTVR9PtkTAGpk",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 84.61011551136475
+      },
+      "roi_pct": {
+        "doubleValue": 0.4126679805646809
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2038828032168189
+      },
+      "sol_price_usd": {
+        "doubleValue": 96.1515890392739
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.2749950561482715
+      },
+      "hype_fees": {
+        "doubleValue": 0.20200807905977408
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1088.8273274698522
+      },
+      "btc_price_usd": {
+        "doubleValue": 80726.6404310974
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T02:00:26.241252"
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.6808859384248644
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1008.1734513609742
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.6304499429859856
+      }
+    },
+    "createTime": "2026-11-05T02:00:26.777119Z",
+    "updateTime": "2026-11-05T02:00:26.777119Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/K64sKfT67bv69khnlmgV",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 0.048128764542442144
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T20:18:13.802731"
+      },
+      "roi_pct": {
+        "doubleValue": 0.011397725526404867
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.1230954356852
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.59419874528432
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.09444890834354935
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.10200482101103331
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.19355545663409
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.03653467789079905
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.017341378577792114
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.24500253878264008
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1000.113977255264
+      }
+    },
+    "createTime": "2026-11-06T20:18:13.845755Z",
+    "updateTime": "2026-11-06T20:18:13.845755Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/K7gQd9zW8w13P2VL3PPA",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": -0.28226184027948453
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 997.1773815972051
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.040385460501579803
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.22245829529837788
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.24025495892224813
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1076.9515721249816
+      },
+      "hype_fees": {
+        "doubleValue": 0.1138423311416765
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T21:40:26.984286"
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.24378362067924397
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.08602716727899183
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.65428314906147
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.12451354485655
+      }
+    },
+    "createTime": "2026-11-06T21:40:28.144424Z",
+    "updateTime": "2026-11-06T21:40:28.144424Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/KNqJaIiKB6J3UAlpoNti",
+    "fields": {
+      "roi_pct": {
+        "doubleValue": -0.6090890930465775
+      },
+      "hype_fees": {
+        "doubleValue": 0.7758005073129738
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.65428314906147
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5729170431499766
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T18:00:05.407380"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1073.421837795097
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2425707668450189
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.50262996072749
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2311316711327832
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 993.9091090695341
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.4628233533293828
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.5798492215957336
+      }
+    },
+    "createTime": "2026-11-07T18:00:05.442270Z",
+    "updateTime": "2026-11-07T18:00:05.442270Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/KbYMvCGzaSwtx4FeFyyU",
+    "fields": {
+      "timestamp": {
+        "stringValue": "2026-11-06T20:00:15.333037"
+      },
+      "hype_fees": {
+        "doubleValue": 0.03419555458964241
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.28076257194627
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 999.1414697133382
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.24500253878264008
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.02591682290655832
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.01343856606337
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.06705682789010126
+      },
+      "roi_pct": {
+        "doubleValue": -0.08585302866617052
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.07242137412130936
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1079.0727872904054
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.01230899662510863
+      }
+    },
+    "createTime": "2026-11-06T20:00:15.381754Z",
+    "updateTime": "2026-11-06T20:00:15.381754Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/KgqHoSLtUpaLodbIBpKQ",
+    "fields": {
+      "cbbtc_fees": {
+        "doubleValue": 0.230951452556914
+      },
+      "roi_pct": {
+        "doubleValue": 0.15668131114444292
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1081.3679099460628
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.12353096308682
+      },
+      "total_fees_eur": {
+        "doubleValue": 3.833923900544445
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 3.531363135179891
+      },
+      "sol_price_usd": {
+        "doubleValue": 91.30759316519983
+      },
+      "timestamp": {
+        "stringValue": "2026-11-02T21:00:16.546322"
+      },
+      "btc_price_usd": {
+        "doubleValue": 76652.83732004993
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1001.2665832833915
+      },
+      "total_fees_usd": {
+        "doubleValue": 4.140637812588001
+      },
+      "hype_fees": {
+        "doubleValue": 0.3783232248511964
+      }
+    },
+    "createTime": "2026-11-02T21:00:16.900849Z",
+    "updateTime": "2026-11-02T21:00:16.900849Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/LJmk9ENz1cEUUWfZ3PFJ",
+    "fields": {
+      "cbbtc_fees": {
+        "doubleValue": 0.3818384742997186
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.3319364690747624
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2354193144100539
+      },
+      "hype_fees": {
+        "doubleValue": 1.104195367856974
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1041.8426848379727
+      },
+      "sol_price_usd": {
+        "doubleValue": 87.35444884980828
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.8459026269180698
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T04:00:35.179305"
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.1592004343284836
+      },
+      "hype_price_usd": {
+        "doubleValue": 74.61561638112559
+      },
+      "roi_pct": {
+        "doubleValue": -3.5330847372247516
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 964.6691526277524
+      }
+    },
+    "createTime": "2026-11-09T04:00:35.224237Z",
+    "updateTime": "2026-11-09T04:00:35.224237Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Ldc0dxJuEzk8XLNiMUco",
+    "fields": {
+      "cbbtc_fees": {
+        "doubleValue": 0.3887318612127524
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.7441390011941795
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1005.6747098890729
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.540869445550166
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.28374901209068
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.1486301043579765
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.24622755147655337
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.28076257194627
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1086.1286866801988
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T18:46:09.872074"
+      },
+      "roi_pct": {
+        "doubleValue": 0.5674709889072986
+      },
+      "hype_fees": {
+        "doubleValue": 1.2067770356234508
+      }
+    },
+    "createTime": "2026-11-06T18:46:10.621631Z",
+    "updateTime": "2026-11-06T18:46:10.621631Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/MMSiBagpX9hBjfILeRaf",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 9747.27540941638
+      },
+      "epoch": {
+        "doubleValue": 1793638814.8363407
+      },
+      "sol_usdc_val": {
+        "doubleValue": 4997.132391461332
+      },
+      "sol_price": {
+        "doubleValue": 93.30088865308068
+      },
+      "total_fees_usd": {
+        "doubleValue": 90.07836732191471
+      },
+      "jitosol_sol_val_usd": {
+        "doubleValue": 4750.143017955048
+      },
+      "timestamp": {
+        "stringValue": "2026-11-02T17:00:14.836311"
+      },
+      "combined_roi_pct": {
+        "doubleValue": 0.8508080571727274
+      }
+    },
+    "createTime": "2026-11-02T17:00:15.563985Z",
+    "updateTime": "2026-11-02T17:00:15.563985Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/MjO9q8qIvlVacfJvh4bI",
+    "fields": {
+      "total_fees_eur": {
+        "doubleValue": 1.6206042846375224
+      },
+      "roi_pct": {
+        "doubleValue": 0.08665193157477645
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.4830323013903719
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1087.2200721242775
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.7502526274085242
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1006.6852519669236
+      },
+      "hype_fees": {
+        "doubleValue": 0.5067820772798133
+      },
+      "btc_price_usd": {
+        "doubleValue": 80324.2153087567
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.68571605866919
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T10:00:05.023245"
+      },
+      "sol_price_usd": {
+        "doubleValue": 96.82667271459148
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.760438248738339
+      }
+    },
+    "createTime": "2026-11-05T10:00:05.677522Z",
+    "updateTime": "2026-11-05T10:00:05.677522Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Msjo9xkByrnTz2ksqnLU",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 84.35653941594869
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1085.1027126932315
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.606922309509355
+      },
+      "roi_pct": {
+        "doubleValue": -0.5806216392993172
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1004.7247339752143
+      },
+      "btc_price_usd": {
+        "doubleValue": 80324.70751274988
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.4878910273234767
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T18:46:56.769359"
+      },
+      "sol_price_usd": {
+        "doubleValue": 95.29053574188671
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.832820319404776
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.10047193373953413
+      },
+      "hype_fees": {
+        "doubleValue": 0.6736300563650448
+      }
+    },
+    "createTime": "2026-11-04T18:46:57.491693Z",
+    "updateTime": "2026-11-04T18:46:57.491693Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/NAhet8lg2SPnFGC2XJNH",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1083.057322226983
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.02488174065055309
+      },
+      "btc_price_usd": {
+        "doubleValue": 76332.33368821381
+      },
+      "sol_price_usd": {
+        "doubleValue": 90.01343856606337
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.04056896448220646
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.10621449257346968
+      },
+      "roi_pct": {
+        "doubleValue": 0.2830853913873086
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.0983467523828423
+      },
+      "hype_price_usd": {
+        "doubleValue": 78.43732409709017
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1002.830853913873
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T19:48:17.985130"
+      },
+      "hype_fees": {
+        "doubleValue": 0.04076378744071014
+      }
+    },
+    "createTime": "2026-11-05T19:48:18.035828Z",
+    "updateTime": "2026-11-05T19:48:18.035828Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/NLHqGbnQRJNhK1A9Stg9",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 1012.8323923147991
+      },
+      "hype_price_usd": {
+        "doubleValue": 84.86386099446017
+      },
+      "btc_price_usd": {
+        "doubleValue": 80324.70751274988
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.8148168825138612
+      },
+      "sol_price_usd": {
+        "doubleValue": 95.67227000932608
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1093.8589836999831
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.5790933233738582
+      },
+      "hype_fees": {
+        "doubleValue": 0.6658436258564971
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.09843281500349996
+      },
+      "roi_pct": {
+        "doubleValue": 0.11822483691239258
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T18:00:26.803821"
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.462123447568387
+      }
+    },
+    "createTime": "2026-11-04T18:00:27.225721Z",
+    "updateTime": "2026-11-04T18:00:27.225721Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/NPwdqGgFHPvWJIswq6bs",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 1000.7262984311275
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.0032155101411347068
+      },
+      "btc_price_usd": {
+        "doubleValue": 76103.7939189714
+      },
+      "timestamp": {
+        "stringValue": "2026-11-05T19:00:08.705543"
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.65428314906147
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.0049266945166206695
+      },
+      "hype_fees": {
+        "doubleValue": 0.005008325631033732
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.81295049109026
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.7844023056177
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.012176416934063988
+      },
+      "total_fees_usd": {
+        "doubleValue": 0.013150530288789108
+      },
+      "roi_pct": {
+        "doubleValue": 0.07262984311275297
+      }
+    },
+    "createTime": "2026-11-05T19:00:08.740236Z",
+    "updateTime": "2026-11-05T19:00:08.740236Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/NQCtErRq8PgaYFSyZSJ1",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 12.873541193219602
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.15132952358852
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 9.420272942259896
+      },
+      "btc_price_usd": {
+        "doubleValue": 76806.26568829734
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T04:15:54.603943"
+      },
+      "total_fees_eur": {
+        "doubleValue": 11.919945549277408
+      },
+      "hype_fees": {
+        "doubleValue": 2.1282306763314383
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1094.53559670269
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.39029858668025
+      },
+      "cbbtc_fees": {
+        "doubleValue": 1.3250375746282679
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1013.458885835824
+      },
+      "roi_pct": {
+        "doubleValue": 1.142832385300211
+      }
+    },
+    "createTime": "2026-11-03T04:15:55.031616Z",
+    "updateTime": "2026-11-03T04:15:55.031616Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/NYbemczaFFFNb8plQFnM",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 1000.6038705181843
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.0912548190066909
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.56471843063089
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.4486994600623956
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.010421128709899
+      },
+      "btc_price_usd": {
+        "doubleValue": 75724.41384797028
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.19776128626033515
+      },
+      "roi_pct": {
+        "doubleValue": 0.060387051818435324
+      },
+      "hype_fees": {
+        "doubleValue": 0.44479407268396015
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1080.652180159639
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T04:00:04.917560"
+      },
+      "hype_price_usd": {
+        "doubleValue": 77.65763522064894
+      }
+    },
+    "createTime": "2026-11-06T04:00:04.965580Z",
+    "updateTime": "2026-11-06T04:00:04.965580Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/NYkqFljNtgDZUAISmfXT",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 964.6081948602158
+      },
+      "hype_price_usd": {
+        "doubleValue": 74.61561638112559
+      },
+      "sol_price_usd": {
+        "doubleValue": 87.26718166814014
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.8636099448658866
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2354193144100539
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.3888674757822558
+      },
+      "hype_fees": {
+        "doubleValue": 1.1255470934274907
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T05:01:02.258557"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1041.7768504490332
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.378024514075633
+      },
+      "roi_pct": {
+        "doubleValue": -3.5391805139784087
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.2018745500700305
+      }
+    },
+    "createTime": "2026-11-09T05:01:03.016110Z",
+    "updateTime": "2026-11-09T05:01:03.016110Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/OBCgoyZjEfSBZlwuPea1",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 77.50262996072749
+      },
+      "roi_pct": {
+        "doubleValue": -0.7106926622245063
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T17:33:17.472546"
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.22930393200801566
+      },
+      "hype_fees": {
+        "doubleValue": 0.7699573580431249
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 992.8930733777548
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.568405741064673
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.56471843063089
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.5691444510135323
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1072.3245192479753
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.4522275380228453
+      }
+    },
+    "createTime": "2026-11-07T17:33:17.708191Z",
+    "updateTime": "2026-11-07T17:33:17.708191Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/OCduNZf146saUUjyHXyi",
+    "fields": {
+      "total_portfolio_usd": {
+        "doubleValue": 1096.9128856945817
+      },
+      "btc_price_usd": {
+        "doubleValue": 76499.71544065434
+      },
+      "sol_price_usd": {
+        "doubleValue": 91.78353384138816
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 12.133953288956391
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.5568122287769
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1015.6600793468349
+      },
+      "cbbtc_fees": {
+        "doubleValue": 1.9945513169551028
+      },
+      "total_fees_eur": {
+        "doubleValue": 15.850127977141408
+      },
+      "roi_pct": {
+        "doubleValue": 1.464360743143031
+      },
+      "hype_fees": {
+        "doubleValue": 2.9896336094012277
+      },
+      "total_fees_usd": {
+        "doubleValue": 17.118138215312722
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T09:00:09.892342"
+      }
+    },
+    "createTime": "2026-11-03T09:00:10.222177Z",
+    "updateTime": "2026-11-03T09:00:10.222177Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/OTbAE4BPYCTlR8vzXBKs",
+    "fields": {
+      "sol_usdc_fees": {
+        "doubleValue": 29.39670097372344
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.52059903947324
+      },
+      "total_fees_eur": {
+        "doubleValue": 42.36954560446897
+      },
+      "btc_price_usd": {
+        "doubleValue": 78232.29503532489
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1132.9015879896483
+      },
+      "total_fees_usd": {
+        "doubleValue": 45.75910925282649
+      },
+      "roi_pct": {
+        "doubleValue": 4.5827204714016325
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T13:00:15.089530"
+      },
+      "hype_fees": {
+        "doubleValue": 10.236901088591152
+      },
+      "cbbtc_fees": {
+        "doubleValue": 6.125507190511898
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1048.9829518422669
+      },
+      "hype_price_usd": {
+        "doubleValue": 84.56506112347415
+      }
+    },
+    "createTime": "2026-11-04T13:00:15.675555Z",
+    "updateTime": "2026-11-04T13:00:15.675555Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Ov85b80ipDyrLJmIcSRt",
+    "fields": {
+      "total_fees_usd": {
+        "doubleValue": 0.6010426266592487
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.11792872661167791
+      },
+      "btc_price_usd": {
+        "doubleValue": 75951.81433848011
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.24307535334790667
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.2073534159281
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 997.585602283181
+      },
+      "total_fees_eur": {
+        "doubleValue": 0.5565209506104154
+      },
+      "roi_pct": {
+        "doubleValue": -0.2414397716818973
+      },
+      "timestamp": {
+        "stringValue": "2026-11-06T00:00:10.230516"
+      },
+      "hype_fees": {
+        "doubleValue": 0.24003854669966404
+      },
+      "hype_price_usd": {
+        "doubleValue": 76.73223220467297
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1077.3924504658355
+      }
+    },
+    "createTime": "2026-11-06T00:00:10.960192Z",
+    "updateTime": "2026-11-06T00:00:10.960192Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/PLcZKEA0LClsnie3OyLA",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 1.2837962081069751
+      },
+      "timestamp": {
+        "stringValue": "2026-11-09T12:56:07.580345"
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.5897635859893584
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 976.580548755031
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.7969446728685075
+      },
+      "roi_pct": {
+        "doubleValue": -2.3419451244968865
+      },
+      "sol_price_usd": {
+        "doubleValue": 86.74540631295794
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 1.0250329305852441
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.2401631314522106
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1054.7069926554336
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.4881155341762882
+      },
+      "hype_price_usd": {
+        "doubleValue": 73.87391634519425
+      }
+    },
+    "createTime": "2026-11-09T12:56:07.679577Z",
+    "updateTime": "2026-11-09T12:56:07.679577Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Pex4nZFZ77fFamjVR8SU",
+    "fields": {
+      "hype_fees": {
+        "doubleValue": 0.13589241511852543
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1002.2094590098446
+      },
+      "timestamp": {
+        "stringValue": "2026-11-02T20:00:08.901759"
+      },
+      "hype_price_usd": {
+        "doubleValue": 83.38989895365111
+      },
+      "roi_pct": {
+        "doubleValue": 0.17082040642257262
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 2.5988849481980987
+      },
+      "sol_price_usd": {
+        "doubleValue": 91.6001868487559
+      },
+      "total_fees_eur": {
+        "doubleValue": 2.6072342310683734
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.08103560623721952
+      },
+      "btc_price_usd": {
+        "doubleValue": 76990.78515932837
+      },
+      "total_fees_usd": {
+        "doubleValue": 2.8158129695538436
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1082.3862157306323
+      }
+    },
+    "createTime": "2026-11-02T20:00:09.340994Z",
+    "updateTime": "2026-11-02T20:00:09.340994Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/Q3SgWWrZGyP4PhRlywNE",
+    "fields": {
+      "hype_price_usd": {
+        "doubleValue": 84.16033667628217
+      },
+      "roi_pct": {
+        "doubleValue": 1.0892536553351941
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T02:00:09.465298"
+      },
+      "hype_fees": {
+        "doubleValue": 1.6304446548579123
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1013.2278483219212
+      },
+      "cbbtc_fees": {
+        "doubleValue": 1.0003290020367517
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 7.879187083237186
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.26195535755264
+      },
+      "btc_price_usd": {
+        "doubleValue": 77052.39010598148
+      },
+      "total_fees_usd": {
+        "doubleValue": 10.50996074013185
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1094.286076187675
+      },
+      "total_fees_eur": {
+        "doubleValue": 9.731445129751712
+      }
+    },
+    "createTime": "2026-11-03T02:00:09.703473Z",
+    "updateTime": "2026-11-03T02:00:09.703473Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/QchZzE2lOwCUPnv8vWzw",
+    "fields": {
+      "cbbtc_fees": {
+        "doubleValue": 0.0892281584664226
+      },
+      "total_fees_eur": {
+        "doubleValue": 1.3189929818132746
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1009.6386580655584
+      },
+      "roi_pct": {
+        "doubleValue": 0.5454382487050029
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.4245124203583366
+      },
+      "btc_price_usd": {
+        "doubleValue": 78294.89338852034
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.7370883295219491
+      },
+      "sol_price_usd": {
+        "doubleValue": 92.93896498745274
+      },
+      "hype_price_usd": {
+        "doubleValue": 84.60868002329697
+      },
+      "timestamp": {
+        "stringValue": "2026-11-04T14:23:03.903632"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1090.409750710803
+      },
+      "hype_fees": {
+        "doubleValue": 0.5981959323699647
+      }
+    },
+    "createTime": "2026-11-04T14:23:04.250880Z",
+    "updateTime": "2026-11-04T14:23:04.250880Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/QdNUJ96zs0Nxs2UDS6se",
+    "fields": {
+      "total_fees_eur": {
+        "doubleValue": 1.5433291153997848
+      },
+      "total_fees_usd": {
+        "doubleValue": 1.6667954446317677
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 989.3923934652278
+      },
+      "btc_price_usd": {
+        "doubleValue": 0.23896829000219963
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 0.6014098037584085
+      },
+      "sol_price_usd": {
+        "doubleValue": 89.11823518074739
+      },
+      "roi_pct": {
+        "doubleValue": -1.060760653477212
+      },
+      "timestamp": {
+        "stringValue": "2026-11-07T22:00:26.707147"
+      },
+      "hype_fees": {
+        "doubleValue": 0.8200046464291875
+      },
+      "hype_price_usd": {
+        "doubleValue": 76.88569666908231
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1068.543784942446
+      },
+      "cbbtc_fees": {
+        "doubleValue": 0.2453809944441717
+      }
+    },
+    "createTime": "2026-11-07T22:00:26.744291Z",
+    "updateTime": "2026-11-07T22:00:26.744291Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/R2DZ5yFxA2rJPnJ9Czg6",
+    "fields": {
+      "sol_price_usd": {
+        "doubleValue": 93.26358321979276
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 15.516703712042705
+      },
+      "btc_price_usd": {
+        "doubleValue": 77268.3958669753
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1114.122673488495
+      },
+      "total_fees_eur": {
+        "doubleValue": 20.815739083169273
+      },
+      "total_fees_usd": {
+        "doubleValue": 22.480998209822815
+      },
+      "total_portfolio_eur": {
+        "doubleValue": 1031.5950680449025
+      },
+      "cbbtc_fees": {
+        "doubleValue": 2.8634865678762855
+      },
+      "hype_price_usd": {
+        "doubleValue": 86.61765073858933
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T15:00:19.392916"
+      },
+      "roi_pct": {
+        "doubleValue": 2.6412388494038606
+      },
+      "hype_fees": {
+        "doubleValue": 4.100807929903823
+      }
+    },
+    "createTime": "2026-11-03T15:00:19.945207Z",
+    "updateTime": "2026-11-03T15:00:19.945207Z"
+  },
+  {
+    "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/history/snapshots/RBrsOLkoylIKBqQiGASZ",
+    "fields": {
+      "total_portfolio_eur": {
+        "doubleValue": 1026.987999022053
+      },
+      "cbbtc_fees": {
+        "doubleValue": 2.5690458386777313
+      },
+      "hype_price_usd": {
+        "doubleValue": 85.0058563627068
+      },
+      "roi_pct": {
+        "doubleValue": 2.255387997246497
+      },
+      "total_fees_eur": {
+        "doubleValue": 19.068272144722975
+      },
+      "timestamp": {
+        "stringValue": "2026-11-03T13:00:09.592865"
+      },
+      "total_portfolio_usd": {
+        "doubleValue": 1109.1470389438173
+      },
+      "hype_fees": {
+        "doubleValue": 3.6854879058813164
+      },
+      "btc_price_usd": {
+        "doubleValue": 77330.2229466122
+      },
+      "sol_price_usd": {
+        "doubleValue": 93.00286250674615
+      },
+      "sol_usdc_fees": {
+        "doubleValue": 14.339200171741764
+      },
+      "total_fees_usd": {
+        "doubleValue": 20.593733916300813
+      }
+    },
+    "createTime": "2026-11-03T13:00:10.229844Z",
+    "updateTime": "2026-11-03T13:00:10.229844Z"
+  }
+]

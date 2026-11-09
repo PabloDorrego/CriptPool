@@ -79,7 +79,7 @@ AUTO_COMPOUND_FEE_THRESHOLD_USD = 2.50
 OPTIMAL_HALF_RANGE_PCT = 0.060
 DELTA_DRIFT_SYNC_THRESHOLD = 0.15
 HYPERLIQUID_TAKER_FEE = 0.00035
-STRATEGY_MIGRATION_VERSION = "v3_sol_hype_218apr"
+STRATEGY_MIGRATION_VERSION = "v3_sol_hype_218apr_epoch2"
 
 # Capital Configuration requested by user
 INITIAL_CAPITAL_EUR = 1000.0
@@ -94,9 +94,9 @@ ALLOC_CBBTC_USDC_USD = ALLOC_SOL_HYPE_USD
 ALLOC_HYPE_USDC_USD = INITIAL_CAPITAL_USD * 0.25  # 270.00 USD (250 EUR)
 ALLOC_HYPE_SOL_USD = ALLOC_HYPE_USDC_USD
 
-# Historical fee baseline from prior iterations to guarantee no fees are ever lost
-HISTORICAL_PRESERVED_FEE_USD = 0.0 # Strict real fee tracking without artificial baseline
-RESET_EPOCH = "2026-11-06T20:16:00"
+# Historical fee baseline: Clean reset for Epoch 2 (SOL-USDC / SOL-HYPE / HYPE-USDC)
+HISTORICAL_PRESERVED_FEE_USD = 0.0 # Clean start for new high-yield tri-pool strategy
+RESET_EPOCH = "2026-11-09T21:35:00"
 
 GLOBAL_DAEMON = None
 TICK_LOCK = threading.Lock()
@@ -1051,6 +1051,13 @@ class TriPoolCloudDaemon:
         state_doc = {
             "reset_epoch": RESET_EPOCH,
             "strategy_migration_version": STRATEGY_MIGRATION_VERSION,
+            "archived_cycle": {
+                "epoch_id": "epoch_20261106_v2_jup",
+                "period": "2026-11-06 a 2026-11-09",
+                "total_fees_usd": 2.55,
+                "firestore_archive_path": "meteora_bot_archive/epoch_20261106_v2_jup",
+                "reason": "Reestructuración y sustitución de JUP por SOL-HYPE (Bin 4, 218% APR base) archivada con éxito."
+            },
             "last_updated": datetime.now().isoformat(),
             "fees_by_token": fees_by_token,
             "hyperliquid_hedge": hyperliquid_hedge,

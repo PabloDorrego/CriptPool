@@ -1,0 +1,2674 @@
+{
+  "name": "projects/criptpool-meteora/databases/(default)/documents/meteora_bot/current_state",
+  "fields": {
+    "strategy_migration_version": {
+      "stringValue": "v3_sol_hype_218apr"
+    },
+    "market_link_info": {
+      "mapValue": {
+        "fields": {
+          "spot_hype_usd": {
+            "doubleValue": 75.21433447586129
+          },
+          "hype_usdc_pool": {
+            "stringValue": "ANCx141SujgVdbKz9NTEH8F38qWsnyyXsVju64aU3qLB"
+          },
+          "sol_usdc_24h_vol": {
+            "doubleValue": 6680632.568674808
+          },
+          "hype_sol_24h_vol": {
+            "doubleValue": 1314207.6314827246
+          },
+          "hype_sol_pool": {
+            "stringValue": "ANCx141SujgVdbKz9NTEH8F38qWsnyyXsVju64aU3qLB"
+          },
+          "spot_sol_usd": {
+            "doubleValue": 86.74540631295794
+          },
+          "spot_sol_hype": {
+            "doubleValue": 1.1571624074231337
+          },
+          "cbbtc_usdc_24h_vol": {
+            "doubleValue": 9856422.950748287
+          },
+          "sol_hype_pool": {
+            "stringValue": "6oQ9wVex4mKZti2GsGCfD8FWTMMC9PLQkztRU5cd6MK8"
+          },
+          "sol_hype_24h_vol": {
+            "doubleValue": 9856422.950748287
+          },
+          "hype_usdc_24h_vol": {
+            "doubleValue": 1314207.6314827246
+          },
+          "source": {
+            "stringValue": "Solana Meteora DLMM + Hyperliquid L1 Perps API (Live Real-Time)"
+          },
+          "spot_btc_usd": {
+            "doubleValue": 1.1571624074231337
+          },
+          "cbbtc_usdc_pool": {
+            "stringValue": "6oQ9wVex4mKZti2GsGCfD8FWTMMC9PLQkztRU5cd6MK8"
+          },
+          "sol_usdc_pool": {
+            "stringValue": "BGm1tav58oGcsQJehL9WXBFXF7D27vZsKefj4xJKD5Y"
+          }
+        }
+      }
+    },
+    "hype_usdc": {
+      "mapValue": {
+        "fields": {
+          "activity_ratio_pct": {
+            "doubleValue": 95.96301452353352
+          },
+          "il_pct": {
+            "doubleValue": -0.18353807999486987
+          },
+          "net_profit": {
+            "doubleValue": -5.554308694538861
+          },
+          "short_tokens": {
+            "doubleValue": 2.9816068278228447
+          },
+          "entry_price": {
+            "doubleValue": 78.28076
+          },
+          "total_time_sec": {
+            "doubleValue": 263256.6097481251
+          },
+          "total_rebal_costs": {
+            "doubleValue": 0
+          },
+          "realized_short_pnl": {
+            "doubleValue": 7.406597088830765
+          },
+          "time_in_range_sec": {
+            "doubleValue": 252628.97864675522
+          },
+          "dist_p_lower_pct": {
+            "doubleValue": 2.1676986005700143
+          },
+          "current_cap": {
+            "doubleValue": 271.17321874989085
+          },
+          "short_entry_price": {
+            "doubleValue": 74.91437730911561
+          },
+          "out_of_range_sec": {
+            "doubleValue": 0
+          },
+          "is_in_range": {
+            "booleanValue": true
+          },
+          "il_amount": {
+            "doubleValue": -0.4858468818364372
+          },
+          "fees_cover_il": {
+            "booleanValue": true
+          },
+          "fees_vs_capital_pct": {
+            "doubleValue": 0.5159247891682295
+          },
+          "half_range_pct": {
+            "doubleValue": 0.06
+          },
+          "dist_p_upper_pct": {
+            "doubleValue": 10.321531365314673
+          },
+          "short_tx_costs": {
+            "doubleValue": 0.1299572503619227
+          },
+          "real_fee_apy": {
+            "doubleValue": 85.5095582623961
+          },
+          "total_val": {
+            "doubleValue": 264.44569130546114
+          },
+          "compounded_fees": {
+            "doubleValue": 1.1732187498908686
+          },
+          "token_x_symbol": {
+            "stringValue": "HYPE"
+          },
+          "p_upper": {
+            "doubleValue": 82.9776056
+          },
+          "pool_address": {
+            "stringValue": "ANCx141SujgVdbKz9NTEH8F38qWsnyyXsVju64aU3qLB"
+          },
+          "fees_x": {
+            "doubleValue": 0.008899307975116446
+          },
+          "pos_val": {
+            "doubleValue": 264.2259131245978
+          },
+          "token_y_symbol": {
+            "stringValue": "USDC"
+          },
+          "fees_y": {
+            "doubleValue": 0.6964984653771099
+          },
+          "token_x": {
+            "doubleValue": 2.862170219085727
+          },
+          "quote_is_usd": {
+            "booleanValue": true
+          },
+          "short_adjustments": {
+            "integerValue": "5"
+          },
+          "avg_cost_rebal": {
+            "doubleValue": 0
+          },
+          "current_price": {
+            "doubleValue": 75.21433447586129
+          },
+          "total_rebalances": {
+            "integerValue": "0"
+          },
+          "initial_cap": {
+            "doubleValue": 270
+          },
+          "name": {
+            "stringValue": "HYPE-USDC"
+          },
+          "p_lower": {
+            "doubleValue": 73.5839144
+          },
+          "accumulated_fees": {
+            "doubleValue": 1.3929969307542198
+          },
+          "lp_price_pnl_usd": {
+            "doubleValue": -5.77408687540219
+          },
+          "dist_rebal_upper_pct": {
+            "doubleValue": 10.633762114461783
+          },
+          "dist_rebal_lower_pct": {
+            "doubleValue": 2.479929349717125
+          },
+          "friction_ratio_pct": {
+            "doubleValue": 0
+          },
+          "real_fee_apr": {
+            "doubleValue": 61.8459234213825
+          },
+          "net_vs_hodl": {
+            "doubleValue": 0.9071500489177826
+          },
+          "roi_pct": {
+            "doubleValue": -2.0571513683477263
+          },
+          "hodl_val": {
+            "doubleValue": 264.71176000643425
+          },
+          "token_y": {
+            "doubleValue": 48.94968493943469
+          }
+        }
+      }
+    },
+    "fees_by_token": {
+      "mapValue": {
+        "fields": {
+          "sol_usd": {
+            "doubleValue": 0.556522834431944
+          },
+          "usdc_eur": {
+            "doubleValue": 1.1781326018590876
+          },
+          "hype_usd": {
+            "doubleValue": 0.6713289991188246
+          },
+          "cbbtc_eur": {
+            "doubleValue": 0
+          },
+          "sol": {
+            "doubleValue": 0.0064155885376124076
+          },
+          "usdc": {
+            "doubleValue": 1.2723832100078147
+          },
+          "jup_usd": {
+            "doubleValue": 0
+          },
+          "cbbtc_usd": {
+            "doubleValue": 0
+          },
+          "jup_eur": {
+            "doubleValue": 0
+          },
+          "sol_eur": {
+            "doubleValue": 0.5152989207703185
+          },
+          "hype": {
+            "doubleValue": 0.00892554595871982
+          },
+          "jup": {
+            "doubleValue": 0
+          },
+          "hype_eur": {
+            "doubleValue": 0.6216009251100227
+          },
+          "usdc_usd": {
+            "doubleValue": 1.2723832100078147
+          },
+          "cbbtc": {
+            "doubleValue": 0
+          }
+        }
+      }
+    },
+    "cbbtc_usdc": {
+      "mapValue": {
+        "fields": {
+          "total_rebalances": {
+            "integerValue": "0"
+          },
+          "p_lower": {
+            "doubleValue": 1.0797853035761884
+          },
+          "name": {
+            "stringValue": "SOL-HYPE"
+          },
+          "fees_y": {
+            "doubleValue": 2.6237983603374744e-05
+          },
+          "friction_ratio_pct": {
+            "doubleValue": 0
+          },
+          "avg_cost_rebal": {
+            "doubleValue": 0
+          },
+          "total_val": {
+            "doubleValue": 270.9066218283429
+          },
+          "entry_price": {
+            "doubleValue": 1.1487077697619026
+          },
+          "real_fee_apr": {
+            "doubleValue": 34.70048321936878
+          },
+          "short_entry_price": {
+            "doubleValue": 86.3992904098924
+          },
+          "hodl_val": {
+            "doubleValue": 270.9936174493734
+          },
+          "lp_price_pnl_usd": {
+            "doubleValue": 0.9026733726861949
+          },
+          "fees_x": {
+            "doubleValue": 2.274287345132137e-05
+          },
+          "accumulated_fees": {
+            "doubleValue": 0.00394845565670511
+          },
+          "token_y": {
+            "doubleValue": 2.070767807075942
+          },
+          "is_in_range": {
+            "booleanValue": true
+          },
+          "roi_pct": {
+            "doubleValue": 0.33578586234922464
+          },
+          "current_cap": {
+            "doubleValue": 270
+          },
+          "net_profit": {
+            "doubleValue": 0.9066218283429066
+          },
+          "time_in_range_sec": {
+            "doubleValue": 1331.524575471878
+          },
+          "total_rebal_costs": {
+            "doubleValue": 0
+          },
+          "pool_address": {
+            "stringValue": "6oQ9wVex4mKZti2GsGCfD8FWTMMC9PLQkztRU5cd6MK8"
+          },
+          "token_x_symbol": {
+            "stringValue": "SOL"
+          },
+          "fees_cover_il": {
+            "booleanValue": false
+          },
+          "quote_is_usd": {
+            "booleanValue": false
+          },
+          "short_tx_costs": {
+            "doubleValue": 0.04725
+          },
+          "token_y_symbol": {
+            "stringValue": "HYPE"
+          },
+          "dist_rebal_upper_pct": {
+            "doubleValue": 5.523334617834479
+          },
+          "dist_rebal_lower_pct": {
+            "doubleValue": 6.984605327459175
+          },
+          "fees_vs_capital_pct": {
+            "doubleValue": 0.0014623909839648554
+          },
+          "token_x": {
+            "doubleValue": 1.3230422913946691
+          },
+          "real_fee_apy": {
+            "doubleValue": 41.45905156653005
+          },
+          "pos_val": {
+            "doubleValue": 270.9026733726862
+          },
+          "p_upper": {
+            "doubleValue": 1.2176302359476168
+          },
+          "short_adjustments": {
+            "integerValue": "0"
+          },
+          "half_range_pct": {
+            "doubleValue": 0.06
+          },
+          "current_price": {
+            "doubleValue": 1.1571624074231337
+          },
+          "dist_p_upper_pct": {
+            "doubleValue": 5.225526523898914
+          },
+          "il_amount": {
+            "doubleValue": -0.09094407668720805
+          },
+          "il_pct": {
+            "doubleValue": -0.03355949027257001
+          },
+          "total_time_sec": {
+            "doubleValue": 1331.524575471878
+          },
+          "initial_cap": {
+            "doubleValue": 270
+          },
+          "realized_short_pnl": {
+            "doubleValue": 0
+          },
+          "short_tokens": {
+            "doubleValue": 1.5163095262277595
+          },
+          "net_vs_hodl": {
+            "doubleValue": -0.08699562103050294
+          },
+          "dist_p_lower_pct": {
+            "doubleValue": 6.686797233523609
+          },
+          "compounded_fees": {
+            "doubleValue": 0
+          },
+          "out_of_range_sec": {
+            "doubleValue": 0
+          },
+          "activity_ratio_pct": {
+            "doubleValue": 100
+          }
+        }
+      }
+    },
+    "reset_epoch": {
+      "stringValue": "2026-11-06T20:16:00"
+    },
+    "eur_usd_rate": {
+      "doubleValue": 1.08
+    },
+    "sol_hype_price": {
+      "doubleValue": 1.1571624074231337
+    },
+    "recent_history": {
+      "arrayValue": {
+        "values": [
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3501
+                },
+                "btc_eur": {
+                  "doubleValue": 250.39
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.03
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:18:36"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.39
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3506
+                },
+                "btc_eur": {
+                  "doubleValue": 250.39
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.03
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:19:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.39
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3507
+                },
+                "btc_eur": {
+                  "doubleValue": 250.39
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.04
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:19:28"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.39
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3514
+                },
+                "btc_eur": {
+                  "doubleValue": 250.53
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.79
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:20:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.53
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3514
+                },
+                "btc_eur": {
+                  "doubleValue": 250.53
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.79
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:20:20"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.53
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3516
+                },
+                "btc_eur": {
+                  "doubleValue": 250.53
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.79
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:20:21"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.53
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.352
+                },
+                "btc_eur": {
+                  "doubleValue": 250.53
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.79
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:21:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.53
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3521
+                },
+                "btc_eur": {
+                  "doubleValue": 250.53
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.79
+                },
+                "hype_eur": {
+                  "doubleValue": 244.85
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:21:01"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.53
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3525
+                },
+                "btc_eur": {
+                  "doubleValue": 250.99
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.64
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:21:47"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.99
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3529
+                },
+                "btc_eur": {
+                  "doubleValue": 250.99
+                },
+                "portfolio_eur": {
+                  "doubleValue": 986.02
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:22:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.99
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.353
+                },
+                "btc_eur": {
+                  "doubleValue": 250.99
+                },
+                "portfolio_eur": {
+                  "doubleValue": 986.02
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:22:09"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.99
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3531
+                },
+                "btc_eur": {
+                  "doubleValue": 251.03
+                },
+                "portfolio_eur": {
+                  "doubleValue": 986.07
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:22:37"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.03
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3536
+                },
+                "btc_eur": {
+                  "doubleValue": 251.17
+                },
+                "portfolio_eur": {
+                  "doubleValue": 986.2
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:23:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.17
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3538
+                },
+                "btc_eur": {
+                  "doubleValue": 251.17
+                },
+                "portfolio_eur": {
+                  "doubleValue": 986.2
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.79
+                },
+                "time": {
+                  "stringValue": "20:23:26"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.17
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3544
+                },
+                "btc_eur": {
+                  "doubleValue": 251.12
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.78
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:24:13"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.12
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3546
+                },
+                "btc_eur": {
+                  "doubleValue": 251.12
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.78
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:24:17"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.12
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.355
+                },
+                "btc_eur": {
+                  "doubleValue": 251.12
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.78
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:24:59"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.12
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3551
+                },
+                "btc_eur": {
+                  "doubleValue": 251.12
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.78
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:25:01"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.12
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3553
+                },
+                "btc_eur": {
+                  "doubleValue": 251.12
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.78
+                },
+                "hype_eur": {
+                  "doubleValue": 245.25
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:25:15"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 251.12
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3555
+                },
+                "btc_eur": {
+                  "doubleValue": 250.67
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.93
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:25:47"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.67
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3559
+                },
+                "btc_eur": {
+                  "doubleValue": 250.62
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.88
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.4
+                },
+                "time": {
+                  "stringValue": "20:26:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.62
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3562
+                },
+                "btc_eur": {
+                  "doubleValue": 250.62
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.49
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:26:34"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.62
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3567
+                },
+                "btc_eur": {
+                  "doubleValue": 250.67
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.54
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:27:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.67
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3568
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:27:15"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3569
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:27:17"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3571
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:27:38"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3572
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:27:57"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3574
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:27:58"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3576
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:28:17"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3578
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:28:37"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3579
+                },
+                "btc_eur": {
+                  "doubleValue": 250.71
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.58
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:28:38"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.71
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3581
+                },
+                "btc_eur": {
+                  "doubleValue": 250.75
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.63
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:28:57"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.75
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3583
+                },
+                "btc_eur": {
+                  "doubleValue": 250.75
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.63
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:29:17"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.75
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3584
+                },
+                "btc_eur": {
+                  "doubleValue": 250.75
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.02
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.41
+                },
+                "time": {
+                  "stringValue": "20:29:18"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.75
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3588
+                },
+                "btc_eur": {
+                  "doubleValue": 250.8
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.06
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.41
+                },
+                "time": {
+                  "stringValue": "20:29:59"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.8
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3589
+                },
+                "btc_eur": {
+                  "doubleValue": 250.8
+                },
+                "portfolio_eur": {
+                  "doubleValue": 985.06
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.41
+                },
+                "time": {
+                  "stringValue": "20:30:01"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.8
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3592
+                },
+                "btc_eur": {
+                  "doubleValue": 250.8
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.67
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:30:21"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.8
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3593
+                },
+                "btc_eur": {
+                  "doubleValue": 250.8
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.67
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:30:43"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.8
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3597
+                },
+                "btc_eur": {
+                  "doubleValue": 250.8
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.67
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:31:00"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.8
+                }
+              }
+            }
+          },
+          {
+            "mapValue": {
+              "fields": {
+                "fees_eur": {
+                  "doubleValue": 2.3599
+                },
+                "btc_eur": {
+                  "doubleValue": 250.84
+                },
+                "portfolio_eur": {
+                  "doubleValue": 984.71
+                },
+                "hype_eur": {
+                  "doubleValue": 244.86
+                },
+                "sol_eur": {
+                  "doubleValue": 489.02
+                },
+                "time": {
+                  "stringValue": "20:31:33"
+                },
+                "sol_hype_eur": {
+                  "doubleValue": 250.84
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "sol_price_usd": {
+      "doubleValue": 86.74540631295794
+    },
+    "last_updated": {
+      "stringValue": "2026-11-09T20:31:33.806308"
+    },
+    "tokens": {
+      "mapValue": {
+        "fields": {
+          "hype_usd_val": {
+            "doubleValue": 371.0276506484188
+          },
+          "jup_eur_val": {
+            "doubleValue": 0
+          },
+          "usdc_total": {
+            "doubleValue": 155.43055578370394
+          },
+          "jup_usd_val": {
+            "doubleValue": 0
+          },
+          "cbbtc_total": {
+            "doubleValue": 0
+          },
+          "jup_total": {
+            "doubleValue": 0
+          },
+          "cbbtc_usd_val": {
+            "doubleValue": 0
+          },
+          "usdc_usd_val": {
+            "doubleValue": 155.43055578370394
+          },
+          "usdc_eur_val": {
+            "doubleValue": 143.91718128120735
+          },
+          "hype_eur_val": {
+            "doubleValue": 343.5441209707581
+          },
+          "sol_usd_val": {
+            "doubleValue": 536.0362884741572
+          },
+          "cbbtc_eur_val": {
+            "doubleValue": 0
+          },
+          "sol_total": {
+            "doubleValue": 6.179419882365399
+          },
+          "hype_total": {
+            "doubleValue": 4.932938026161669
+          },
+          "sol_eur_val": {
+            "doubleValue": 496.32989673533075
+          }
+        }
+      }
+    },
+    "hype_price_usd": {
+      "doubleValue": 75.21433447586129
+    },
+    "hyperliquid_hedge": {
+      "mapValue": {
+        "fields": {
+          "total_lp_price_pnl_usd": {
+            "doubleValue": -17.12209532054692
+          },
+          "total_short_tx_costs_usd": {
+            "doubleValue": 0.37371482247020626
+          },
+          "net_price_hedge_pnl_eur": {
+            "doubleValue": 0.603559664595893
+          },
+          "total_short_pnl_eur": {
+            "doubleValue": 16.45735162806526
+          },
+          "unhedged_portfolio_usd": {
+            "doubleValue": 1063.491720690489
+          },
+          "unhedged_portfolio_eur": {
+            "doubleValue": 984.7145561948972
+          },
+          "mode": {
+            "stringValue": "Hyperliquid Delta-Sync Autom\u00e1tico (>15% desv. o Rebalanceo) + Meteora Auto-Compound c/$2.50 USD"
+          },
+          "uncompounded_fees_usd": {
+            "doubleValue": 0.6138160110358806
+          },
+          "hedged_portfolio_usd": {
+            "doubleValue": 1082.0025828819244
+          },
+          "total_short_adjustments": {
+            "integerValue": "9"
+          },
+          "margin_collateral_eur": {
+            "doubleValue": 200
+          },
+          "settlement_currency": {
+            "stringValue": "USDC"
+          },
+          "total_combined_apy": {
+            "doubleValue": 42.013708127245984
+          },
+          "net_price_hedge_pnl_usd": {
+            "doubleValue": 0.6518444377635646
+          },
+          "total_funding_eur": {
+            "doubleValue": 0.6823355862267854
+          },
+          "margin_collateral_usd": {
+            "doubleValue": 216
+          },
+          "weighted_funding_apr": {
+            "doubleValue": -2.146565484
+          },
+          "total_short_pnl_usd": {
+            "doubleValue": 17.773939758310483
+          },
+          "hedged_portfolio_eur": {
+            "doubleValue": 1001.8542434091892
+          },
+          "total_funding_usd": {
+            "doubleValue": 0.7369224331249282
+          },
+          "enabled": {
+            "booleanValue": true
+          },
+          "total_lp_price_pnl_eur": {
+            "doubleValue": -15.853791963469368
+          },
+          "total_realized_short_pnl_usd": {
+            "doubleValue": 21.232222694865207
+          },
+          "funding_portfolio_apr": {
+            "doubleValue": -1.8284065608724445
+          },
+          "effective_leverage": {
+            "doubleValue": 4.19
+          },
+          "recommended_split": {
+            "stringValue": "80% Meteora Pools (800 \u20ac) / 20% Hyperliquid Cross-Margin 2.0x (200 \u20ac)"
+          },
+          "hedged_roi_pct": {
+            "doubleValue": 0.1854243409189217
+          },
+          "net_delta_pct": {
+            "doubleValue": 0
+          },
+          "positions": {
+            "mapValue": {
+              "fields": {
+                "BTC": {
+                  "mapValue": {
+                    "fields": {
+                      "side": {
+                        "stringValue": "SHORT"
+                      },
+                      "funding_apr_pct": {
+                        "doubleValue": 0
+                      },
+                      "unrealized_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "entry_px": {
+                        "doubleValue": 0
+                      },
+                      "symbol": {
+                        "stringValue": "SOL-PERP"
+                      },
+                      "lp_price_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "realized_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "mark_px": {
+                        "doubleValue": 0
+                      },
+                      "rebalance_syncs": {
+                        "integerValue": "0"
+                      },
+                      "settlement": {
+                        "stringValue": "USDC"
+                      },
+                      "net_pair_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "funding_1h_pct": {
+                        "doubleValue": 0
+                      },
+                      "notional_usd": {
+                        "doubleValue": 0
+                      },
+                      "funding_earned_usd": {
+                        "doubleValue": 0
+                      },
+                      "size_tokens": {
+                        "doubleValue": 0
+                      },
+                      "lp_tokens": {
+                        "doubleValue": 0
+                      },
+                      "pnl_usd": {
+                        "doubleValue": 0
+                      }
+                    }
+                  }
+                },
+                "HYPE": {
+                  "mapValue": {
+                    "fields": {
+                      "notional_usd": {
+                        "doubleValue": 369.8667602635758
+                      },
+                      "settlement": {
+                        "stringValue": "USDC"
+                      },
+                      "side": {
+                        "stringValue": "SHORT"
+                      },
+                      "symbol": {
+                        "stringValue": "HYPE-PERP"
+                      },
+                      "unrealized_pnl_usd": {
+                        "doubleValue": -1.4796701140595052
+                      },
+                      "size_tokens": {
+                        "doubleValue": 4.932938026161669
+                      },
+                      "net_pair_pnl_usd": {
+                        "doubleValue": 0.022882849007146433
+                      },
+                      "funding_1h_pct": {
+                        "doubleValue": 0.00105838
+                      },
+                      "rebalance_syncs": {
+                        "integerValue": "5"
+                      },
+                      "entry_px": {
+                        "doubleValue": 74.91437730911561
+                      },
+                      "lp_price_pnl_usd": {
+                        "doubleValue": -5.77408687540219
+                      },
+                      "funding_earned_usd": {
+                        "doubleValue": 0.5409437186972862
+                      },
+                      "lp_tokens": {
+                        "doubleValue": 4.932938026161669
+                      },
+                      "realized_pnl_usd": {
+                        "doubleValue": 7.406597088830765
+                      },
+                      "pnl_usd": {
+                        "doubleValue": 5.796969724409337
+                      },
+                      "mark_px": {
+                        "doubleValue": 74.979
+                      },
+                      "funding_apr_pct": {
+                        "doubleValue": 9.277759080000001
+                      }
+                    }
+                  }
+                },
+                "SOL": {
+                  "mapValue": {
+                    "fields": {
+                      "mark_px": {
+                        "doubleValue": 86.739
+                      },
+                      "funding_earned_usd": {
+                        "doubleValue": 0.19597871442764206
+                      },
+                      "entry_px": {
+                        "doubleValue": 86.48568970030227
+                      },
+                      "realized_pnl_usd": {
+                        "doubleValue": 13.825625606034443
+                      },
+                      "side": {
+                        "stringValue": "SHORT"
+                      },
+                      "lp_tokens": {
+                        "doubleValue": 6.179419882365399
+                      },
+                      "pnl_usd": {
+                        "doubleValue": 11.976970033901145
+                      },
+                      "rebalance_syncs": {
+                        "integerValue": "4"
+                      },
+                      "symbol": {
+                        "stringValue": "SOL-PERP"
+                      },
+                      "lp_price_pnl_usd": {
+                        "doubleValue": -12.250681817830923
+                      },
+                      "settlement": {
+                        "stringValue": "USDC"
+                      },
+                      "net_pair_pnl_usd": {
+                        "doubleValue": -0.27371178392977846
+                      },
+                      "notional_usd": {
+                        "doubleValue": 535.9967011764924
+                      },
+                      "size_tokens": {
+                        "doubleValue": 6.179419882365399
+                      },
+                      "funding_1h_pct": {
+                        "doubleValue": -0.00111371
+                      },
+                      "unrealized_pnl_usd": {
+                        "doubleValue": -1.6048980000250144
+                      },
+                      "funding_apr_pct": {
+                        "doubleValue": -9.76278186
+                      }
+                    }
+                  }
+                },
+                "JUP": {
+                  "mapValue": {
+                    "fields": {
+                      "rebalance_syncs": {
+                        "integerValue": "0"
+                      },
+                      "settlement": {
+                        "stringValue": "USDC"
+                      },
+                      "funding_1h_pct": {
+                        "doubleValue": 0
+                      },
+                      "unrealized_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "side": {
+                        "stringValue": "SHORT"
+                      },
+                      "net_pair_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "symbol": {
+                        "stringValue": "SOL-PERP"
+                      },
+                      "entry_px": {
+                        "doubleValue": 0
+                      },
+                      "funding_apr_pct": {
+                        "doubleValue": 0
+                      },
+                      "realized_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "size_tokens": {
+                        "doubleValue": 0
+                      },
+                      "mark_px": {
+                        "doubleValue": 0
+                      },
+                      "lp_price_pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "notional_usd": {
+                        "doubleValue": 0
+                      },
+                      "funding_earned_usd": {
+                        "doubleValue": 0
+                      },
+                      "pnl_usd": {
+                        "doubleValue": 0
+                      },
+                      "lp_tokens": {
+                        "doubleValue": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "auto_compound_threshold_usd": {
+            "doubleValue": 2.5
+          },
+          "compounded_fees_usd": {
+            "doubleValue": 1.9348988646364542
+          },
+          "total_short_notional_usd": {
+            "doubleValue": 905.8634614400682
+          },
+          "total_combined_apr": {
+            "doubleValue": 35.09218730692531
+          }
+        }
+      }
+    },
+    "initial_investment_steps": {
+      "mapValue": {
+        "fields": {
+          "initial_usd": {
+            "doubleValue": 1080
+          },
+          "step3_hype_usdc": {
+            "stringValue": "125 EUR en HYPE (~1.795 HYPE) + 125 EUR en USDC ($135.00 USDC)"
+          },
+          "step2_sol_hype": {
+            "stringValue": "125 EUR en SOL (~1.556 SOL) + 125 EUR en HYPE (~1.795 HYPE)"
+          },
+          "step1_sol_usdc": {
+            "stringValue": "250 EUR en SOL (~3.113 SOL) + 250 EUR en USDC ($270.00 USDC)"
+          },
+          "initial_eur": {
+            "doubleValue": 1000
+          },
+          "distribution": {
+            "stringValue": "50% SOL-USDC (500 \u20ac) / 25% SOL-HYPE (250 \u20ac) / 25% HYPE-USDC (250 \u20ac)"
+          }
+        }
+      }
+    },
+    "sol_hype": {
+      "mapValue": {
+        "fields": {
+          "short_adjustments": {
+            "integerValue": "0"
+          },
+          "total_time_sec": {
+            "doubleValue": 1331.524575471878
+          },
+          "compounded_fees": {
+            "doubleValue": 0
+          },
+          "p_lower": {
+            "doubleValue": 1.0797853035761884
+          },
+          "fees_vs_capital_pct": {
+            "doubleValue": 0.0014623909839648554
+          },
+          "current_price": {
+            "doubleValue": 1.1571624074231337
+          },
+          "out_of_range_sec": {
+            "doubleValue": 0
+          },
+          "realized_short_pnl": {
+            "doubleValue": 0
+          },
+          "total_val": {
+            "doubleValue": 270.9066218283429
+          },
+          "roi_pct": {
+            "doubleValue": 0.33578586234922464
+          },
+          "dist_p_lower_pct": {
+            "doubleValue": 6.686797233523609
+          },
+          "activity_ratio_pct": {
+            "doubleValue": 100
+          },
+          "token_y": {
+            "doubleValue": 2.070767807075942
+          },
+          "short_tokens": {
+            "doubleValue": 1.5163095262277595
+          },
+          "net_vs_hodl": {
+            "doubleValue": -0.08699562103050294
+          },
+          "name": {
+            "stringValue": "SOL-HYPE"
+          },
+          "net_profit": {
+            "doubleValue": 0.9066218283429066
+          },
+          "p_upper": {
+            "doubleValue": 1.2176302359476168
+          },
+          "dist_p_upper_pct": {
+            "doubleValue": 5.225526523898914
+          },
+          "il_pct": {
+            "doubleValue": -0.03355949027257001
+          },
+          "hodl_val": {
+            "doubleValue": 270.9936174493734
+          },
+          "pos_val": {
+            "doubleValue": 270.9026733726862
+          },
+          "half_range_pct": {
+            "doubleValue": 0.06
+          },
+          "token_x": {
+            "doubleValue": 1.3230422913946691
+          },
+          "initial_cap": {
+            "doubleValue": 270
+          },
+          "token_x_symbol": {
+            "stringValue": "SOL"
+          },
+          "il_amount": {
+            "doubleValue": -0.09094407668720805
+          },
+          "current_cap": {
+            "doubleValue": 270
+          },
+          "quote_is_usd": {
+            "booleanValue": false
+          },
+          "short_entry_price": {
+            "doubleValue": 86.3992904098924
+          },
+          "is_in_range": {
+            "booleanValue": true
+          },
+          "short_tx_costs": {
+            "doubleValue": 0.04725
+          },
+          "pool_address": {
+            "stringValue": "6oQ9wVex4mKZti2GsGCfD8FWTMMC9PLQkztRU5cd6MK8"
+          },
+          "real_fee_apy": {
+            "doubleValue": 41.45905156653005
+          },
+          "total_rebal_costs": {
+            "doubleValue": 0
+          },
+          "time_in_range_sec": {
+            "doubleValue": 1331.524575471878
+          },
+          "token_y_symbol": {
+            "stringValue": "HYPE"
+          },
+          "entry_price": {
+            "doubleValue": 1.1487077697619026
+          },
+          "accumulated_fees": {
+            "doubleValue": 0.00394845565670511
+          },
+          "real_fee_apr": {
+            "doubleValue": 34.70048321936878
+          },
+          "friction_ratio_pct": {
+            "doubleValue": 0
+          },
+          "lp_price_pnl_usd": {
+            "doubleValue": 0.9026733726861949
+          },
+          "fees_x": {
+            "doubleValue": 2.274287345132137e-05
+          },
+          "fees_cover_il": {
+            "booleanValue": false
+          },
+          "avg_cost_rebal": {
+            "doubleValue": 0
+          },
+          "fees_y": {
+            "doubleValue": 2.6237983603374744e-05
+          },
+          "total_rebalances": {
+            "integerValue": "0"
+          },
+          "dist_rebal_lower_pct": {
+            "doubleValue": 6.984605327459175
+          },
+          "dist_rebal_upper_pct": {
+            "doubleValue": 5.523334617834479
+          }
+        }
+      }
+    },
+    "sol_usdc": {
+      "mapValue": {
+        "fields": {
+          "il_amount": {
+            "doubleValue": -2.188117115798377
+          },
+          "p_lower": {
+            "doubleValue": 84.69724299999999
+          },
+          "entry_price": {
+            "doubleValue": 90.10345
+          },
+          "friction_ratio_pct": {
+            "doubleValue": 0
+          },
+          "short_entry_price": {
+            "doubleValue": 86.48568970030227
+          },
+          "token_y": {
+            "doubleValue": 106.48087084426926
+          },
+          "is_in_range": {
+            "booleanValue": true
+          },
+          "dist_p_lower_pct": {
+            "doubleValue": 2.361120202225626
+          },
+          "roi_pct": {
+            "doubleValue": -2.1964060080213175
+          },
+          "current_cap": {
+            "doubleValue": 540.7616801147456
+          },
+          "avg_cost_rebal": {
+            "doubleValue": 0
+          },
+          "total_rebal_costs": {
+            "doubleValue": 0
+          },
+          "time_in_range_sec": {
+            "doubleValue": 260818.64235687256
+          },
+          "out_of_range_sec": {
+            "doubleValue": 0
+          },
+          "fees_vs_capital_pct": {
+            "doubleValue": 0.21329064615952034
+          },
+          "il_pct": {
+            "doubleValue": -0.412901027565276
+          },
+          "token_y_symbol": {
+            "stringValue": "USDC"
+          },
+          "short_tx_costs": {
+            "doubleValue": 0.19650757210828357
+          },
+          "hodl_val": {
+            "doubleValue": 529.9374352979675
+          },
+          "short_tokens": {
+            "doubleValue": 5.011455613308947
+          },
+          "dist_rebal_lower_pct": {
+            "doubleValue": 2.6727336483887387
+          },
+          "dist_rebal_upper_pct": {
+            "doubleValue": 10.415031090461897
+          },
+          "token_x": {
+            "doubleValue": 4.856377590970729
+          },
+          "dist_p_upper_pct": {
+            "doubleValue": 10.103417644298784
+          },
+          "pos_val": {
+            "doubleValue": 527.7493181821691
+          },
+          "current_price": {
+            "doubleValue": 86.74540631295794
+          },
+          "token_x_symbol": {
+            "stringValue": "SOL"
+          },
+          "p_upper": {
+            "doubleValue": 95.509657
+          },
+          "compounded_fees": {
+            "doubleValue": 0.7616801147455856
+          },
+          "fees_cover_il": {
+            "booleanValue": false
+          },
+          "name": {
+            "stringValue": "SOL-USDC"
+          },
+          "short_adjustments": {
+            "integerValue": "4"
+          },
+          "real_fee_apr": {
+            "doubleValue": 25.567984415219865
+          },
+          "half_range_pct": {
+            "doubleValue": 0.06
+          },
+          "total_val": {
+            "doubleValue": 528.1394075566849
+          },
+          "pool_address": {
+            "stringValue": "BGm1tav58oGcsQJehL9WXBFXF7D27vZsKefj4xJKD5Y"
+          },
+          "total_rebalances": {
+            "integerValue": "0"
+          },
+          "quote_is_usd": {
+            "booleanValue": true
+          },
+          "lp_price_pnl_usd": {
+            "doubleValue": -12.250681817830923
+          },
+          "accumulated_fees": {
+            "doubleValue": 1.1517694892614099
+          },
+          "initial_cap": {
+            "doubleValue": 540
+          },
+          "activity_ratio_pct": {
+            "doubleValue": 99.07391977979772
+          },
+          "net_profit": {
+            "doubleValue": -11.860592443315113
+          },
+          "net_vs_hodl": {
+            "doubleValue": -1.0363476265369673
+          },
+          "fees_y": {
+            "doubleValue": 0.5758847446307049
+          },
+          "real_fee_apy": {
+            "doubleValue": 29.12237295280493
+          },
+          "total_time_sec": {
+            "doubleValue": 263256.6097481251
+          },
+          "fees_x": {
+            "doubleValue": 0.006392845664161086
+          },
+          "realized_short_pnl": {
+            "doubleValue": 13.825625606034443
+          }
+        }
+      }
+    },
+    "is_real_market_linked": {
+      "booleanValue": true
+    },
+    "portfolio_combined": {
+      "mapValue": {
+        "fields": {
+          "avg_rebalance_cost_eur": {
+            "doubleValue": 0
+          },
+          "hedged_roi_pct": {
+            "doubleValue": 0.1854243409189217
+          },
+          "combined_roi_pct": {
+            "doubleValue": -1.5285443805102736
+          },
+          "total_initial_usd": {
+            "doubleValue": 1080
+          },
+          "fees_vs_capital_pct": {
+            "doubleValue": 0.2359921181178088
+          },
+          "lp_price_pnl_eur": {
+            "doubleValue": -15.853791963469368
+          },
+          "total_combined_apy": {
+            "doubleValue": 42.013708127245984
+          },
+          "total_passive_yield_usd": {
+            "doubleValue": 3.2856373087972632
+          },
+          "total_fees_eur": {
+            "doubleValue": 2.359921181178088
+          },
+          "total_portfolio_usd": {
+            "doubleValue": 1063.491720690489
+          },
+          "net_vs_hodl_usd": {
+            "doubleValue": -0.21619319864968767
+          },
+          "total_rebalance_costs_eur": {
+            "doubleValue": 0
+          },
+          "il_amount_usd": {
+            "doubleValue": -2.7649080743220225
+          },
+          "total_rebalance_costs_usd": {
+            "doubleValue": 0
+          },
+          "hedged_portfolio_usd": {
+            "doubleValue": 1082.0025828819244
+          },
+          "activity_ratio_pct": {
+            "doubleValue": 98.34564476777707
+          },
+          "funding_earned_eur": {
+            "doubleValue": 0.6823355862267854
+          },
+          "real_fee_apr": {
+            "doubleValue": 36.920593867797756
+          },
+          "short_hedge_pnl_usd": {
+            "doubleValue": 17.773939758310483
+          },
+          "fees_cover_il": {
+            "booleanValue": false
+          },
+          "total_rebalances": {
+            "integerValue": "0"
+          },
+          "friction_ratio_pct": {
+            "doubleValue": 0
+          },
+          "net_vs_hodl_eur": {
+            "doubleValue": -0.20017888763859967
+          },
+          "short_hedge_pnl_eur": {
+            "doubleValue": 16.45735162806526
+          },
+          "net_price_hedge_pnl_usd": {
+            "doubleValue": 0.6518444377635646
+          },
+          "il_amount_eur": {
+            "doubleValue": -2.5601000688166873
+          },
+          "total_initial_eur": {
+            "doubleValue": 1000
+          },
+          "real_fee_apy": {
+            "doubleValue": 44.631575155466784
+          },
+          "lp_price_pnl_usd": {
+            "doubleValue": -17.12209532054692
+          },
+          "funding_earned_usd": {
+            "doubleValue": 0.7369224331249282
+          },
+          "net_price_hedge_pnl_eur": {
+            "doubleValue": 0.603559664595893
+          },
+          "hedged_portfolio_eur": {
+            "doubleValue": 1001.8542434091892
+          },
+          "total_portfolio_eur": {
+            "doubleValue": 984.7145561948972
+          },
+          "total_fees_usd": {
+            "doubleValue": 2.548714875672335
+          },
+          "total_passive_yield_eur": {
+            "doubleValue": 3.042256767404873
+          },
+          "total_combined_apr": {
+            "doubleValue": 35.09218730692531
+          }
+        }
+      }
+    },
+    "hype_sol": {
+      "mapValue": {
+        "fields": {
+          "fees_vs_capital_pct": {
+            "doubleValue": 0.5159247891682295
+          },
+          "initial_cap": {
+            "doubleValue": 270
+          },
+          "real_fee_apr": {
+            "doubleValue": 61.8459234213825
+          },
+          "half_range_pct": {
+            "doubleValue": 0.06
+          },
+          "dist_rebal_upper_pct": {
+            "doubleValue": 10.633762114461783
+          },
+          "dist_rebal_lower_pct": {
+            "doubleValue": 2.479929349717125
+          },
+          "p_upper": {
+            "doubleValue": 82.9776056
+          },
+          "net_profit": {
+            "doubleValue": -5.554308694538861
+          },
+          "pos_val": {
+            "doubleValue": 264.2259131245978
+          },
+          "current_price": {
+            "doubleValue": 75.21433447586129
+          },
+          "token_x": {
+            "doubleValue": 2.862170219085727
+          },
+          "net_vs_hodl": {
+            "doubleValue": 0.9071500489177826
+          },
+          "pool_address": {
+            "stringValue": "ANCx141SujgVdbKz9NTEH8F38qWsnyyXsVju64aU3qLB"
+          },
+          "lp_price_pnl_usd": {
+            "doubleValue": -5.77408687540219
+          },
+          "accumulated_fees": {
+            "doubleValue": 1.3929969307542198
+          },
+          "fees_x": {
+            "doubleValue": 0.008899307975116446
+          },
+          "total_rebalances": {
+            "integerValue": "0"
+          },
+          "quote_is_usd": {
+            "booleanValue": true
+          },
+          "fees_y": {
+            "doubleValue": 0.6964984653771099
+          },
+          "short_adjustments": {
+            "integerValue": "5"
+          },
+          "compounded_fees": {
+            "doubleValue": 1.1732187498908686
+          },
+          "p_lower": {
+            "doubleValue": 73.5839144
+          },
+          "name": {
+            "stringValue": "HYPE-USDC"
+          },
+          "il_amount": {
+            "doubleValue": -0.4858468818364372
+          },
+          "realized_short_pnl": {
+            "doubleValue": 7.406597088830765
+          },
+          "activity_ratio_pct": {
+            "doubleValue": 95.96301452353352
+          },
+          "roi_pct": {
+            "doubleValue": -2.0571513683477263
+          },
+          "total_time_sec": {
+            "doubleValue": 263256.6097481251
+          },
+          "real_fee_apy": {
+            "doubleValue": 85.5095582623961
+          },
+          "token_y": {
+            "doubleValue": 48.94968493943469
+          },
+          "friction_ratio_pct": {
+            "doubleValue": 0
+          },
+          "out_of_range_sec": {
+            "doubleValue": 0
+          },
+          "avg_cost_rebal": {
+            "doubleValue": 0
+          },
+          "hodl_val": {
+            "doubleValue": 264.71176000643425
+          },
+          "dist_p_lower_pct": {
+            "doubleValue": 2.1676986005700143
+          },
+          "total_val": {
+            "doubleValue": 264.44569130546114
+          },
+          "entry_price": {
+            "doubleValue": 78.28076
+          },
+          "fees_cover_il": {
+            "booleanValue": true
+          },
+          "token_y_symbol": {
+            "stringValue": "USDC"
+          },
+          "short_entry_price": {
+            "doubleValue": 74.91437730911561
+          },
+          "short_tx_costs": {
+            "doubleValue": 0.1299572503619227
+          },
+          "short_tokens": {
+            "doubleValue": 2.9816068278228447
+          },
+          "dist_p_upper_pct": {
+            "doubleValue": 10.321531365314673
+          },
+          "il_pct": {
+            "doubleValue": -0.18353807999486987
+          },
+          "is_in_range": {
+            "booleanValue": true
+          },
+          "current_cap": {
+            "doubleValue": 271.17321874989085
+          },
+          "time_in_range_sec": {
+            "doubleValue": 252628.97864675522
+          },
+          "token_x_symbol": {
+            "stringValue": "HYPE"
+          },
+          "total_rebal_costs": {
+            "doubleValue": 0
+          }
+        }
+      }
+    },
+    "jup_usdc": {
+      "mapValue": {
+        "fields": {
+          "total_time_sec": {
+            "doubleValue": 1331.524575471878
+          },
+          "total_rebal_costs": {
+            "doubleValue": 0
+          },
+          "realized_short_pnl": {
+            "doubleValue": 0
+          },
+          "real_fee_apr": {
+            "doubleValue": 34.70048321936878
+          },
+          "time_in_range_sec": {
+            "doubleValue": 1331.524575471878
+          },
+          "fees_x": {
+            "doubleValue": 2.274287345132137e-05
+          },
+          "activity_ratio_pct": {
+            "doubleValue": 100
+          },
+          "fees_y": {
+            "doubleValue": 2.6237983603374744e-05
+          },
+          "short_entry_price": {
+            "doubleValue": 86.3992904098924
+          },
+          "fees_cover_il": {
+            "booleanValue": false
+          },
+          "lp_price_pnl_usd": {
+            "doubleValue": 0.9026733726861949
+          },
+          "is_in_range": {
+            "booleanValue": true
+          },
+          "accumulated_fees": {
+            "doubleValue": 0.00394845565670511
+          },
+          "current_cap": {
+            "doubleValue": 270
+          },
+          "quote_is_usd": {
+            "booleanValue": false
+          },
+          "total_rebalances": {
+            "integerValue": "0"
+          },
+          "dist_rebal_upper_pct": {
+            "doubleValue": 5.523334617834479
+          },
+          "dist_rebal_lower_pct": {
+            "doubleValue": 6.984605327459175
+          },
+          "pool_address": {
+            "stringValue": "6oQ9wVex4mKZti2GsGCfD8FWTMMC9PLQkztRU5cd6MK8"
+          },
+          "half_range_pct": {
+            "doubleValue": 0.06
+          },
+          "real_fee_apy": {
+            "doubleValue": 41.45905156653005
+          },
+          "name": {
+            "stringValue": "SOL-HYPE"
+          },
+          "total_val": {
+            "doubleValue": 270.9066218283429
+          },
+          "entry_price": {
+            "doubleValue": 1.1487077697619026
+          },
+          "token_x_symbol": {
+            "stringValue": "SOL"
+          },
+          "net_vs_hodl": {
+            "doubleValue": -0.08699562103050294
+          },
+          "p_lower": {
+            "doubleValue": 1.0797853035761884
+          },
+          "compounded_fees": {
+            "doubleValue": 0
+          },
+          "short_tx_costs": {
+            "doubleValue": 0.04725
+          },
+          "token_y_symbol": {
+            "stringValue": "HYPE"
+          },
+          "roi_pct": {
+            "doubleValue": 0.33578586234922464
+          },
+          "token_y": {
+            "doubleValue": 2.070767807075942
+          },
+          "short_adjustments": {
+            "integerValue": "0"
+          },
+          "out_of_range_sec": {
+            "doubleValue": 0
+          },
+          "il_pct": {
+            "doubleValue": -0.03355949027257001
+          },
+          "initial_cap": {
+            "doubleValue": 270
+          },
+          "dist_p_lower_pct": {
+            "doubleValue": 6.686797233523609
+          },
+          "fees_vs_capital_pct": {
+            "doubleValue": 0.0014623909839648554
+          },
+          "avg_cost_rebal": {
+            "doubleValue": 0
+          },
+          "hodl_val": {
+            "doubleValue": 270.9936174493734
+          },
+          "current_price": {
+            "doubleValue": 1.1571624074231337
+          },
+          "il_amount": {
+            "doubleValue": -0.09094407668720805
+          },
+          "dist_p_upper_pct": {
+            "doubleValue": 5.225526523898914
+          },
+          "friction_ratio_pct": {
+            "doubleValue": 0
+          },
+          "token_x": {
+            "doubleValue": 1.3230422913946691
+          },
+          "net_profit": {
+            "doubleValue": 0.9066218283429066
+          },
+          "p_upper": {
+            "doubleValue": 1.2176302359476168
+          },
+          "short_tokens": {
+            "doubleValue": 1.5163095262277595
+          },
+          "pos_val": {
+            "doubleValue": 270.9026733726862
+          }
+        }
+      }
+    },
+    "initial_capital_usd": {
+      "doubleValue": 1080
+    },
+    "initial_capital_eur": {
+      "doubleValue": 1000
+    },
+    "hype_price_sol": {
+      "doubleValue": 0.8641829302309292
+    },
+    "btc_price_usd": {
+      "doubleValue": 1.1571624074231337
+    }
+  },
+  "createTime": "2026-11-02T16:52:17.823049Z",
+  "updateTime": "2026-11-09T20:31:36.098708Z"
+}

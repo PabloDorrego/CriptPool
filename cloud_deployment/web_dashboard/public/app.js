@@ -130,17 +130,6 @@ function buildModel(d) {
   const sum = (f) => pools.reduce((a, p) => a + f(p), 0);
   const days = Math.max(num((d.sol_usdc || {}).total_time_sec, sum((p) => num(p.raw.total_time_sec)) / Math.max(pools.length, 1)) / 86400, 1e-6);
 
-  const fees = sum((p) => p.fees);
-  const funding = Number.isFinite(Number(hl.total_funding_usd)) ? Number(hl.total_funding_usd) : sum((p) => p.funding);
-  const shortPnl = Number.isFinite(Number(hl.total_short_pnl_usd)) ? Number(hl.total_short_pnl_usd) : sum((p) => p.shortPnl);
-  const shortPnlPure = sum((p) => p.shortPnlPure);
-  const costs = sum((p) => p.costs);
-  const pricePure = sum((p) => p.pricePure);
-  const unhedged = num(pc.total_portfolio_usd, sum((p) => p.totalVal));
-  const hedged = unhedged + shortPnl + funding;
-  const pnl = hedged - initUsd;
-  const income = fees + funding;
-
   const tokens = d.tokens || {};
   const solLpTok = num(tokens.sol_total, num(d.sol_usdc && d.sol_usdc.token_x) + num(d.sol_hype && d.sol_hype.token_x));
   const solLpExpo = num(tokens.sol_usd_val, solLpTok * num(d.sol_price_usd));
@@ -158,8 +147,8 @@ function buildModel(d) {
       shortExpo: num(hlPos.SOL && hlPos.SOL.notional_usd, solLpExpo),
       shortEntry: num(hlPos.SOL && hlPos.SOL.entry_px, num(d.sol_price_usd)),
       mark: num(hlPos.SOL && hlPos.SOL.mark_px, num(d.sol_price_usd)),
-      pricePure: -(num(hlPos.SOL && hlPos.SOL.unrealized_pnl_usd, 0)),
-      shortPnlPure: num(hlPos.SOL && hlPos.SOL.unrealized_pnl_usd, 0) + num(hlPos.SOL && hlPos.SOL.realized_pnl_usd, 0),
+      pricePure: num(hlPos.SOL && hlPos.SOL.lp_price_pnl_usd, -num(hlPos.SOL && hlPos.SOL.unrealized_pnl_usd, 0)),
+      shortPnlPure: num(hlPos.SOL && hlPos.SOL.pnl_usd, num(hlPos.SOL && hlPos.SOL.unrealized_pnl_usd, 0)),
       fundingApr: num(hlPos.SOL && hlPos.SOL.funding_apr_pct, 0),
       funding: num(hlPos.SOL && hlPos.SOL.funding_earned_usd, 0)
     },
@@ -173,8 +162,8 @@ function buildModel(d) {
       shortExpo: num(hlPos.HYPE && hlPos.HYPE.notional_usd, hypeLpExpo),
       shortEntry: num(hlPos.HYPE && hlPos.HYPE.entry_px, num(d.hype_price_usd)),
       mark: num(hlPos.HYPE && hlPos.HYPE.mark_px, num(d.hype_price_usd)),
-      pricePure: -(num(hlPos.HYPE && hlPos.HYPE.unrealized_pnl_usd, 0)),
-      shortPnlPure: num(hlPos.HYPE && hlPos.HYPE.unrealized_pnl_usd, 0) + num(hlPos.HYPE && hlPos.HYPE.realized_pnl_usd, 0),
+      pricePure: num(hlPos.HYPE && hlPos.HYPE.lp_price_pnl_usd, -num(hlPos.HYPE && hlPos.HYPE.unrealized_pnl_usd, 0)),
+      shortPnlPure: num(hlPos.HYPE && hlPos.HYPE.pnl_usd, num(hlPos.HYPE && hlPos.HYPE.unrealized_pnl_usd, 0)),
       fundingApr: num(hlPos.HYPE && hlPos.HYPE.funding_apr_pct, 0),
       funding: num(hlPos.HYPE && hlPos.HYPE.funding_earned_usd, 0)
     }
@@ -183,6 +172,18 @@ function buildModel(d) {
     const hedgeRatio = a.lpTok > 0 ? a.shortTok / a.lpTok : 1.0;
     return { ...a, netDelta, hedgeRatio };
   });
+
+  const fees = sum((p) => p.fees);
+  const funding = Number.isFinite(Number(hl.total_funding_usd)) ? Number(hl.total_funding_usd) : (perpAssets[0].funding + perpAssets[1].funding);
+  const shortPnl = Number.isFinite(Number(hl.total_short_pnl_usd)) ? Number(hl.total_short_pnl_usd) : (perpAssets[0].shortPnlPure + perpAssets[1].shortPnlPure);
+  const shortPnlPure = shortPnl;
+  const costs = sum((p) => p.costs);
+  const pricePure = Number.isFinite(Number(pc.lp_price_pnl_usd)) ? Number(pc.lp_price_pnl_usd) : sum((p) => p.pricePure);
+  const priceNet = Number.isFinite(Number(pc.net_price_hedge_pnl_usd)) ? Number(pc.net_price_hedge_pnl_usd) : (pricePure + shortPnlPure);
+  const unhedged = num(pc.total_portfolio_usd, sum((p) => p.totalVal));
+  const hedged = unhedged + shortPnl + funding;
+  const pnl = hedged - initUsd;
+  const income = fees + funding;
 
   const grossCrypto = solLpExpo + hypeLpExpo > 0 ? (solLpExpo + hypeLpExpo) : sum((p) => p.lpExpo);
   const notional = num(hl.total_short_notional_usd, perpAssets[0].shortExpo + perpAssets[1].shortExpo);

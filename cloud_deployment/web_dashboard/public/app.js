@@ -92,9 +92,9 @@ function buildModel(d) {
     const pricePure = (posVal - init) - comp + costs;
 
     const sp = hlPos[cfg.perp] || {};
-    const shortTok = num(sp.size_tokens, num(p.short_tokens));
+    const shortTok = num(p.short_tokens, num(sp.size_tokens));
     const mark = num(sp.mark_px, price);
-    const shortEntry = num(sp.entry_px, num(p.short_entry_price, entry));
+    const shortEntry = num(p.short_entry_price, num(sp.entry_px, entry));
     const shortTxCosts = num(p.short_tx_costs);
     // PnL puro del short (sin restar comisiones de trading, que van a la barra de Costes)
     const shortUnrealized = num(sp.unrealized_pnl_usd, (shortEntry - mark) * shortTok);
@@ -141,24 +141,71 @@ function buildModel(d) {
   const pnl = hedged - initUsd;
   const income = fees + funding;
 
-  const notional = sum((p) => p.shortExpo);
+  const tokens = d.tokens || {};
+  const solLpTok = num(tokens.sol_total, num(d.sol_usdc && d.sol_usdc.token_x) + num(d.sol_hype && d.sol_hype.token_x));
+  const solLpExpo = num(tokens.sol_usd_val, solLpTok * num(d.sol_price_usd));
+  const hypeLpTok = num(tokens.hype_total, num(d.sol_hype && d.sol_hype.token_y) + num(d.hype_usdc && d.hype_usdc.token_x));
+  const hypeLpExpo = num(tokens.hype_usd_val, hypeLpTok * num(d.hype_price_usd));
+
+  const perpAssets = [
+    {
+      sym: "SOL",
+      name: "SOL (SOL-PERP)",
+      color: "#34D399",
+      lpTok: solLpTok,
+      lpExpo: solLpExpo,
+      shortTok: num(hlPos.SOL && hlPos.SOL.size_tokens, solLpTok),
+      shortExpo: num(hlPos.SOL && hlPos.SOL.notional_usd, solLpExpo),
+      shortEntry: num(hlPos.SOL && hlPos.SOL.entry_px, num(d.sol_price_usd)),
+      mark: num(hlPos.SOL && hlPos.SOL.mark_px, num(d.sol_price_usd)),
+      pricePure: -(num(hlPos.SOL && hlPos.SOL.unrealized_pnl_usd, 0)),
+      shortPnlPure: num(hlPos.SOL && hlPos.SOL.unrealized_pnl_usd, 0) + num(hlPos.SOL && hlPos.SOL.realized_pnl_usd, 0),
+      fundingApr: num(hlPos.SOL && hlPos.SOL.funding_apr_pct, 0),
+      funding: num(hlPos.SOL && hlPos.SOL.funding_earned_usd, 0)
+    },
+    {
+      sym: "HYPE",
+      name: "HYPE (HYPE-PERP)",
+      color: "#38BDF8",
+      lpTok: hypeLpTok,
+      lpExpo: hypeLpExpo,
+      shortTok: num(hlPos.HYPE && hlPos.HYPE.size_tokens, hypeLpTok),
+      shortExpo: num(hlPos.HYPE && hlPos.HYPE.notional_usd, hypeLpExpo),
+      shortEntry: num(hlPos.HYPE && hlPos.HYPE.entry_px, num(d.hype_price_usd)),
+      mark: num(hlPos.HYPE && hlPos.HYPE.mark_px, num(d.hype_price_usd)),
+      pricePure: -(num(hlPos.HYPE && hlPos.HYPE.unrealized_pnl_usd, 0)),
+      shortPnlPure: num(hlPos.HYPE && hlPos.HYPE.unrealized_pnl_usd, 0) + num(hlPos.HYPE && hlPos.HYPE.realized_pnl_usd, 0),
+      fundingApr: num(hlPos.HYPE && hlPos.HYPE.funding_apr_pct, 0),
+      funding: num(hlPos.HYPE && hlPos.HYPE.funding_earned_usd, 0)
+    }
+  ].map((a) => {
+    const netDelta = a.lpExpo - a.shortExpo;
+    const hedgeRatio = a.lpTok > 0 ? a.shortTok / a.lpTok : 1.0;
+    return { ...a, netDelta, hedgeRatio };
+  });
+
+  const grossCrypto = solLpExpo + hypeLpExpo > 0 ? (solLpExpo + hypeLpExpo) : sum((p) => p.lpExpo);
+  const notional = num(hl.total_short_notional_usd, perpAssets[0].shortExpo + perpAssets[1].shortExpo);
   const collat = num(hl.margin_collateral_usd, 216);
   const hlEquity = collat + shortPnl + funding;
-  const mm = notional > 0 ? pools.reduce((a, p) => a + p.shortExpo * (1 / (2 * (CFG.maxLev[p.cfg.perp] || 10))), 0) / notional : 0.05;
+  const lev = num(hl.effective_leverage, hlEquity > 0 ? notional / hlEquity : 3.09);
+  const mm = notional > 0 ? ((perpAssets[0].shortExpo * (1 / (2 * 20))) + (perpAssets[1].shortExpo * (1 / (2 * 10)))) / notional : 0.05;
   const liqMove = notional > 0 ? (hlEquity - mm * notional) / (notional * (1 + mm)) * 100 : null;
+  const absDelta = Math.abs(perpAssets[0].netDelta) + Math.abs(perpAssets[1].netDelta);
+  const netDelta = perpAssets[0].netDelta + perpAssets[1].netDelta;
 
   const compounded = sum((p) => p.comp);
   const uncompounded = Math.max(fees - compounded, 0);
 
   return {
-    fx, initUsd, initEur, days, pools, fees, funding, shortPnl, shortPnlPure, costs, pricePure, unhedged, hedged, pnl, income,
+    fx, initUsd, initEur, days, pools, perpAssets, fees, funding, shortPnl, shortPnlPure, costs, pricePure, unhedged, hedged, pnl, income,
     priceNet: pricePure + shortPnlPure,
     netApr: (pnl / initUsd) * (365.25 / days) * 100,
     incomeApr: (income / initUsd) * (365.25 / days) * 100,
     feeApr: num(pc.real_fee_apr), fundingAprPortfolio: num(hl.funding_portfolio_apr), weightedFundingApr: num(hl.weighted_funding_apr),
     roiTotalCapital: (pnl / (initUsd + collat)) * 100,
-    netDelta: sum((p) => p.netDelta), absDelta: sum((p) => Math.abs(p.netDelta)), grossCrypto: sum((p) => p.lpExpo),
-    notional, collat, hlEquity, lev: hlEquity > 0 ? notional / hlEquity : null, liqMove,
+    netDelta, absDelta, grossCrypto,
+    notional, collat, hlEquity, lev, liqMove,
     compounded, uncompounded, compoundThreshold: num(hl.auto_compound_threshold_usd, 2.5),
     rebals: sum((p) => p.rebals), shortSyncs: sum((p) => p.shortSyncs), friction: fees > 0 ? (costs / fees) * 100 : 0,
     activity: pools.length ? sum((p) => p.activity) / pools.length : 100,
@@ -362,10 +409,10 @@ function renderHedge(M) {
     const c = dev > 25 ? "chip-crit" : dev > 10 ? "chip-warn" : "chip-ok";
     return `<span class="chip ${c}">${pct(r * 100, 0)}</span>`;
   };
-  setHtml("hedgeBody", M.pools.map((p) => `
+  setHtml("hedgeBody", (M.perpAssets || []).map((p) => `
     <tr>
-      <td class="font-sans"><span class="inline-block w-2 h-2 rounded-full mr-2" style="background:${p.cfg.color}"></span><span class="font-semibold text-white">${p.cfg.base}</span></td>
-      <td>${tok(p.tokX)}<div class="text-[11px] muted">${usd(p.lpExpo, 0)}</div></td>
+      <td class="font-sans"><span class="inline-block w-2 h-2 rounded-full mr-2" style="background:${p.color}"></span><span class="font-semibold text-white">${p.name}</span></td>
+      <td>${tok(p.lpTok)}<div class="text-[11px] muted">${usd(p.lpExpo, 0)}</div></td>
       <td>−${tok(p.shortTok)}<div class="text-[11px] muted">${usd(p.shortExpo, 0)} · ent. ${px(p.shortEntry)}</div></td>
       <td>${ratioCell(p.hedgeRatio)}</td>
       <td class="${Math.abs(p.netDelta) > 0.25 * p.lpExpo ? "neg" : Math.abs(p.netDelta) > 0.1 * p.lpExpo ? "warn" : "pos"}">${sUsd(p.netDelta, 0)}</td>

@@ -24,9 +24,9 @@ Sistema cuantitativo institucional de provisión de liquidez concentrada (CLMM /
 ```mermaid
 flowchart TD
     subgraph Solana ["Ecosistema Solana Mainnet"]
-        M1["Pool SOL-USDC (5rCf1D...HAS6)\n50% Asignación | Vol 24h: ~$35M"]
-        M2["Pool cbBTC-USDC (7ubS3G...Cb96r)\n25% Asignación | Vol 24h: ~$3.5M"]
-        M3["Pool HYPE-SOL (81GpCm...Pn8sA)\n25% Asignación | Vol 24h: ~$2.5M"]
+        M1["Pool SOL-USDC (BGm1ta...5Y)\n50% Asignación | Vol 24h: ~$6.5M - $21M"]
+        M2["Pool SOL-HYPE (6oQ9wV...6MK8)\n25% Asignación | Vol 24h: ~$9.7M (218% APR)"]
+        M3["Pool HYPE-USDC (ANCx14...LB)\n25% Asignación | Vol 24h: ~$1.3M (81% APR)"]
         API["Meteora DLMM DatAPI\nhttps://dlmm.datapi.meteora.ag"]
         M1 --> API
         M2 --> API
@@ -34,22 +34,22 @@ flowchart TD
     end
 
     subgraph GCP ["Google Cloud Platform (europe-west1)"]
-        subgraph CloudRun ["Cloud Run: meteora-dual-worker"]
-            Daemon["Daemon Python Asíncrono (main.py)\nTick: Cada 10s | Backoff Exponencial"]
-            Engine["Motor Cuantitativo Tri-Pool\n• APR/APY Real Ponderado\n• Cálculo Impermanent Loss vs HODL\n• Distancia a Rangos (Pmin/Pmax)\n• Detección Dinámica de Rebalanceos"]
+        subgraph CloudRun ["Cloud Run: meteora-bot-worker"]
+            Daemon["Daemon Python Asíncrono (main.py)\nTick: Cada 30s | Backoff Exponencial"]
+            Engine["Motor Cuantitativo Tri-Pool\n• APR/APY Real Ponderado\n• Cálculo Impermanent Loss vs HODL\n• Distancia a Rangos (Pmin/Pmax)\n• Detección Dinámica de Rebalanceos\n• Cobertura Delta-Neutral en Hyperliquid"]
             Daemon --> Engine
         end
 
         subgraph DB ["Cloud Firestore"]
-            Doc["Documento: meteora_bot/current_state\n• Estado Cartera Consolidada (1.000 €)\n• Métricas Pool SOL-USDC (500 €)\n• Métricas Pool cbBTC-USDC (250 €)\n• Métricas Pool HYPE-SOL (250 €)\n• Persistencia Anti-Reseteos de Fees"]
+            Doc["Documento: meteora_bot/current_state\n• Estado Cartera Consolidada (1.000 €)\n• Métricas Pool SOL-USDC (500 €)\n• Métricas Pool SOL-HYPE (250 €)\n• Métricas Pool HYPE-USDC (250 €)\n• Cobertura Hyperliquid L1 (200 € Colateral)"]
         end
         
-        Engine -->|Escritura c/10s| Doc
+        Engine -->|Escritura c/30s| Doc
         Doc -.->|Recuperación en Boot| Daemon
     end
 
-    subgraph Frontend ["Firebase Hosting & Web Client (v9.0)"]
-        Client["Dashboard Web Reactivo (HTML5 + Tailwind + Chart.js)\n• WebSocket Listener a Firestore\n• Polling REST Fallback Inmediato (2s)\n• Desglose de Monedas en 4 Columnas\n• Visualizadores de Rango Dinámicos"]
+    subgraph Frontend ["Firebase Hosting & Web Client"]
+        Client["Dashboard Web Reactivo (HTML5 + Tailwind + Chart.js)\n• WebSocket Listener a Firestore\n• Polling REST Fallback Inmediato (2s)\n• Desglose de Monedas y Coberturas\n• Visualizadores de Rango Dinámicos"]
         Doc -->|Streaming Tiempo Real| Client
     end
 

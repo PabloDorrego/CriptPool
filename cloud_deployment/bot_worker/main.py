@@ -104,20 +104,27 @@ TICK_LOCK = threading.Lock()
 class HealthHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         global GLOBAL_DAEMON
-        if GLOBAL_DAEMON is not None and (time.time() - GLOBAL_DAEMON.last_ts >= 8.0):
+        tick_executed = False
+        tick_error = None
+        if GLOBAL_DAEMON is not None and (time.time() - GLOBAL_DAEMON.last_ts >= 5.0):
             with TICK_LOCK:
-                if time.time() - GLOBAL_DAEMON.last_ts >= 8.0:
+                if time.time() - GLOBAL_DAEMON.last_ts >= 5.0:
                     try:
                         GLOBAL_DAEMON.tick()
+                        tick_executed = True
                     except Exception as e:
+                        tick_error = str(e)
                         print(f"[!] Error en tick bajo demanda: {e}")
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.end_headers()
         payload = {
-            "status": "healthy",
+            "status": "healthy" if not tick_error else "tick_error",
             "service": "meteora-tri-pool-worker",
+            "tick_executed": tick_executed,
+            "tick_error": tick_error,
+            "last_ts": getattr(GLOBAL_DAEMON, "last_ts", 0) if GLOBAL_DAEMON else 0,
             "initial_capital_eur": INITIAL_CAPITAL_EUR,
             "initial_capital_usd": INITIAL_CAPITAL_USD,
             "allocation": {
@@ -161,6 +168,9 @@ class PositionTracker:
         self.current_price = 1.0
         self.p_lower = 0.0
         self.p_upper = 0.0
+        self.L = 1.0
+        self.hodl_x = 0.0
+        self.hodl_y = 0.0
         
         self.total_time_sec = 0.0
         self.time_in_range_sec = 0.0
@@ -640,6 +650,25 @@ class TriPoolCloudDaemon:
                 self.pos_sol_hype.p_lower = p0 * (1.0 - self.pos_sol_hype.half_range_pct)
                 self.pos_sol_hype.p_upper = p0 * (1.0 + self.pos_sol_hype.half_range_pct)
                 self.pos_sol_hype.current_cap = float(sol_hype_data.get("current_cap", ALLOC_SOL_HYPE_USD))
+                hype_curr = float(data.get("hype_price_usd", 75.0))
+                self.pos_sol_hype.current_quote_usd = hype_curr
+                
+                sp0 = math.sqrt(p0)
+                spa = math.sqrt(self.pos_sol_hype.p_lower)
+                spb = math.sqrt(self.pos_sol_hype.p_upper)
+                denom = (2.0 * sp0 - spa - p0 / spb)
+                cap_in_quote = (self.pos_sol_hype.current_cap / hype_curr) if hype_curr > 0 else self.pos_sol_hype.current_cap
+                self.pos_sol_hype.L = cap_in_quote / denom if denom > 0 else 1.0
+                self.pos_sol_hype.token_x = float(sol_hype_data.get("token_x", self.pos_sol_hype.L * (1.0 / sp0 - 1.0 / spb)))
+                self.pos_sol_hype.token_y = float(sol_hype_data.get("token_y", self.pos_sol_hype.L * (sp0 - spa)))
+                sol_curr = float(data.get("sol_price_usd", p0 * hype_curr))
+                self.pos_sol_hype.hodl_x = (ALLOC_SOL_HYPE_USD * 0.5) / sol_curr if sol_curr > 0 else 0.0
+                self.pos_sol_hype.hodl_y = (ALLOC_SOL_HYPE_USD * 0.5) / hype_curr if hype_curr > 0 else 0.0
+                self.pos_sol_hype.short_tokens = float(sol_hype_data.get("short_tokens", self.pos_sol_hype.token_x))
+                self.pos_sol_hype.short_entry_price = float(sol_hype_data.get("short_entry_price", sol_curr))
+                self.pos_sol_hype.realized_short_pnl = float(sol_hype_data.get("realized_short_pnl", 0.0))
+                self.pos_sol_hype.short_tx_costs = float(sol_hype_data.get("short_tx_costs", 0.0))
+                self.pos_sol_hype.short_adjustments = int(sol_hype_data.get("short_adjustments", 0))
                 self.pos_sol_hype.initialized = True
             else:
                 self.pos_sol_hype.total_rebalances = 0

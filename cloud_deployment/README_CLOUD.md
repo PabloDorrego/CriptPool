@@ -77,3 +77,11 @@ Puedes abrir el dashboard de inmediato en cualquier navegador web:
 1. Ve a la carpeta `cloud_deployment\web_dashboard\public\`
 2. Haz doble clic en `index.html` (o abre con tu navegador preferido).
 3. Verás la interfaz con el medidor visual de rango, las tarjetas de métricas en tiempo real y la gráfica de rendimiento histórico.
+
+---
+
+## 4. Hoja de Ruta / Futuribles
+
+* **Ampliación dinámica del rango activo (`OPTIMAL_HALF_RANGE_PCT` de `±6,0%` a `±8,0%`–`±9,0%`):**
+  * **Contexto:** En semanas con tendencia direccional marcada (movimientos `>10%`), el rango de `±6,0%` genera múltiples rebalanceos en Meteora cuya fricción (`0,15%` de swap + gas) consume una fracción elevada de las fees generadas.
+  * **Propuesta:** Evaluar tras el ciclo actual la ampliación del semirrango a `±8,0%` o `±9,0%` (o un rango adaptativo según volatilidad ATR/realizada) para reducir a la mitad el número de rebalanceos en mercados tendenciales manteniendo una alta captura de APR.

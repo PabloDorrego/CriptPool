@@ -75,9 +75,10 @@ ADDR_HYPE_SOL = ADDR_HYPE_USDC  # Legacy alias
 REBALANCE_CONFIRM_SEC = 1800.0
 # Auto-Compound / Rebalance threshold in Meteora whenever $2.50 USD in fees accumulate
 AUTO_COMPOUND_FEE_THRESHOLD_USD = 2.50
-# Optimal Half-Range (±6.0%) and Dynamic Short Delta-Sync Threshold (15% deviation)
+# Optimal Half-Range (±6.0%) and Dynamic Short Delta-Sync Threshold (35% deviation + 4h cooldown)
 OPTIMAL_HALF_RANGE_PCT = 0.060
-DELTA_DRIFT_SYNC_THRESHOLD = 0.15
+DELTA_DRIFT_SYNC_THRESHOLD = 0.35
+SHORT_SYNC_COOLDOWN_SEC = 14400.0
 HYPERLIQUID_TAKER_FEE = 0.00035
 STRATEGY_MIGRATION_VERSION = "v3_sol_hype_218apr_epoch2"
 
@@ -183,8 +184,12 @@ class PositionTracker:
         self.short_tokens = 0.0
         self.short_entry_price = 0.0
         self.realized_short_pnl = 0.0
+        self.short_tokens_y = 0.0
+        self.short_entry_price_y = 0.0
+        self.realized_short_pnl_y = 0.0
         self.short_tx_costs = 0.0
         self.short_adjustments = 0
+        self.last_short_sync_ts = 0.0
         
     def initialize(self, p0, quote_usd_price=1.0):
         self.entry_price = p0
@@ -210,6 +215,9 @@ class PositionTracker:
         if self.short_tokens <= 0.0:
             self.short_tokens = self.token_x
             self.short_entry_price = p0 * self.current_quote_usd if not self.quote_is_usd else p0
+        if not self.quote_is_usd and self.short_tokens_y <= 0.0:
+            self.short_tokens_y = self.token_y
+            self.short_entry_price_y = self.current_quote_usd
         self.initialized = True
         
     def update_tick(self, pool_data, dt_sec, quote_usd_price=1.0, sol_price_usd=None):
@@ -278,15 +286,14 @@ class PositionTracker:
         if self.is_in_range and uncompounded_now >= AUTO_COMPOUND_FEE_THRESHOLD_USD:
             self.compound_fees_only(p_new)
 
-        # Dynamic Hyperliquid Short Delta-Sync (>15% drift between LP token_x and short_tokens)
-        if self.token_x > 0 and p_new > 0:
-            if self.short_tokens <= 0:
-                self.short_tokens = self.token_x
-                self.short_entry_price = p_new
-            else:
-                drift_ratio = abs(self.short_tokens - self.token_x) / self.token_x
-                if drift_ratio >= DELTA_DRIFT_SYNC_THRESHOLD:
-                    self.sync_short_to_lp(p_new, reason=f"delta_drift_{drift_ratio*100:.1f}pct")
+        # Hyperliquid Short: fixed during active range; only initialized once and synced on pool_rebalance
+        if self.token_x > 0 and p_new > 0 and self.short_tokens <= 0:
+            self.short_tokens = self.token_x
+            self.short_entry_price = p_new * q_px
+            self.last_short_sync_ts = time.time()
+        if not self.quote_is_usd and self.token_y > 0 and q_px > 0 and self.short_tokens_y <= 0:
+            self.short_tokens_y = self.token_y
+            self.short_entry_price_y = q_px
 
         # Anti-Whipsaw Rebalance Check (1.02x threshold + 15-min confirmation window)
         dist_down = self.entry_price - self.p_lower
@@ -347,8 +354,6 @@ class PositionTracker:
             return
         diff_tokens = abs(self.token_x - self.short_tokens)
         notional_traded = diff_tokens * p
-        if notional_traded < 1.0:
-            return
         tx_fee = notional_traded * HYPERLIQUID_TAKER_FEE
         # Cristalizamos el PnL acumulado del short actual a precio de mercado p y fijamos nueva base limpia 1:1 con token_x
         crystallized_pnl = (self.short_entry_price - p) * self.short_tokens
@@ -357,7 +362,18 @@ class PositionTracker:
         old_short = self.short_tokens
         self.short_tokens = self.token_x
         self.short_entry_price = p
+        if not self.quote_is_usd and self.token_y > 0 and self.current_quote_usd > 0:
+            q_px = self.current_quote_usd
+            if self.short_tokens_y > 0:
+                diff_y = abs(self.token_y - self.short_tokens_y)
+                fee_y = diff_y * q_px * HYPERLIQUID_TAKER_FEE
+                cryst_y = (self.short_entry_price_y - q_px) * self.short_tokens_y
+                self.realized_short_pnl_y += cryst_y
+                self.short_tx_costs += fee_y
+            self.short_tokens_y = self.token_y
+            self.short_entry_price_y = q_px
         self.short_adjustments += 1
+        self.last_short_sync_ts = time.time()
         print(f"[+] [{self.name}] Short Hyperliquid sincronizado ({reason}): {old_short:.4f} -> {self.short_tokens:.4f} {self.token_x_symbol} @ ${p:.4f} (PnL cristalizado: ${crystallized_pnl:+.2f}, fee: ${tx_fee:.4f})")
         
     def execute_rebalance(self, p):
@@ -467,6 +483,9 @@ class PositionTracker:
             "short_tokens": self.short_tokens,
             "short_entry_price": self.short_entry_price,
             "realized_short_pnl": self.realized_short_pnl,
+            "short_tokens_y": self.short_tokens_y,
+            "short_entry_price_y": self.short_entry_price_y,
+            "realized_short_pnl_y": self.realized_short_pnl_y,
             "short_tx_costs": self.short_tx_costs,
             "short_adjustments": self.short_adjustments,
             "out_of_range_sec": (time.time() - self.out_of_range_since) if self.out_of_range_since else 0.0,
@@ -558,6 +577,8 @@ class TriPoolCloudDaemon:
         self.last_ts = time.time()
         self.last_snapshot_hour = -1
         self.recent_history = []
+        self.sol_funding_usd = 0.0
+        self.hype_funding_usd = 0.0
         
         # Auto-restore persisted state from Firestore
         self.restore_persisted_state()
@@ -667,6 +688,9 @@ class TriPoolCloudDaemon:
                 self.pos_sol_hype.short_tokens = float(sol_hype_data.get("short_tokens", self.pos_sol_hype.token_x))
                 self.pos_sol_hype.short_entry_price = float(sol_hype_data.get("short_entry_price", sol_curr))
                 self.pos_sol_hype.realized_short_pnl = float(sol_hype_data.get("realized_short_pnl", 0.0))
+                self.pos_sol_hype.short_tokens_y = float(sol_hype_data.get("short_tokens_y", 1.7438))
+                self.pos_sol_hype.short_entry_price_y = float(sol_hype_data.get("short_entry_price_y", 70.42))
+                self.pos_sol_hype.realized_short_pnl_y = float(sol_hype_data.get("realized_short_pnl_y", 0.0))
                 self.pos_sol_hype.short_tx_costs = float(sol_hype_data.get("short_tx_costs", 0.0))
                 self.pos_sol_hype.short_adjustments = int(sol_hype_data.get("short_adjustments", 0))
                 self.pos_sol_hype.initialized = True
@@ -712,7 +736,10 @@ class TriPoolCloudDaemon:
                     self.pos_hype_sol.short_tx_costs = float(hype_data.get("short_tx_costs", (self.pos_hype_sol.initial_cap / 2.0) * 0.00035))
                     self.pos_hype_sol.short_adjustments = int(hype_data.get("short_adjustments", 0))
 
-            print(f"[+] Estado restaurado. Comisiones acumuladas SOL-USDC: ${self.pos_sol_usdc.accumulated_fees:.4f} USD | HYPE-USDC: ${self.pos_hype_sol.accumulated_fees:.4f} USD")
+            hh_pos = data.get("hyperliquid_hedge", {}).get("positions", {})
+            self.sol_funding_usd = float(hh_pos.get("SOL", {}).get("funding_earned_usd", 0.0))
+            self.hype_funding_usd = float(hh_pos.get("HYPE", {}).get("funding_earned_usd", 0.0))
+            print(f"[+] Estado restaurado. Comisiones acumuladas SOL-USDC: ${self.pos_sol_usdc.accumulated_fees:.4f} USD | HYPE-USDC: ${self.pos_hype_sol.accumulated_fees:.4f} USD | Funding: ${self.sol_funding_usd + self.hype_funding_usd:.4f} USD")
 
             # Upgrade migration to v3_sol_hype_218apr
             if data.get("strategy_migration_version") != STRATEGY_MIGRATION_VERSION:
@@ -895,40 +922,51 @@ class TriPoolCloudDaemon:
         btc_hl = hl_market.get("JUP", hl_market.get("BTC"))
         hype_hl = hl_market["HYPE"]
 
-        # Dynamic Rebalance-Synced Short Sizes & Entry Prices (paid & settled 100% in USDC)
-        sol_short_tokens = sol_total
-        hype_short_tokens = hype_total
-        btc_short_tokens = 0.0
+        # Rebalance-Synced Short Sizes & Entry Prices (synced only on pool_rebalance)
+        sol_short_1 = d_sol.get("short_tokens") or d_sol.get("token_x", 0.0)
+        sol_short_2 = d_sol_hype.get("short_tokens") or d_sol_hype.get("token_x", 0.0)
+        sol_short_tokens = sol_short_1 + sol_short_2
+        sol_ep_1 = d_sol.get("short_entry_price") or d_sol.get("entry_price") or sol_price_usd
+        sol_ep_2 = d_sol_hype.get("short_entry_price") or sol_price_usd
+        sol_entry_px = ((sol_short_1 * sol_ep_1 + sol_short_2 * sol_ep_2) / sol_short_tokens) if sol_short_tokens > 0 else sol_price_usd
 
-        sol_entry_px = d_sol.get("short_entry_price") or d_sol.get("entry_price") or sol_price_usd
+        hype_short_1 = d_hype.get("short_tokens") or d_hype.get("token_x", 0.0)
+        hype_short_2 = d_sol_hype.get("short_tokens_y") or d_sol_hype.get("token_y", 0.0)
+        hype_short_tokens = hype_short_1 + hype_short_2
+        btc_short_tokens = 0.0
         btc_entry_px = btc_price_usd
-        hype_entry_px = d_hype.get("short_entry_price") or d_hype.get("entry_price") or hype_price_usd
+        hype_ep_1 = d_hype.get("short_entry_price") or d_hype.get("entry_price") or hype_price_usd
+        hype_ep_2 = d_sol_hype.get("short_entry_price_y") or hype_ep_1
+        hype_entry_px = ((hype_short_1 * hype_ep_1 + hype_short_2 * hype_ep_2) / hype_short_tokens) if hype_short_tokens > 0 else hype_price_usd
 
         # Realized USDC PnL (crystallized at each pool rebalance) + Unrealized USDC PnL on active leg
-        sol_unrealized_pnl = (sol_entry_px - sol_price_usd) * sol_short_tokens
+        sol_unrealized_pnl = (sol_ep_1 - sol_price_usd) * sol_short_1 + (sol_ep_2 - sol_price_usd) * sol_short_2
         btc_unrealized_pnl = 0.0
-        hype_unrealized_pnl = (hype_entry_px - hype_price_usd) * hype_short_tokens
+        hype_unrealized_pnl = (hype_ep_1 - hype_price_usd) * hype_short_1 + (hype_ep_2 - hype_price_usd) * hype_short_2
 
         sol_short_pnl_usd = d_sol.get("realized_short_pnl", 0.0) + d_sol_hype.get("realized_short_pnl", 0.0) + sol_unrealized_pnl - (d_sol.get("short_tx_costs", 0.0) + d_sol_hype.get("short_tx_costs", 0.0))
         btc_short_pnl_usd = 0.0
-        hype_short_pnl_usd = d_hype.get("realized_short_pnl", 0.0) + hype_unrealized_pnl - d_hype.get("short_tx_costs", 0.0)
+        hype_realized_total = d_hype.get("realized_short_pnl", 0.0) + d_sol_hype.get("realized_short_pnl_y", 0.0)
+        hype_short_pnl_usd = hype_realized_total + hype_unrealized_pnl - d_hype.get("short_tx_costs", 0.0)
 
         total_short_pnl_usd = sol_short_pnl_usd + btc_short_pnl_usd + hype_short_pnl_usd
         total_short_pnl_eur = total_short_pnl_usd / self.eur_usd_rate
-        total_realized_short_pnl_usd = d_sol.get("realized_short_pnl", 0.0) + d_sol_hype.get("realized_short_pnl", 0.0) + d_hype.get("realized_short_pnl", 0.0)
+        total_realized_short_pnl_usd = d_sol.get("realized_short_pnl", 0.0) + d_sol_hype.get("realized_short_pnl", 0.0) + hype_realized_total
         total_short_adjustments = d_sol.get("short_adjustments", 0) + d_sol_hype.get("short_adjustments", 0) + d_hype.get("short_adjustments", 0)
         total_short_tx_costs_usd = d_sol.get("short_tx_costs", 0.0) + d_sol_hype.get("short_tx_costs", 0.0) + d_hype.get("short_tx_costs", 0.0)
 
-        # Live Funding Rate Yield on Hyperliquid Short Notional (paid hourly in USDC from reset moment)
-        elapsed_hours = max(d_sol.get("total_time_sec", 0.0) / 3600.0, 0.0)
+        # Live Funding Rate Yield on Hyperliquid Short Notional (accumulated tick-by-tick, signed: + earned / - paid)
+        dt_hours = max(dt / 3600.0, 0.0)
         sol_short_notional = sol_short_tokens * sol_hl["mark_px"]
         btc_short_notional = 0.0
         hype_short_notional = hype_short_tokens * hype_hl["mark_px"]
         total_short_notional_usd = sol_short_notional + btc_short_notional + hype_short_notional
 
-        sol_funding_usd = sol_short_notional * max(sol_hl["funding_1h"], 0.000005) * elapsed_hours
+        self.sol_funding_usd += sol_short_notional * sol_hl["funding_1h"] * dt_hours
+        self.hype_funding_usd += hype_short_notional * hype_hl["funding_1h"] * dt_hours
+        sol_funding_usd = self.sol_funding_usd
         btc_funding_usd = 0.0
-        hype_funding_usd = hype_short_notional * max(hype_hl["funding_1h"], 0.00002) * elapsed_hours
+        hype_funding_usd = self.hype_funding_usd
         total_funding_usd = sol_funding_usd + btc_funding_usd + hype_funding_usd
         total_funding_eur = total_funding_usd / self.eur_usd_rate
 
@@ -967,7 +1005,7 @@ class TriPoolCloudDaemon:
         hyperliquid_hedge = {
             "enabled": True,
             "settlement_currency": "USDC",
-            "mode": "Hyperliquid Delta-Sync Automático (>15% desv. o Rebalanceo) + Meteora Auto-Compound c/$2.50 USD",
+            "mode": "Hyperliquid Rebalance-Sync (1:1 al rebalancear pool) + Meteora Auto-Compound c/$2.50 USD",
             "recommended_split": "80% Meteora Pools (800 €) / 20% Hyperliquid Cross-Margin 2.0x (200 €)",
             "margin_collateral_usd": 216.0,
             "margin_collateral_eur": 200.0,
@@ -1026,7 +1064,7 @@ class TriPoolCloudDaemon:
                     "entry_px": hype_entry_px,
                     "mark_px": hype_hl["mark_px"],
                     "notional_usd": hype_short_notional,
-                    "realized_pnl_usd": d_hype.get("realized_short_pnl", 0.0),
+                    "realized_pnl_usd": hype_realized_total,
                     "unrealized_pnl_usd": hype_unrealized_pnl,
                     "pnl_usd": hype_short_pnl_usd,
                     "lp_price_pnl_usd": hype_lp_price_pnl_usd,

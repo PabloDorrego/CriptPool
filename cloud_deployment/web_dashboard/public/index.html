@@ -101,16 +101,20 @@
 
     <!-- Ingresos pasivos -->
     <div class="card p-5">
-      <div class="kpi-label">Ingresos pasivos<span class="info" title="Comisiones de swap generadas en Meteora + funding cobrado por los shorts en Hyperliquid. Es el motor de rentabilidad de la estrategia.">ⓘ</span></div>
+      <div class="kpi-label">Ingresos pasivos (neto)<span class="info" title="Comisiones netas = Bruto (fees de swap en Meteora + funding acumulado de los shorts en Hyperliquid) menos costes y fees operativas (rebalanceos + ajustes de short).">ⓘ</span></div>
       <div class="num text-3xl font-bold pos mt-2" id="kIncome">—</div>
       <div class="text-xs mt-1 num muted" id="kIncomeSplit">—</div>
       <div class="mt-3 flex items-center justify-between text-xs">
-        <span class="muted">APR de ingresos</span>
-        <span class="num font-semibold" id="kIncomeApr">—</span>
+        <span class="muted">Bruto (DLMM + Funding)</span>
+        <span class="num font-semibold pos" id="kIncomeGross">—</span>
       </div>
       <div class="flex items-center justify-between text-xs mt-1">
-        <span class="muted">Proyección 30 días</span>
-        <span class="num text-slate-200" id="kIncome30">—</span>
+        <span class="muted">Costes y fees operativas</span>
+        <span class="num font-semibold neg" id="kIncomeCosts">—</span>
+      </div>
+      <div class="flex items-center justify-between text-xs mt-1">
+        <span class="muted">APR (neto / bruto)</span>
+        <span class="num text-slate-200" id="kIncomeApr">—</span>
       </div>
     </div>
 

@@ -236,8 +236,8 @@ function buildAlerts(M) {
     if (p.hedgeRatio !== null && p.lpExpo > 5) {
       const dev = Math.abs(p.hedgeRatio - 1) * 100;
       const dir = p.netDelta > 0 ? "infracubierto (largo)" : "sobrecubierto (corto)";
-      if (dev > 25) add("crit", `Cobertura ${p.cfg.base} ${dir}: ratio ${pct(p.hedgeRatio * 100, 0)}, delta ${sUsd(p.netDelta, 0)}. Ajustar short.`);
-      else if (dev > 10) add("warn", `Cobertura ${p.cfg.base} ${dir}: ratio ${pct(p.hedgeRatio * 100, 0)}, delta ${sUsd(p.netDelta, 0)}.`);
+      if (dev > 25) add("crit", `Cobertura ${p.cfg.base} ${dir}: ratio ${pct(p.hedgeRatio * 100, 0)}, delta ${sEur(p.netDelta / M.fx, 0)}. Ajustar short.`);
+      else if (dev > 10) add("warn", `Cobertura ${p.cfg.base} ${dir}: ratio ${pct(p.hedgeRatio * 100, 0)}, delta ${sEur(p.netDelta / M.fx, 0)}.`);
     }
   });
 
@@ -266,7 +266,7 @@ function render() {
   setTxt("kEquity", eur(M.hedged / fx));
   setTxt("kPnl", sEur(M.pnl / fx)); setCls("kPnl", "num font-semibold " + cls(M.pnl));
   setTxt("kPnlPct", sPct((M.pnl / M.initUsd) * 100)); setCls("kPnlPct", "num text-xs " + cls(M.pnl));
-  setTxt("kEquityUsd", `${usd(M.hedged)} · solo pools ${eur(M.unhedged / fx)}`);
+  setTxt("kEquityUsd", `Solo pools ${eur(M.unhedged / fx)} · inicio ${eur(M.initEur, 0)}`);
 
   // KPI 2: Rentabilidad neta anualizada vs objetivo
   setTxt("kNetApr", sPct(M.netApr, 1));
@@ -283,19 +283,23 @@ function render() {
     ? `<span class="warn">Muestra de ${nf(1).format(M.days)} días: alta varianza.</span>`
     : `<span class="muted">Sobre ${nf(1).format(M.days)} días de operación.</span>`);
 
-  // KPI 3: Ingresos pasivos
-  setTxt("kIncome", sEur(M.income / fx, 2));
-  setTxt("kIncomeSplit", `DLMM ${sEur(M.fees / fx)} · Funding ${sEur(M.funding / fx)}`);
-  setTxt("kIncomeApr", pct(M.incomeApr, 1));
-  setCls("kIncomeApr", "num font-semibold " + (M.incomeApr >= CFG.targetAprMin ? "pos" : "warn"));
-  setTxt("kIncome30", sEur((M.income / M.days) * CFG.testDays / fx));
+  // KPI 3: Ingresos pasivos (Neto = Bruto [DLMM + Funding shorts] - Costes operativos)
+  const netIncome = M.income - M.costs;
+  const netIncomeApr = (netIncome / M.initUsd) * (365.25 / M.days) * 100;
+  setTxt("kIncome", sEur(netIncome / fx, 2));
+  setCls("kIncome", "num text-3xl font-bold mt-2 " + cls(netIncome));
+  setTxt("kIncomeSplit", `DLMM ${sEur(M.fees / fx)} · Funding shorts ${sEur(M.funding / fx)}`);
+  setTxt("kIncomeGross", sEur(M.income / fx, 2));
+  setTxt("kIncomeCosts", "−" + eur(M.costs / fx, 2));
+  setTxt("kIncomeApr", `${sPct(netIncomeApr, 1)} / ${pct(M.incomeApr, 1)}`);
+  setCls("kIncomeApr", "num font-semibold " + (netIncomeApr >= 0 ? "pos" : "neg"));
 
   // KPI 4: Efecto precio neto / cobertura
   setTxt("kPriceNet", sEur(M.priceNet / fx)); setCls("kPriceNet", "num text-3xl font-bold mt-2 " + cls(M.priceNet));
   setTxt("kPriceSplit", `Pools ${sEur(M.pricePure / fx)} · Shorts ${sEur(M.shortPnlPure / fx)}`);
   // Desviación bruta: suma de |delta| por activo (los activos no se compensan entre sí)
   const deltaPct = M.grossCrypto > 0 ? (M.absDelta / M.grossCrypto) * 100 : 0;
-  setTxt("kDelta", `${usd(M.absDelta, 0)} (${pct(deltaPct, 0)})`);
+  setTxt("kDelta", `${eur(M.absDelta / fx, 0)} (${pct(deltaPct, 0)})`);
   setCls("kDelta", "num font-semibold " + (Math.abs(deltaPct) > 25 ? "neg" : Math.abs(deltaPct) > 10 ? "warn" : "pos"));
   const eff = Math.abs(M.pricePure) > 0.01 ? (-M.shortPnlPure / M.pricePure) * 100 : null;
   setTxt("kHedgeEff", eff === null ? "—" : pct(eff, 0));
@@ -359,7 +363,7 @@ function rangeBar(p) {
 function renderPools(M) {
   const fx = M.fx;
   const progress = Math.min(100, (M.uncompounded / M.compoundThreshold) * 100);
-  setHtml("compoundTxt", `${usd(M.uncompounded)} / ${usd(M.compoundThreshold)} (${pct(progress, 0)}) · reinvertido ${usd(M.compounded)}`);
+  setHtml("compoundTxt", `${eur(M.uncompounded / fx)} / ${eur(M.compoundThreshold / fx)} (${pct(progress, 0)}) · reinvertido ${eur(M.compounded / fx)}`);
 
   setHtml("poolsGrid", M.pools.map((p) => {
     const status = !p.inRange ? `<span class="chip chip-crit">Fuera de rango</span>`
@@ -380,7 +384,7 @@ function renderPools(M) {
 
       <div class="grid grid-cols-3 gap-2 mt-4">
         <div><div class="kpi-label">Valor</div><div class="num font-semibold text-white mt-0.5">${eur(p.totalVal / fx)}</div><div class="num text-[11px] ${cls(p.netProfit)}">${sPct(p.roi)}</div></div>
-        <div><div class="kpi-label">Fees</div><div class="num font-semibold pos mt-0.5">${sEur(p.fees / fx, 3)}</div><div class="num text-[11px] muted">${usd(p.fees, 3)}</div></div>
+        <div><div class="kpi-label">Fees</div><div class="num font-semibold pos mt-0.5">${sEur(p.fees / fx, 3)}</div><div class="num text-[11px] muted">neto ${sEur((p.fees - p.costs) / fx, 3)}</div></div>
         <div><div class="kpi-label">APR fees</div><div class="num font-semibold mt-0.5 ${aprCls}">${pct(p.feeApr, 1)}</div><div class="num text-[11px] muted">obj. ${CFG.targetAprMin}%</div></div>
       </div>
 
@@ -392,18 +396,19 @@ function renderPools(M) {
       <div class="mt-4 space-y-1.5 text-xs">
         ${row("Tiempo en rango", pct(p.activity, 1), p.activity >= 90 ? "pos" : "warn")}
         ${row("Distancia a Pmin / Pmax", `${pct(p.distLo)} / ${pct(p.distHi)}`)}
-        ${row("Pérdida impermanente", `${sUsd(p.il)} (${sPct(p.ilPct)})`, cls(p.il))}
-        ${row("Neto vs HODL 50/50", sUsd(p.netVsHodl), cls(p.netVsHodl))}
-        ${row("Rebalanceos · sync short", `${p.rebals} · ${p.shortSyncs} (${usd(p.costs, 3)})`)}
+        ${row("Pérdida impermanente", `${sEur(p.il / fx)} (${sPct(p.ilPct)})`, cls(p.il))}
+        ${row("Neto vs HODL 50/50", sEur(p.netVsHodl / fx), cls(p.netVsHodl))}
+        ${row("Rebalanceos · sync short", `${p.rebals} · ${p.shortSyncs} (${eur(p.costs / fx, 3)})`)}
         ${row("Costes / fees", pct(p.friction, 1), p.friction > 50 ? "neg" : p.friction > 20 ? "warn" : "pos")}
         ${row("Inventario", `${tok(p.tokX)} ${p.symX} + ${nf(2).format(p.tokY)} ${p.symY}`)}
-        ${row("Volumen 24h pool", p.vol24 ? usd(p.vol24, 0) : "—")}
+        ${row("Volumen 24h pool", p.vol24 ? eur(p.vol24 / fx, 0) : "—")}
       </div>
     </div>`;
   }).join(""));
 }
 
 function renderHedge(M) {
+  const fx = M.fx;
   const ratioCell = (r) => {
     if (r === null) return `<span class="muted">—</span>`;
     const dev = Math.abs(r - 1) * 100;
@@ -413,33 +418,33 @@ function renderHedge(M) {
   setHtml("hedgeBody", (M.perpAssets || []).map((p) => `
     <tr>
       <td class="font-sans"><span class="inline-block w-2 h-2 rounded-full mr-2" style="background:${p.color}"></span><span class="font-semibold text-white">${p.name}</span></td>
-      <td>${tok(p.lpTok)}<div class="text-[11px] muted">${usd(p.lpExpo, 0)}</div></td>
-      <td>−${tok(p.shortTok)}<div class="text-[11px] muted">${usd(p.shortExpo, 0)} · ent. ${px(p.shortEntry)}</div></td>
+      <td>${tok(p.lpTok)}<div class="text-[11px] muted">${eur(p.lpExpo / fx, 0)}</div></td>
+      <td>−${tok(p.shortTok)}<div class="text-[11px] muted">${eur(p.shortExpo / fx, 0)} · ent. ${px(p.shortEntry)}</div></td>
       <td>${ratioCell(p.hedgeRatio)}</td>
-      <td class="${Math.abs(p.netDelta) > 0.25 * p.lpExpo ? "neg" : Math.abs(p.netDelta) > 0.1 * p.lpExpo ? "warn" : "pos"}">${sUsd(p.netDelta, 0)}</td>
-      <td class="${cls(p.pricePure)}">${sUsd(p.pricePure)}</td>
-      <td class="${cls(p.shortPnlPure)}">${sUsd(p.shortPnlPure)}</td>
-      <td class="${cls(p.pricePure + p.shortPnlPure)} font-semibold">${sUsd(p.pricePure + p.shortPnlPure)}</td>
+      <td class="${Math.abs(p.netDelta) > 0.25 * p.lpExpo ? "neg" : Math.abs(p.netDelta) > 0.1 * p.lpExpo ? "warn" : "pos"}">${sEur(p.netDelta / fx, 0)}</td>
+      <td class="${cls(p.pricePure)}">${sEur(p.pricePure / fx)}</td>
+      <td class="${cls(p.shortPnlPure)}">${sEur(p.shortPnlPure / fx)}</td>
+      <td class="${cls(p.pricePure + p.shortPnlPure)} font-semibold">${sEur((p.pricePure + p.shortPnlPure) / fx)}</td>
       <td class="${cls(p.fundingApr)}">${sPct(p.fundingApr)}</td>
-      <td class="${cls(p.funding)}">${sUsd(p.funding, 3)}</td>
+      <td class="${cls(p.funding)}">${sEur(p.funding / fx, 3)}</td>
     </tr>`).join(""));
   setHtml("hedgeFoot", `
     <tr>
       <td class="font-sans text-slate-300">Total</td>
-      <td>${usd(M.grossCrypto, 0)}</td>
-      <td>${usd(M.notional, 0)}</td>
+      <td>${eur(M.grossCrypto / fx, 0)}</td>
+      <td>${eur(M.notional / fx, 0)}</td>
       <td>${M.grossCrypto > 0 ? pct((M.notional / M.grossCrypto) * 100, 0) : "—"}</td>
-      <td class="${cls(M.netDelta)}">${sUsd(M.netDelta, 0)}</td>
-      <td class="${cls(M.pricePure)}">${sUsd(M.pricePure)}</td>
-      <td class="${cls(M.shortPnlPure)}">${sUsd(M.shortPnlPure)}</td>
-      <td class="${cls(M.priceNet)}">${sUsd(M.priceNet)}</td>
+      <td class="${cls(M.netDelta)}">${sEur(M.netDelta / fx, 0)}</td>
+      <td class="${cls(M.pricePure)}">${sEur(M.pricePure / fx)}</td>
+      <td class="${cls(M.shortPnlPure)}">${sEur(M.shortPnlPure / fx)}</td>
+      <td class="${cls(M.priceNet)}">${sEur(M.priceNet / fx)}</td>
       <td>${sPct(M.weightedFundingApr)}</td>
-      <td class="${cls(M.funding)}">${sUsd(M.funding, 3)}</td>
+      <td class="${cls(M.funding)}">${sEur(M.funding / fx, 3)}</td>
     </tr>`);
 
-  setTxt("mCollat", usd(M.collat));
-  setTxt("mEquity", `${usd(M.hlEquity)} (${sUsd(M.hlEquity - M.collat)})`);
-  setTxt("mNotional", `${usd(M.notional, 0)} · ${M.lev ? nf(2).format(M.lev) + "x" : "—"}`);
+  setTxt("mCollat", eur(M.collat / fx));
+  setTxt("mEquity", `${eur(M.hlEquity / fx)} (${sEur((M.hlEquity - M.collat) / fx)})`);
+  setTxt("mNotional", `${eur(M.notional / fx, 0)} · ${M.lev ? nf(2).format(M.lev) + "x" : "—"}`);
   setTxt("mFundApr", `${sPct(M.weightedFundingApr)} → ${sPct(M.fundingAprPortfolio)} cartera`);
   setTxt("mRoiTotal", sPct(M.roiTotalCapital, 3)); setCls("mRoiTotal", "num mt-1 " + cls(M.roiTotalCapital));
 }
